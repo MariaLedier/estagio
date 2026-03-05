@@ -1,0 +1,6 @@
+haredFramework.9.0.9.0.11,version=17.14.36705.7,machinearch=x86"
+[2df8:001a][2025-11-14T19:40:50] BEGIN: Downloading package "Microsoft.NetCore.TargetingPack.9.0.9.0.11,version=17.14.36705.7,machinearch=x86"
+[2df8:001d][2025-11-14T19:40:50] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.NetCore.SharedFramework.9.0.9.0.11.08F41F69116E0CEE6440\dotnet-runtime-9.0.11-win-x64.msi' succeeded. Hash: DC0F1277806ADD6DCFFC2CED78946BD890EFBA01D804BE9CC4D878DDA68D9206
+[2df8:001d][2025-11-14T19:40:50] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.NetCore.SharedFramework.9.0.9.0.11.08F41F69116E0CEE6440\dotnet-runtime-9.0.11-win-x64.msi
+[2df8:001d][2025-11-14T19:40:50] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.NetCore.SharedFramework.9.0.9.0.11.08F41F69116E0CEE6440\dotnet-runtime-9.0.11-win-x64.msi' succeeded. Hash: DC0F1277806ADD6DCFFC2CED78946BD890EFBA01D804BE9CC4D878DDA68D9206
+[2df8:001d][2025-11-14T19:40:50] Checking SHA256 for path: C:

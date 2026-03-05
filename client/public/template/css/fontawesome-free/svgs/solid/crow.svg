@@ -1,0 +1,5 @@
+\dbc501244ed5f0a90bd823629bf18067-x64.msi
+[31c4:001e][2025-11-12T19:17:11] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Android.Sdk.net9.35.0.78.5A06F81F218813D0F9B3\2b69bdf0921988aedd23ba95ffece4a8-x64.msi' succeeded. Hash: C474A0215354D58F7AF785970D809852AAAE80C1653105F71FA00A44D6986561
+[31c4:001e][2025-11-12T19:17:11] END: Downloading package "Microsoft.Android.Sdk.net9.35.0.78,version=35.0.78.0,machinearch=x64"
+[31c4:001e][2025-11-12T19:17:11] BEGIN: Downloading package "Microsoft.Android.Runtime.35.android-x86.35.0.78,version=35.0.78.0,machinearch=x64"
+[31c4:001c][2025-11-12T19:17:11] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.AOT.Cross.net9.android-arm64.9.0.11.21C335A6A9448B3F97A2\264c96c19f964b1ed4d8a7851c4f97d9-x64.

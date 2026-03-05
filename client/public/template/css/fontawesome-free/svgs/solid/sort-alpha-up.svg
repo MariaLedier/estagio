@@ -1,0 +1,5 @@
+ conditional work item list
+[1028/230432.535:VERBOSE1:chrome\installer\util\work_item_list.cc:32] Beginning execution of work item list RegularUpdateWorkItemList
+[1028/230432.535:VERBOSE1:chrome\installer\util\set_reg_value_work_item.cc:196] Successfully wrote value stable into Software\Google\Update\Clients\{8A69D345-D564-463c-AFF1-A69D9E530F96}
+[1028/230432.535:VERBOSE1:chrome\installer\util\set_reg_value_work_item.cc:200] Successfully wrote into Software\Microsoft\Windows\Windows Error Reporting\RuntimeExceptionHelperModules
+[1028/230432.535:VERBOSE1:chrome\installer\util\set_reg_value_work_item.cc:196] Successfully wrote value "C:\Program Files\Google\Chrome\Application\142.0.7444.60\Installer\setup.exe" --cleanup-for-downgrade-version=$1 --cleanup-for-downgrade-operation=$2 --channel=stable --system-level --verbose-logging into Software\Google\Update\ClientSt

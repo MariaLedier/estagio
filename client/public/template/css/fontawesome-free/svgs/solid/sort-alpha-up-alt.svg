@@ -1,0 +1,6 @@
+-8AF5-0DF35A005CC8}\ProxyStubClsid32
+[1028/230432.535:VERBOSE1:chrome\installer\util\create_reg_key_work_item.cc:73] created Software\Classes\Interface\{463ABECF-410D-407F-8AF5-0DF35A005CC8}\TypeLib
+[1028/230432.535:VERBOSE1:chrome\installer\util\set_reg_value_work_item.cc:196] Successfully wrote value {463ABECF-410D-407F-8AF5-0DF35A005CC8} into Software\Classes\Interface\{463ABECF-410D-407F-8AF5-0DF35A005CC8}\TypeLib
+[1028/230432.535:VERBOSE1:chrome\installer\util\set_reg_value_work_item.cc:196] Successfully wrote value 1.0 into Software\Classes\Interface\{463ABECF-410D-407F-8AF5-0DF35A005CC8}\TypeLib
+[1028/230432.535:VERBOSE1:chrome\installer\util\set_reg_value_work_item.cc:196] Successfully wrote value Interface {463ABECF-410D-407F-8AF5-0DF35A005CC8} into Software\Classes\Interface\{463ABECF-410D-407F-8AF5-0DF35A005CC8}
+[1028/230432.535:VERBOSE1:chrome\installer

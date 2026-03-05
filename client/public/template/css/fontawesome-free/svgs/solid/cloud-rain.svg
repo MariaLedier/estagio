@@ -1,0 +1,6 @@
+2F883179BEA2A1EDEA\payload.vsix' succeeded. Hash: BF8E9B1610A7327EA7EB8B77E1A5F7DF4259A385DCC7D679DB4D6711E08F9D15
+[321c:0019][2025-11-03T21:30:44] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.NetCore.TemplateLocator.182F883179BEA2A1EDEA\payload.vsix
+[321c:0019][2025-11-03T21:30:44] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.NetCore.TemplateLocator.182F883179BEA2A1EDEA\payload.vsix' succeeded. Hash: BF8E9B1610A7327EA7EB8B77E1A5F7DF4259A385DCC7D679DB4D6711E08F9D15
+[321c:0019][2025-11-03T21:30:44] END: Downloading package "Microsoft.NetCore.TemplateLocator,version=17.14.36602.14"
+[321c:0019][2025-11-03T21:30:44] BEGIN: Downloading package "Microsoft.NET.Workload.Emscripten.Current.Manifest-9.0.100.9.0.10,version=72.48.40820,machinearch=x64"
+[321c:0019][2025-11-03T21:30:44] Checking SHA256 fo

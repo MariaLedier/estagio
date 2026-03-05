@@ -1,0 +1,37 @@
+ "";
+ var errMsg = "";
+ var respStatus = "";
+ var respMsg = "";
+ var authEnforcedMsg = " ";
+ var privatebrowsing = "";
+ function submitClicked() {
+  $('#dError').html('');
+  $('#dError').hide();
+  $('#formdiv').css('visibility', 'hidden');
+  var thisForm = document.getElementById('login_form');
+  thisForm.inputStr.value = "";
+  thisForm.preauthid.value = "";
+  thisForm.escapeUser.value = thisForm.user.value.replace(/\\/g, "\\\\");
+ }
+ function onClickHandler() {
+  submitClicked();
+ }
+ $(document).ready(function() {
+   $('#user').val(username);
+   if ($('#user').val() == '') {
+     $('#user').focus();
+   }
+   $('#dError').hide();
+   if (respStatus == 'Error') {
+      if (respMsg != '') {
+       errMsg += '<br>';
+       errMsg += '<li>' + respMsg + '</li>';
+      }
+   } else if (respStatus == 'Challenge') {
+      $('#dUserName, #passwdTitle, #buttonOffset').hide();
+      $('#dInputStr').show();
+      $('#dInputStr').html(respMsg);
+      $('#passwd').focus();
+   }
+   if (errMsg != '') {
+      $('#dEr

@@ -1,0 +1,31 @@
+width: !control.editable && control.visualFocus ? 2 : 0
+        visible: !control.flat || control.down
+    }
+
+    popup: T.Popup {
+        y: control.height
+        width: control.width
+        height: Math.min(contentItem.implicitHeight, control.Window.height - topMargin - bottomMargin)
+        topMargin: 6
+        bottomMargin: 6
+
+        contentItem: ListView {
+            clip: true
+            implicitHeight: contentHeight
+            model: control.delegateModel
+            currentIndex: control.highlightedIndex
+            highlightMoveDuration: 0
+
+            Rectangle {
+                z: 10
+                width: parent.width
+                height: parent.height
+                color: "transparent"
+                border.color: control.palette.mid
+            }
+
+            T.ScrollIndicator.vertical: ScrollIndicator { }
+        }
+
+        background: Rectangle {
+            color: contro

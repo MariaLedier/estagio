@@ -1,0 +1,7 @@
+08A7DA3BAC3FB04CCB3CD1184CB46920D748A
+[2dac:001d][2025-11-10T21:00:24] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Maui.Templates.net9.9.0.111.652D114BB02A93A1EEDF\a44c62fcfd111b92637523771fee05a3-x64.msi
+[2dac:001d][2025-11-10T21:00:24] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Maui.Templates.net9.9.0.111.652D114BB02A93A1EEDF\a44c62fcfd111b92637523771fee05a3-x64.msi' succeeded. Hash: 900EDF34DA7FD45FA94D02217DD08A7DA3BAC3FB04CCB3CD1184CB46920D748A
+[2dac:001d][2025-11-10T21:00:24] END: Downloading package "Maui.Templates.net9.9.0.111,version=9.0.111.0,machinearch=x64"
+[2dac:001d][2025-11-10T21:00:24] BEGIN: Downloading package "Maui.Templates.net8.8.0.100,version=8.0.100.0,machinearch=x64"
+[2dac:001a][2025-11-10T21:00:24] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Maui.Resizetizer.9.0.111.73553461EA8B18475429\fde53b2d1510bc37c62d4d1add4f9718-x64.msi
+[2dac:001a][2025-11-10T21:00:24] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Maui.Resizetizer.9.0.111.73553461EA8B18475429\fde53b2d1510bc37c62d4d1add4f9718-x64.msi' succeeded. 

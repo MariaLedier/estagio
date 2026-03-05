@@ -1,0 +1,6 @@
+16:08:01] No restart manager available. Assuming no reboot required for instance state.
+[39c8:001b][2025-11-17T16:08:02] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Win11SDK_WindowsPerformanceToolkit.1575255DE25033210A20\Installers\WPTarm64 (DesktopEditions)-arm64_en-us.msi
+[39c8:001b][2025-11-17T16:08:02] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Win11SDK_WindowsPerformanceToolkit.1575255DE25033210A20\Installers\WPTarm64 (DesktopEditions)-arm64_en-us.msi' succeeded. Hash: 6977FE01DAAB66C58D5CE4BED7943BEE7B4366E9885C4DBE8AC4625CE8700EBF
+[39c8:000e][2025-11-17T16:08:02] Attempting download 'https://go.microsoft.com/fwlink/?linkid=2285498' using engine 'Bits'
+[39c8:001b][2025-11-17T16:08:02] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Win11SDK_WindowsPerformanceToolkit.1575255DE25033210A20\Installers\WPTarm64 (OnecoreUAP)-arm64_en-us.msi
+[39c8:001b][2025-11-17T16:08:02] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Win11SDK_WindowsPerformanceToolkit.157

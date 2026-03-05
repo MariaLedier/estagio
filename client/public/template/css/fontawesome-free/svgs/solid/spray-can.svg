@@ -1,0 +1,7 @@
+=x64"
+[3238:001a][2025-11-10T10:30:43] BEGIN: Downloading package "Microsoft.VisualStudio.VC.Ide.TestAdapterForGoogleTest,version=1.17.0.43"
+[3238:001a][2025-11-10T10:30:43] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.VisualStudio.VC.Ide.TestAdapterForGoogleTest.A01CC066D57C52D84A24\Packaging.TAfGT.vsix
+[3238:0067][2025-11-10T10:30:43] No restart manager available. Assuming no reboot required for instance state.
+[3238:001e][2025-11-10T10:30:43] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Win11SDK_WindowsPerformanceToolkit.32C197BE84DC36E64C45\Installers\Windows SDK EULA-x86_en-us.msi
+[3238:001e][2025-11-10T10:30:43] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Win11SDK_WindowsPerformanceToolkit.32C197BE84DC36E64C45\Installers\Windows SDK EULA-x86_en-us.msi' succeeded. Hash: 30A9F727FA5399953B6276FE68F33754404D31B8705DA3EB3441B48797416F2E
+[3238:001e][2025-11-10T10:30:43] Checking SHA

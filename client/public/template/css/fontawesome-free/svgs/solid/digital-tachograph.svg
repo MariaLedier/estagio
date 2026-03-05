@@ -1,0 +1,8 @@
+d][2025-11-14T20:13:54] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Net.Core.BootstrapperPackages.0622FA752858AF60D518\payload.vsix
+[358c:001c][2025-11-14T20:13:54] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.ClickOnce.BootStrapper.Msi.Resources.87E7BF52E94B96085151\cab1.cab
+[358c:001c][2025-11-14T20:13:54] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.ClickOnce.BootStrapper.Msi.Resources.87E7BF52E94B96085151\cab1.cab' succeeded. Hash: A828652C04F5BCADBDA0EB10E851BAFC637DF6741983722FCEE185FDD91FF3D4
+[358c:001c][2025-11-14T20:13:54] END: Downloading package "Microsoft.ClickOnce.BootStrapper.Msi.Resources,version=17.14.36015.10"
+[358c:001c][2025-11-14T20:13:54] BEGIN: Checking required machine state
+[358c:001c][2025-11-14T20:13:54] Running pre-check verification.
+[358c:001c][2025-11-14T20:13:54] END: Checking required machine state
+[358c:001c][2025-11-14T20:13:54] BEGIN: Downloading package "Microsoft.SQL.ClickOnceBootstrap

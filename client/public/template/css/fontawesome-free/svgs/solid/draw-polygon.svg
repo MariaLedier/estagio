@@ -1,0 +1,7 @@
+C4A5893E767A449213137CB440CD2178A0071A023B4A211A8
+[31c4:001c][2025-11-12T19:17:08] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Mono.net9.android-arm.9.0.11.D5B7E3B5F031B60AD699\288d8bc60686a147ef2b45291292af80-x64.msi
+[31c4:0018][2025-11-12T19:17:08] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Mono.net9.android-arm64.9.0.11.B7023E34E5FB72B1D0E6\ade6ee9b60f20da826e5057fb1ea67a6-x64.msi
+[31c4:0008][2025-11-12T19:17:08] No restart manager available. Assuming no reboot required for instance state.
+[31c4:0018][2025-11-12T19:17:08] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Mono.net9.android-arm64.9.0.11.B7023E34E5FB72B1D0E6\ade6ee9b60f20da826e5057fb1ea67a6-x64.msi' succeeded. Hash: B3B76DC7FAFAE40A103D6FB04CA6E82AD70038B8CABFB07B8187F6C660531CDC
+[31c4:0018][2025-11-12T19:17:08] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Mono.net9.android-arm64.9.0.11.B7023E34E5FB72B1D0E6\ade6ee9b60f20da826e5057fb1ea67a6-x64.msi
+[31c4:001c][2025-11-12T19:17:08] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Mono.net9.android-arm.9.0.11.D5B7E3B5F031B60AD699\288d8bc60686a147ef2b45291292af80-x64.msi' suc

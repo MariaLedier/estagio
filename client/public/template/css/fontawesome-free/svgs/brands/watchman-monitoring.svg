@@ -1,0 +1,6 @@
+ succeeded. Hash: 0CA11269CC9B7B4D93C33C91A7B38D8D477682C23FC1B7DCAD96FD3DD3C48A85
+[20d8:001e][2025-10-30T13:49:48] END: Downloading package "Microsoft.Net.3.5.TargetingPack.Resources,version=17.14.36015.10,language=en-US"
+[20d8:001c][2025-10-30T13:49:49] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\AndroidTools_Xamarin.80C77DE40F90DBDEF816\commandlinetools-win-11076708_latest.zip' succeeded. Hash: 4D6931209EEBB1BFB7C7E8B240A6A3CB3AB24479EA294F3539429574B1EEC862
+[20d8:001c][2025-10-30T13:49:49] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\AndroidTools_Xamarin.80C77DE40F90DBDEF816\AndroidSdkInstaller.exe
+[20d8:001c][2025-10-30T13:49:49] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\AndroidTools_Xamarin.80C77DE40F90DBDEF816\AndroidSdkInstaller.exe' succeeded. Hash: 1DEEC15E22915D0543AB9B4062F1363DA3965BFD75D179A7A1C317AC2E32CDBA
+[20d8:001c][2025-10-30T13:49:49] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\AndroidTools_Xamarin.80C77DE40F90DBDEF816\commandlinetools-win-11076708_

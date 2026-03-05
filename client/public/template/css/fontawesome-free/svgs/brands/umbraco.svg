@@ -1,0 +1,12 @@
+h d="M12.9473 12.9473C12.7502 12.9799 12.547 12.998 12.3389 12.998C11.1978 12.998 4.50174 12.9855 4.4375 12.9854C5.86423 12.9614 7.18772 10.814 8.22559 8.85449C8.29784 8.71809 8.37275 8.583 8.44922 8.44922L12.9473 12.9473ZM12.3389 5.65039C14.3868 5.65039 16 7.33811 16 9.31934C16 10.541 15.3978 11.6536 14.4492 12.3281L9.30859 7.1875C10.0608 6.28739 11.0191 5.65046 12.3389 5.65039Z" fill="url(#paint8_radial_8059_53208)" fill-opacity="0.9"/>
+<path d="M1.5 1.5L14.5 14.5" stroke="#808080" stroke-linecap="round"/>
+<defs>
+<radialGradient id="paint0_radial_8059_53208" cx="0" cy="0" r="1" gradientTransform="matrix(3.23123 3.87173 -5.39694 6.58781 0.31216 4.57242)" gradientUnits="userSpaceOnUse">
+<stop stop-color="#4894FE"/>
+<stop offset="0.695072" stop-color="#0934B3"/>
+</radialGradient>
+<radialGradient id="paint1_radial_8059_53208" cx="0" cy="0" r="1" gradientTransform="matrix(-14.2047 16.385 -12.5196 -10.0896 13.8508 -1.2345)" gradientUnits="userSpaceOnUse">
+<stop offset="0.165327" stop-color="#23C0FE"/>
+<stop offset="0.534" stop-color="#1C91FF"/>
+</radialGradient>
+<radialGradient id="paint2_radial_8059_53208" cx="0" cy="0" r="1" gra

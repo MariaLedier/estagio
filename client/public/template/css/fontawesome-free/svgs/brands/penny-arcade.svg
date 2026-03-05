@@ -1,0 +1,8 @@
+ 65823643651B2AB1853AB33D775CCDF2B8F1B1ACEB758997CF71D033F0D36426
+[41f4:0022][2025-11-03T16:37:25] END: Downloading package "Xamarin.VisualStudio.Forms.Editor,version=17.14.3.0"
+[41f4:0022][2025-11-03T16:37:25] BEGIN: Downloading package "Microsoft.Mono.net9.ios-arm64.9.0.10,version=9.0.10.0,machinearch=x64"
+[41f4:0022][2025-11-03T16:37:25] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Mono.net9.ios-arm64.9.0.10.5EE4542553FCC0E274D5\57d63c3c03dd17a3c44b394da9f942e2-x64.msi
+[41f4:0022][2025-11-03T16:37:29] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Mono.net9.ios-arm64.9.0.10.5EE4542553FCC0E274D5\57d63c3c03dd17a3c44b394da9f942e2-x64.msi' succeeded. Hash: 3A3483F0648F09B602EC2CF420929F4ACAFA62A048BE009E1FFAC74F8C9E8909
+[41f4:0022][2025-11-03T16:37:29] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Mono.net9.ios-arm64.9.0.10.5EE4542553FCC0E274D5\57d63c3c03dd17a3c44b394da9f942e2-x64.msi
+[41f4:0022][2025-11-03T16:37:29] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Mono.net9.ios-arm64.9.0.10.5EE4542553FCC0E274D5\57d63c3c03dd17a3c44b394da9f942e2-x64.msi' succeeded. Hash: 3A3483F0648F09B602EC2CF420929F4ACAFA62A048BE009E1FFAC74F8C9E8909
+[41f4:0022][2025-11-03T16:37:29] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy

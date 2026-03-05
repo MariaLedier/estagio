@@ -1,0 +1,5 @@
+0.3,productarch=neutral"
+[31c4:001c][2025-11-12T19:16:44] BEGIN: Downloading package "Microsoft.DiagnosticsHub.DatabaseTool,version=17.14.36630.3,productarch=neutral"
+[31c4:001a][2025-11-12T19:16:44] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.DiagnosticsHub.DatabaseTool.Targeted.48369C2A8BA8B0B3485C\Microsoft.DiagnosticsHub.DatabaseTool.x64.vsix
+[31c4:001a][2025-11-12T19:16:44] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.DiagnosticsHub.DatabaseTool.Targeted.48369C2A8BA8B0B3485C\Microsoft.DiagnosticsHub.DatabaseTool.x64.vsix' succeeded. Hash: 8FE98B415EE9A3E7DEB95FDBC1FC28B80EC3CD64F419C9D144E496B5128864F8
+[31c4:001a][2025-11-12T19:16:44] Checking SHA256 for path: C:\Users\Aluno\Ap

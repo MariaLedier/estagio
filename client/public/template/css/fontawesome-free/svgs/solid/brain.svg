@@ -1,0 +1,6 @@
+si' succeeded. Hash: 7D49073401610E5C814E77B68554A435DADEB34D096C70176399C6DC3DB8237B
+[321c:001c][2025-11-03T21:32:52] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.VisualCpp.CRT.Appx.ARM64.Msi.2593FF03A71083839284\cab1.cab
+[321c:001c][2025-11-03T21:32:52] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.VisualCpp.CRT.Appx.ARM64.Msi.2593FF03A71083839284\cab1.cab' succeeded. Hash: 7C0C4411E978BEFC4F2E577DDEBDAE154798A82214D14B47C63C2C2DC17C2BBD
+[321c:001c][2025-11-03T21:32:52] END: Downloading package "Microsoft.VisualCpp.CRT.Appx.ARM64.Msi,version=14.44.35208"
+[321c:001c][2025-11-03T21:32:52] BEGIN: Downloading package "Microsoft.VisualStudio.Xamarin.MonoDebugging,version=17.14.11"
+[321c:001c][2025-11-03T21:32:52] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.VisualStudio.Xamarin.MonoDebugging.1EA0696A1CEDEECE9304

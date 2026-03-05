@@ -1,0 +1,6 @@
+263EFF8542735D3904ECE9C3C4A9A6767CF147A
+[1fa0:0016][2025-10-29T14:00:15] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Android.Runtime.35.android-x86.35.0.78.29EEAAA461E93D36444C\55ddab55a3bb470916f48e8dcb4bb6c3-x64.msi
+[1fa0:001a][2025-10-29T14:00:15] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Android.Runtime.35.android-arm64.35.0.78.C1537A13EF9E35880477\cc6b3e909c6b28d9f83cf07fc5297211-x64.msi' succeeded. Hash: 1CE67DE630F3EF0B674C261CCC804A3AC7ED5161504A9B18B0E88F72D0C4FDC8
+[1fa0:001a][2025-10-29T14:00:15] END: Downloading package "Microsoft.Android.Runtime.35.android-arm64.35.0.78,version=35.0.78.0,machinearch=x64"
+[1fa0:001a][2025-10-29T14:00:15] BEGIN: Downloading package "Microsoft.Android.Templates.35.0.78,version=35.0.78.0,machinearch=x64"
+[1fa0:001a][2025-10-29T14:00:15] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Android.Templates.35.0.78.DEE1628B583FF443F767\82d1745c09587fba68e2c4b36c

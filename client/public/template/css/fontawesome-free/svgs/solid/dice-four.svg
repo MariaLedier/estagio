@@ -1,0 +1,5 @@
+E482151E494B6568\d39078dd90153e7930693621c7a2870b-x64.msi
+[31c4:001c][2025-11-12T19:17:09] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Mono.net9.android-x86.9.0.11.4FBF68EA5C836DC871C4\3494f08202e7adfa0f9d8e74a6d393c4-x64.msi' succeeded. Hash: 6C9ACF344FA6E21E05AB31F131873C6760C4EF9600F2651B1617131CF3DBE55C
+[31c4:001c][2025-11-12T19:17:09] END: Downloading package "Microsoft.Mono.net9.android-x86.9.0.11,version=9.0.11.0,machinearch=x64"
+[31c4:001c][2025-11-12T19:17:09] BEGIN: Downloading package "Microsoft.AOT.Cross.net9.android-arm64.9.0.11,version=9.0.11.0,machinearch=x64"
+[31c4:001e][2025-11-12T19:17:09] SHA256 verification for 'C:\

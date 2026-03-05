@@ -1,0 +1,5 @@
+v\Microsoft.VisualStudio.VC.CMake.Client.71F3BA571856E6204130\payload.vsix
+[3238:001d][2025-11-10T10:30:42] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.VisualStudio.VC.CMake.Client.71F3BA571856E6204130\payload.vsix' succeeded. Hash: 57F77BC42AB764BF5B468B4F8F25CFBF4D2F281889E41814B369C4BDD776DFCE
+[3238:001d][2025-11-10T10:30:42] END: Downloading package "Microsoft.VisualStudio.VC.CMake.Client,version=17.14.36015.10,productarch=neutral"
+[3238:001d][2025-11-10T10:30:42] BEGIN: Downloading package "Microsoft.VisualStudio.VC.CMake.Project,version=17.14.36127.28,productarch=x64"
+[3238:001d][2025-11-10T10:30:42] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.VisualStudio.V

@@ -1,0 +1,27 @@
+racer\\cisco packet tracer help.lnk"
+},{"productName": "qt linguist",
+"originalFileName": "linguist.exe",
+"companyName": "digia plc and\/or its subsidiary(-ies)",
+"binProductVersion": "1.0.0.0",
+"binFileVersion": "1.0.0.0",
+"path": "%programfiles%\\cisco packet tracer 7.0\\bin\\linguist.exe"
+},{"aumid": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Cisco Packet Tracer 7.0\\bin\\linguist.exe",
+"path": "%programdata%\\microsoft\\windows\\start menu\\programs\\cisco packet tracer\\qt linguist.lnk"
+},{"binProductVersion": "0.0.0.0",
+"binFileVersion": "51.1052.0.0",
+"path": "%programfiles%\\cisco packet tracer 7.0\\unins000.exe"
+},{"aumid": "{6D809377-6AF0-444B-8957-A3773F02200E}\\Cisco Packet Tracer 7.0\\unins000.exe",
+"path": "%programdata%\\microsoft\\windows\\start menu\\programs\\cisco packet tracer\\uninstall cisco packet tracer.lnk"
+},{"path": "%programfiles%\\cisco packet tracer 7.0\\extensions\\meta.exe"
+}]
+},{"path": "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{4FA59221-0112-4A7B-A7C4-89259C3AE8CD}",
+"programId": "0000fe3ac13af3f15790c802c5b0fb871c5400000904",
+"compatFlags": "0",
+"restoreAction": "RootDirPath|C:\\ProgramData\\Package Cache\\{4FA59221-0112-4A7B-A7C4-89259C3AE8CD}v15.0.18118.0\\x64\\",
+"files" : [{"productName": "microsoft sql server",
+"originalFileName": "ssms.exe",
+"companyName": "microsoft corporation",
+"binProductVersion": "15.0.18118.0",
+"binFileVersion": "2019.150.18118.0",
+"path": "%programfiles(x86)%\\microsoft sql server management studio 18\\common7\\ide\\ssms.exe"
+},{"aumid": "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\\Microsoft SQL Server Man

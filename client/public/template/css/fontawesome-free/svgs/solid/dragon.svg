@@ -1,0 +1,6 @@
+D33\96517c12a2880d49ed79efec562309f8-x64.msi' succeeded. Hash: BAC565D61CD401BE7A3368F6C5C732470031D50A0E8AD5681580BEF0EFA13D8F
+[31c4:0018][2025-11-12T19:17:08] END: Downloading package "Microsoft.AOT.Cross.net8.android-x64.8.0.22,version=8.0.22.0,machinearch=x64"
+[31c4:0018][2025-11-12T19:17:08] BEGIN: Downloading package "Microsoft.Mono.net9.android-arm64.9.0.11,version=9.0.11.0,machinearch=x64"
+[31c4:001a][2025-11-12T19:17:08] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.AOT.Cross.net8.android-arm.8.0.22.2DF43E71087B9ED37D38\c39c5fb5418e9a5222a6bb03753a5727-x64.msi
+[31c4:001a][2025-11-12T19:17:08] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.AOT.Cross.net8.android-arm.8.0.22.2DF43E71087B9ED37D38\c39c5fb5418e9a5222a6bb03753a5727-x64.msi' succeeded. Hash: 9F4EDF437C67BA0AD02CC2582E879684085B5C014C5E5F2DA7F1E55F7B1FD31D
+[31c4:001a][2025-11-12T19:17:08] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.AOT.Cross.net8.android-arm.8.0.22.2DF43E71087B9ED37D38\c39c5fb5418e9a5222a6bb03753a5

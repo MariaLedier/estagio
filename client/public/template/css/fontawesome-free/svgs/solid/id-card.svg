@@ -1,0 +1,6 @@
+e76cb70dc9-x64.msi
+[2df8:0019][2025-11-14T19:41:25] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Mono.net8.android-x64.8.0.22.E8E802101ECB1A35F9A4\e1d59528d3fa11793750cb3487a041fe-x64.msi' succeeded. Hash: 294F0EFA80E92079AED75C3083F9698F8E17C89E6536815CEA0D0706D86EB1FA
+[2df8:001b][2025-11-14T19:41:25] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.VisualStudio.IntelliCode.A6763A07C2F786AFA739\Microsoft.VisualStudio.IntelliCode.vsix' succeeded. Hash: 8C5BFC1A8E1B77FCF55015F11062B9C4FDE1F9E1DCCB11362E714DB96CADD0DE
+[2df8:0019][2025-11-14T19:41:25] END: Downloading package "Microsoft.Mono.net8.android-x64.8.0.22,version=8.0.22.0,machinearch=x64"
+[2df8:001b][2025-11-14T19:41:25] END: Downloading package "Microsoft.VisualStudio.IntelliCode,version=2.2.3062.58481"
+[2df8:0019][2025-11-14T19:41:25] BEGIN: Downloading 

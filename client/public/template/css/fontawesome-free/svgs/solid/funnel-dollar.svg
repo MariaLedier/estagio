@@ -1,0 +1,7 @@
+F9B3\2b69bdf0921988aedd23ba95ffece4a8-x64.msi' succeeded. Hash: C474A0215354D58F7AF785970D809852AAAE80C1653105F71FA00A44D6986561
+[2df8:001d][2025-11-14T19:41:30] END: Downloading package "Microsoft.Android.Sdk.net9.35.0.78,version=35.0.78.0,machinearch=x64"
+[2df8:001d][2025-11-14T19:41:30] BEGIN: Downloading package "OpenJDKv17,version=17.0.14.1,machinearch=x64"
+[2df8:0018][2025-11-14T19:41:30] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Android.Runtime.35.android-arm.35.0.78.AB25644EB8D811C14546\c403375cfccee5e0b9af7b16ef3c3a1a-x64.msi' succeeded. Hash: 89715BA9353C98250B70A689B56BA82EA72E7ABDF1C9AE91E172F1731E94291E
+[2df8:0018][2025-11-14T19:41:30] Checking SHA256 for path: C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Android.Runtime.35.android-arm.35.0.78.AB25644EB8D811C14546\c403375cfccee5e0b9af7b16ef3c3a1a-x64.msi
+[2df8:0018][2025-11-14T19:41:30] SHA256 verification for 'C:\Users\Aluno\AppData\Local\Temp\winy2shv\Microsoft.Android.Runtime.35.android-arm.35.0.78.AB25644EB8D811C14546\c403375cfccee5e0b9af7b16ef3c3a1a-x64.msi' succeeded. Hash: 89715BA9353C98250B70A689B56BA82EA72E7ABDF1C9AE91E172F1731E94291E
+[2df8:0018][2025-11-14T19:41:30] Checking SHA256 for path: C:\Users\Aluno\AppDat
