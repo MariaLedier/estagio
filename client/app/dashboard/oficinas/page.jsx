@@ -4,11 +4,11 @@ import { useState, useEffect } from "react"
 import { apiClient } from "@/utils/apiClient"
 import toast from "react-hot-toast"
 
-export default function ServicosPage() {
+export default function OficinaPage() {
 
-  const [servicos, setServicos] = useState([])
+  const [oficinas, setOficinas] = useState([])
   const [modalAberto, setModalAberto] = useState(false)
-  const [servicoEditando, setServicoEditando] = useState(null)
+  const [oficinaEditando, setOficinaEditando] = useState(null)
 
   const [nome, setNome] = useState("")
   const [loading, setLoading] = useState(false)

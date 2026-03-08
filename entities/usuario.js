@@ -6,6 +6,7 @@ export default class Usuario extends Base {
     #id;
     #nome;
     #tipo;
+    #senha;
 
     get id() {
         return this.#id;
@@ -30,11 +31,20 @@ export default class Usuario extends Base {
     set tipo(value) {
         this.#tipo = value;
     }
+
+    get senha() {
+        return this.#senha;
+    }
+
+    set senha(value) {
+        this.#senha = value;
+    }
     
-    constructor(id, nome, tipo) {
+    constructor(id, nome, tipo, senha) {
         super();
         this.#id = id;
         this.#nome = nome;
         this.#tipo = tipo;
+        this.#senha = senha;
     }
 }

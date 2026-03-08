@@ -18,9 +18,9 @@ export default class UsuarioRepository {
 
     async gravar(usuario) {
 
-        const sql = "insert into tb_usuario (usuario_nome, usuario_tipo) values ( ?, ?)";
+        const sql = "insert into tb_usuario (usuario_nome, usuario_tipo, usuario_senha) values ( ?, ?, ?)";
 
-        const valores = [usuario.nome, usuario.tipo];
+        const valores = [usuario.nome, usuario.tipo, usuario.senha];
 
         const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
 
@@ -68,10 +68,11 @@ export default class UsuarioRepository {
 
     async alterar(entidadeAtualizada) {
         const sql = `update tb_usuario set usuario_nome = ?,
-                                           usuario_tipo = ?
+                                           usuario_tipo = ?,
+                                           usuario_senha = ?
                     where usuario_id = ?`
 
-        const valores = [entidadeAtualizada.nome, entidadeAtualizada.tipo, entidadeAtualizada.id];
+        const valores = [entidadeAtualizada.nome, entidadeAtualizada.tipo,entidadeAtualizada.senha, entidadeAtualizada.id];
 
         const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
 
@@ -85,7 +86,7 @@ export default class UsuarioRepository {
         usuario.id = row["usuario_id"];
         usuario.nome = row["usuario_nome"];
         usuario.tipo = row["usuario_tipo"];
-
+        usuario.senha = row["usuario_senha"];
 
         return usuario;
     }

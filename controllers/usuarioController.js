@@ -14,7 +14,6 @@ export default class UsuarioController {
 
     /*----------------------- LISTAR ------------------------ */
     async listar(req, res) {
-        console.log(req.query);
         try {
             let lista = await this.#UsuarioRepositorio.listar();
             if (lista.length > 0)
@@ -34,10 +33,10 @@ export default class UsuarioController {
     async cadastrar(req, res) {
         try {
 
-            let { nome, tipo } = req.body;
-            if (nome && tipo) {
+            let { nome, tipo, senha} = req.body;
+            if (nome && tipo && senha) {
 
-                let entidade = new Usuario(0, nome, tipo);
+                let entidade = new Usuario(0, nome, tipo, senha);
                 let inseriu = await this.#UsuarioRepositorio.gravar(entidade);
                 if (inseriu == true) {
                     return res.status(200).json({ msg: "Usuário cadastro com sucesso" });
@@ -91,11 +90,11 @@ export default class UsuarioController {
 
     async atualizar(req, res) {
         try {
-            let { id, nome, tipo } = req.body;
+            let { id, nome, tipo, senha } = req.body;
 
-            if (id && nome && tipo ) {
+            if (id && nome && tipo && senha ) {
                 if (await this.#UsuarioRepositorio.obter(id)) {
-                    let entidade = new Usuario(id, nome, tipo);
+                    let entidade = new Usuario(id, nome, tipo, senha);
                     if (await this.#UsuarioRepositorio.alterar(entidade))
                         res.status(200).json({ msg: "Usuário alterado!" });
                     else

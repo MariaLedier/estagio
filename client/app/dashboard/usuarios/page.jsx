@@ -4,89 +4,93 @@ import { useState, useEffect } from "react"
 import { apiClient } from "@/utils/apiClient"
 import toast from "react-hot-toast"
 
-export default function ServicosPage() {
+export default function UsuarioPage() {
 
-  const [servicos, setServicos] = useState([])
+  const [usuario, setUsuario] = useState([])
   const [modalAberto, setModalAberto] = useState(false)
-  const [servicoEditando, setServicoEditando] = useState(null)
+  const [usuarioEditando, setUsuarioEditando] = useState(null)
 
   const [nome, setNome] = useState("")
-  const [valor, setValor] = useState("")
+  const [tipo, setTipo] = useState("")
+  const [senha, setSenha] = useState("")
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    carregarServico()
+    carregarUsuario()
   }, [])
 
-  async function carregarServico() {
+  async function carregarUsuario() {
     try {
-      const response = await apiClient.get("/servico")
-      setServicos(response)
+      const response = await apiClient.get("/usuario")
+      setUsuario(response)
     } catch {
-      toast.error("Erro ao carregar serviços")
+      toast.error("Erro ao carregar Usuário")
     }
   }
 
 
   // ---------------- EDIÇÃO DE MODAL --------------------
   function abrirNovo() {
-    setServicoEditando(null)
+    setUsuarioEditando(null)
     setNome("")
-    setValor("")
+    setTipo("")
+    setSenha("")
     setModalAberto(true)
   }
 
-  function abrirEdicao(servico) {
-    setServicoEditando(servico)
-    setNome(servico.nome)
-    setValor(servico.valor)
+  function abrirEdicao(usuario) {
+    setUsuarioEditando(usuario)
+    setNome(usuario.nome)
+    setTipo(usuario.tipo)
+    setSenha(usuario.senha)
     setModalAberto(true)
   }
 
   function fecharModal() {
     setModalAberto(false)
-    setServicoEditando(null)
+    setUsuarioEditando(null)
   }
 
 
-  // --------------------GRAVAR SERVIÇO / ALTERAR ---------------------------
+  // --------------------GRAVAR USUÁRIO / ALTERAR ---------------------------
 
-  async function salvarServico(e) {
+  async function salvarUsuario(e) {
     e.preventDefault()
     setLoading(true)
 
     try {
-      if (servicoEditando) {
-        await apiClient.put("/servico", {
-          id: servicoEditando.id,
+      if (usuarioEditando) {
+        await apiClient.put("/usuario", {
+          id: usuarioEditando.id,
           nome,
-          valor
+          tipo,
+          senha
         })
-        toast.success("Serviço alterado com sucesso!")
+        toast.success("Usuário alterado com sucesso!")
       } else {
-        await apiClient.post("/servico", { nome, valor })
-        toast.success("Serviço cadastrado com sucesso!")
+        await apiClient.post("/usuario", { nome, tipo, senha})
+        toast.success("Usuario cadastrado com sucesso!")
       }
 
       fecharModal()
-      carregarServico()
+      carregarUsuario()
 
     } catch {
-      toast.error("Erro ao salvar serviço")
+      toast.error("Erro ao salvar usuário")
     } finally {
       setLoading(false)
     }
   }
   // -----------------------------EXCLUIR ----------------------------------
   async function excluir(id) {
-    if (!confirm("Deseja realmente excluir este serviço?")) return
+    if (!confirm("Deseja realmente excluir este usuário?")) return
 
     try {
-      await apiClient.delete("/servico/" + id)
-      toast.success("Serviço excluído com sucesso!")
-      carregarServico()
+      await apiClient.delete("/usuario/" + id)
+      toast.success("Usuário excluído com sucesso!")
+      carregarUsuario()
     } catch {
-      toast.error("Erro ao excluir serviço")
+      toast.error("Erro ao excluir usuário")
     }
   }
 
@@ -94,7 +98,7 @@ export default function ServicosPage() {
     <div style={styles.page}>
       <div style={styles.card}>
 
-        <div style={styles.header}>
+         <div style={styles.header}>
 
           <h1 style={styles.title}>
             <i className="fas fa-user" style={{ marginRight: "8px" }}></i>
@@ -119,7 +123,7 @@ export default function ServicosPage() {
           </thead>
 
           <tbody>
-            {!Array.isArray(servicos) ? (
+            {!Array.isArray(usuario) ? (
               <tr>
                 <td colSpan="4" style={styles.emptyState}>
                   <div style={styles.emptyContainer}>
@@ -131,11 +135,11 @@ export default function ServicosPage() {
                 </td>
               </tr>
             ) : (
-              servicos.map((s) => (
+              usuario.map((s) => (
                 <tr key={s.id} style={styles.tableRow}>
-                  <td>{s.id}</td>
-                  <td>{s.nome}</td>
-                  <td>R$ {Number(s.valor).toFixed(2)}</td>
+                  <td style={styles.td}>{s.id}</td>
+                  <td style={styles.td}>{s.nome}</td>
+                  <td style={styles.td}>{s.tipo}</td>
                   <td style={styles.actions}>
                     <button
                       onClick={() => abrirEdicao(s)}
@@ -162,12 +166,12 @@ export default function ServicosPage() {
         <div style={styles.overlay}>
           <div style={styles.modal}>
             <h2 style={{ marginBottom: 20 }}>
-              {servicoEditando ? "Editar Serviço" : "Novo Serviço"}
+              {usuarioEditando ? "Editar Usuário" : "Novo Usuário"}
             </h2>
 
-            <form onSubmit={salvarServico}>
+            <form onSubmit={salvarUsuario}>
               <div style={styles.inputGroup}>
-                <label>Nome do Serviço</label>
+                <label>Nome do Usuário</label>
                 <input
                   type="text"
                   value={nome}
@@ -180,9 +184,20 @@ export default function ServicosPage() {
               <div style={styles.inputGroup}>
                 <label>Tipo</label>
                 <input
-                  type="text"
-                  value={valor}
-                  onChange={(e) => setValor(e.target.value)}
+                  type="number"
+                  value={tipo}
+                  onChange={(e) => setTipo(e.target.value)}
+                  required
+                  style={styles.input}
+                />
+              </div>
+
+               <div style={styles.inputGroup}>
+                <label>Senha</label>
+                <input
+                  type="number"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
                   required
                   style={styles.input}
                 />
@@ -213,28 +228,39 @@ export default function ServicosPage() {
   )
 }
 const styles = {
-  page: {
-    minHeight: "100vh",
-    background: "linear-gradient(135deg, #eef2ff, #f8fafc)",
-    padding: "40px",
-    display: "flex",
-    justifyContent: "center"
-  },
+page: {
+  minHeight: "100vh",
+  background: "linear-gradient(135deg, #ffffff, #ffffff)",
+  padding: "20px",
+  display: "flex",
+  justifyContent: "center"
+},
 
   card: {
-    width: "100%",
-    maxWidth: "1000px",
-    backgroundColor: "#fff",
-    padding: "35px",
-    borderRadius: "16px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)"
-  },
+  width: "100%",
+  maxWidth: "1000px",
+  backgroundColor: "#fff",
+  padding: "25px",
+  borderRadius: "16px",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+  boxSizing: "border-box"
+},
 
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "25px"
+    marginBottom: "25px",
+    flexWrap: "wrap",
+    gap: "10px"
+  },
+  tableRow: {
+    borderBottom: "1px solid #e5e7eb",
+    transition: "0.2s"
+  },
+
+  td: {
+    padding: "10px"
   },
 
   title: {
@@ -258,8 +284,9 @@ const styles = {
 
   actions: {
     display: "flex",
+    
     justifyContent: "center",
-    gap: "10px"
+    gap: "6px"
   },
 
   buttonPrimary: {

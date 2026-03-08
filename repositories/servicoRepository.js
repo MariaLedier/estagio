@@ -20,9 +20,9 @@ export default class ServicoRepository {
 
     async gravar(servico) {
 
-        const sql = "insert into tb_servico (servico_nome, servico_valor) values ( ?, ?)";
+        const sql = "insert into tb_servico (servico_nome) values ( ?)";
 
-        const valores = [servico.nome, servico.valor];
+        const valores = [servico.nome];
 
         const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
 
@@ -70,10 +70,9 @@ export default class ServicoRepository {
 
     async alterar(entidadeAtualizada) {
         const sql = `update tb_servico set servico_nome = ?,
-                                           servico_valor = ?
                     where servico_id = ?`
 
-        const valores = [entidadeAtualizada.nome, entidadeAtualizada.valor, entidadeAtualizada.id];
+        const valores = [entidadeAtualizada.nome, entidadeAtualizada.id];
 
         const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
 
@@ -86,7 +85,6 @@ export default class ServicoRepository {
         let servico = new Servico();
         servico.id = row["servico_id"];
         servico.nome = row["servico_nome"];
-        servico.valor = row["servico_valor"];
 
 
         return servico;

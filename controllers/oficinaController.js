@@ -1,13 +1,13 @@
 
-import Servico from "../entities/servico.js";
-import ServicoRepository from "../repositories/servicoRepository.js";
+import Oficina from "../entities/oficina.js";
+import OficinaRepository from "../repositories/oficinaRepository.js";
 
-export default class ServicoController {
+export default class OficinaController {
 
-    #ServicoRepositorio;
+    #OficinaRepositorio;
 
     constructor() {
-        this.#ServicoRepositorio = new ServicoRepository();
+        this.#OficinaRepositorio = new OficinaRepository();
 
     }
 
@@ -15,11 +15,11 @@ export default class ServicoController {
     /*----------------------- LISTAR ------------------------ */
     async listar(req, res) {
         try {
-            let lista = await this.#ServicoRepositorio.listar();
+            let lista = await this.#OficinaRepositorio.listar();
             if (lista.length > 0)
                 res.status(200).json(lista);
             else
-                res.status(404).json({ msg: "Nenhum serviço cadastrado !" });
+                res.status(404).json({ msg: "Nenhuma oficina cadastrada !" });
         }
         catch (exception) {
             console.log(exception);
@@ -33,22 +33,22 @@ export default class ServicoController {
     async cadastrar(req, res) {
         try {
 
-            let { nome } = req.body;
-            if (nome ) {
+            let { nome, datacadastro, cidade } = req.body;
+            if (nome && datacadastro && cidade) {
 
-                let entidade = new Servico(0, nome);
-                let inseriu = await this.#ServicoRepositorio.gravar(entidade);
+                let entidade = new Oficina(0, nome, datacadastro, cidade);
+                let inseriu = await this.#OficinaRepositorio.gravar(entidade);
                 if (inseriu == true) {
-                    return res.status(200).json({ msg: "Serviço cadastro com sucesso" });
+                    return res.status(200).json({ msg: "Oficina cadastrada com sucesso" });
                 }
                 else {
                     //não inseriu no bd
-                    throw new Error("Erro ao cadastrar serviço. Não foi possível persisti-lo no banco de dados");
+                    throw new Error("Erro ao cadastrar Oficina. Não foi possível persisti-lo no banco de dados");
                 }
 
             }
             else {
-                return res.status(400).json({ msg: "O serviço precisa ter nome definido!" })
+                return res.status(400).json({ msg: "A Oficina precisa ter os dados definido!" })
             }
         }
         catch (exception) {
@@ -66,16 +66,16 @@ export default class ServicoController {
     async deletar(req, res) {
         try {
             let { id } = req.params;
-            if (await this.#ServicoRepositorio.obter(id)) {
+            if (await this.#OficinaRepositorio.obter(id)) {
 
-                if (await this.#ServicoRepositorio.deletar(id))
-                    return res.status(200).json({ msg: "Serviço excluído com sucesso!" });
+                if (await this.#OficinaRepositorio.deletar(id))
+                    return res.status(200).json({ msg: "Oficina excluída com sucesso!" });
                 else
-                    throw new Error("Erro ao deletar serviço no banco de dados")
+                    throw new Error("Erro ao deletar oficina no banco de dados")
             }
             else {
                 //usuario para deleção não existe;
-                return res.status(404).json({ msg: "Serviço não encontrado para deleção" });
+                return res.status(404).json({ msg: "Oficina não encontrado para deleção" });
             }
 
         }
@@ -90,22 +90,22 @@ export default class ServicoController {
 
     async atualizar(req, res) {
         try {
-            let { id, nome } = req.body;
+            let { id, nome, datacadastro, cidade} = req.body;
 
-            if (id && nome ) {
-                if (await this.#ServicoRepositorio.obter(id)) {
-                    let entidade = new Servico(id, nome);
-                    if (await this.#ServicoRepositorio.alterar(entidade))
-                        res.status(200).json({ msg: "Serviço alterado!" });
+            if (id && nome && datacadastro && cidade ) {
+                if (await this.#OficinaRepositorio.obter(id)) {
+                    let entidade = new Oficina(id, nome, datacadastro, cidade);
+                    if (await this.#OficinaRepositorio.alterar(entidade))
+                        res.status(200).json({ msg: "Oficina alterada !" });
                     else
                         throw new Error("Erro ao alterar serviço no banco de dados");
                 }
                 else {
-                    res.status(404).json({ msg: "Serviço não encontrado para alteração" });
+                    res.status(404).json({ msg: "Oficina não encontrada para alteração" });
                 }
             }
             else {
-                res.status(400).json({ msg: "As informações do serviço não estão corretas!" })
+                res.status(400).json({ msg: "As informações da oficina não estão corretas!" })
             }
 
         }

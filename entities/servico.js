@@ -5,7 +5,6 @@ export default class Servico extends Base {
 
     #id;
     #nome;
-    #valor;
 
     get id() {
         return this.#id;
@@ -23,18 +22,11 @@ export default class Servico extends Base {
         this.#nome = value;
     }
 
-    get valor() {
-        return this.#valor;
-    }
-
-    set valor(value) {
-        this.#valor = value;
-    }
+   
     
-    constructor(id, nome, valor) {
+    constructor(id, nome) {
         super();
         this.#id = id;
         this.#nome = nome;
-        this.#valor = valor;
     }
 }
