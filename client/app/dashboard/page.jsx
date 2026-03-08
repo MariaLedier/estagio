@@ -9,7 +9,6 @@ import ModalVeiculo from "@/components/ModalVeiculo.jsx"
 export default function DashboardPage() {
 
     const [modalAberto, setModalAberto] = useState(false)
-
     const [veiculos, setVeiculos] = useState([])
     const [notificacoes] = useState(3)
 
@@ -26,6 +25,7 @@ export default function DashboardPage() {
         <>
             {/* TOP BAR */}
             <div className="top-bar d-flex justify-content-between align-items-center mb-4">
+
 
                 <div>
                     <h2 className="m-0">Dashboard</h2>

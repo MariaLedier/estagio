@@ -7,12 +7,13 @@ import Image from "next/image"
 export default function DashboardLayout({ children }) {
 
     const [openGerenciar, setOpenGerenciar] = useState(false)
+    const [menuAberto, setMenuAberto] = useState(false)
 
     return (
         <div className="admin-container">
 
             {/* SIDEBAR */}
-            <div className="sidebar">
+            <div className={`sidebar ${menuAberto ? "open" : ""}`}>
 
                 <div className="logo">
                     <Image
@@ -41,19 +42,19 @@ export default function DashboardLayout({ children }) {
                         </Link>
                     </li>
 
-                    {/* Botão Gerenciar */}
+                    {/* GERENCIAR */}
                     <li
                         className={`gerenciar-btn ${openGerenciar ? 'open' : ''}`}
                         onClick={() => setOpenGerenciar(!openGerenciar)}
                     >
                         <div>
-                            <i className="fas fa-cog"></i> {/* ícone de engrenagem */}
+                            <i className="fas fa-cog"></i>
                             <span>Gerenciar</span>
                         </div>
+
                         <i className={`fas ${openGerenciar ? "fa-chevron-up" : "fa-chevron-down"}`}></i>
                     </li>
 
-                    {/* Submenu */}
                     {openGerenciar && (
                         <ul className="submenu">
                             <li>
@@ -62,18 +63,21 @@ export default function DashboardLayout({ children }) {
                                     <span>Pneus</span>
                                 </Link>
                             </li>
+
                             <li>
                                 <Link href="/dashboard/servicos">
                                     <i className="fas fa-wrench"></i>
                                     <span>Serviços</span>
                                 </Link>
                             </li>
+
                             <li>
                                 <Link href="/dashboard/usuarios">
                                     <i className="fas fa-user"></i>
                                     <span>Usuários</span>
                                 </Link>
                             </li>
+
                             <li>
                                 <Link href="/dashboard/oficinas">
                                     <i className="fas fa-building"></i>
@@ -87,9 +91,23 @@ export default function DashboardLayout({ children }) {
 
             </div>
 
-            {/* ÁREA DINÂMICA */}
+            {/* CONTEÚDO */}
             <div className="content">
+
+                {/* TOPBAR */}
+                <div className="topbar">
+
+                    <button
+                        className="menu-toggle"
+                        onClick={() => setMenuAberto(!menuAberto)}
+                    >
+                        ☰
+                    </button>
+
+                </div>
+
                 {children}
+
             </div>
 
         </div>

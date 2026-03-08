@@ -133,9 +133,9 @@ export default function ServicosPage() {
             ) : (
               servicos.map((s) => (
                 <tr key={s.id} style={styles.tableRow}>
-                  <td>{s.id}</td>
-                  <td>{s.nome}</td>
-                  <td>R$ {Number(s.valor).toFixed(2)}</td>
+                  <td style={styles.td}>{s.id}</td>
+                  <td style={styles.td}>{s.nome}</td>
+                  <td style={styles.td}>R$ {Number(s.valor).toFixed(2)}</td>
                   <td style={styles.actions}>
                     <button
                       onClick={() => abrirEdicao(s)}
@@ -214,28 +214,39 @@ export default function ServicosPage() {
   )
 }
 const styles = {
-  page: {
-    minHeight: "100vh",
-    background: "linear-gradient(135deg, #eef2ff, #f8fafc)",
-    padding: "40px",
-    display: "flex",
-    justifyContent: "center"
-  },
+page: {
+  minHeight: "100vh",
+  background: "linear-gradient(135deg, #ffffff, #ffffff)",
+  padding: "20px",
+  display: "flex",
+  justifyContent: "center"
+},
 
   card: {
-    width: "100%",
-    maxWidth: "1000px",
-    backgroundColor: "#fff",
-    padding: "35px",
-    borderRadius: "16px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)"
-  },
+  width: "100%",
+  maxWidth: "1000px",
+  backgroundColor: "#fff",
+  padding: "25px",
+  borderRadius: "16px",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+  boxSizing: "border-box"
+},
 
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "25px"
+    marginBottom: "25px",
+    flexWrap: "wrap",
+    gap: "10px"
+  },
+  tableRow: {
+    borderBottom: "1px solid #e5e7eb",
+    transition: "0.2s"
+  },
+
+  td: {
+    padding: "10px"
   },
 
   title: {
@@ -259,8 +270,9 @@ const styles = {
 
   actions: {
     display: "flex",
+    
     justifyContent: "center",
-    gap: "10px"
+    gap: "6px"
   },
 
   buttonPrimary: {
