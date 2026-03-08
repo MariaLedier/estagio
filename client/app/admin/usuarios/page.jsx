@@ -1,6 +1,6 @@
 'use client'
 
-import { apiClient, ApiClient } from "@/utils/apiClient";
+import { apiClient, ApiClient } from "@/utils/apiClient.js";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";

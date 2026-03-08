@@ -74,7 +74,7 @@ export default class OficinaRepository {
                                             oficina_cidade = ?
                     where oficina_id = ?`
 
-        const valores = [entidadeAtualizada.nome, entidadeAtualizada.datacadastro, entidadeAtualizada.cidade];
+        const valores = [entidadeAtualizada.nome, entidadeAtualizada.datacadastro, entidadeAtualizada.cidade, entidadeAtualizada.id];
 
         const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
 

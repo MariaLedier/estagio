@@ -1,6 +1,6 @@
 'use client'
 import FormUsuario from "@/app/components/formUsuario";
-import { apiClient } from "@/utils/apiClient";
+import { apiClient } from "@/utils/apiClient.js";
 import { use, useEffect, useState } from "react";
 
 

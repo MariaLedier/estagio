@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { apiClient } from "@/utils/apiClient"
+import { apiClient } from "@/utils/apiClient.js"
 import toast from "react-hot-toast"
 
 export default function OficinaPage() {
@@ -11,78 +11,86 @@ export default function OficinaPage() {
   const [oficinaEditando, setOficinaEditando] = useState(null)
 
   const [nome, setNome] = useState("")
+  const [datacadastro, setDatacadastro] = useState("")
+  const [cidade, setCidade] = useState("")
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    carregarServico()
+    carreagarOficina()
   }, [])
 
-  async function carregarServico() {
+  async function carreagarOficina() {
     try {
-      const response = await apiClient.get("/servico")
-      setServicos(response)
+      const response = await apiClient.get("/oficina")
+      setOficinas(response)
     } catch {
-      toast.error("Erro ao carregar serviços")
+      toast.error("Erro ao carregar oficina")
     }
   }
 
 
   // ---------------- EDIÇÃO DE MODAL --------------------
   function abrirNovo() {
-    setServicoEditando(null)
+    setOficinaEditando(null)
     setNome("")
+    setDatacadastro("")
+    setCidade("")
     setModalAberto(true)
   }
 
-  function abrirEdicao(servico) {
-    setServicoEditando(servico)
-    setNome(servico.nome)
+  function abrirEdicao(oficinas) {
+    setOficinaEditando(oficinas)
+    setNome(oficinas.nome)
+    setDatacadastro(oficinas.datacadastro)
+    setCidade(oficinas.cidade)
     setModalAberto(true)
   }
 
   function fecharModal() {
     setModalAberto(false)
-    setServicoEditando(null)
+    setOficinaEditando(null)
   }
 
 
-  // --------------------GRAVAR SERVIÇO / ALTERAR ---------------------------
+  // --------------------GRAVAR Oficina / ALTERAR ---------------------------
 
-  async function salvarServico(e) {
+  async function salvarOficina(e) {
     e.preventDefault()
     setLoading(true)
 
     try {
-      if (servicoEditando) {
-        await apiClient.put("/servico", {
-          id: servicoEditando.id,
-          nome
+      if (oficinaEditando) {
+        await apiClient.put("/oficina", {
+          id: oficinaEditando.id,
+          nome,
+          datacadastro,
+          cidade
         })
-        toast.success("Serviço alterado com sucesso!")
+        toast.success("Oficina alterada com sucesso!")
       } else {
-        await apiClient.post("/servico", { nome })
-        toast.success("Serviço cadastrado com sucesso!")
+        await apiClient.post("/oficina", { nome, datacadastro, cidade})
+        toast.success("Oficina cadastrada com sucesso!")
       }
 
       fecharModal()
-      carregarServico()
+      carreagarOficina()
 
     } catch {
-      toast.error("Erro ao salvar serviço")
+      toast.error("Erro ao salvar Oficina")
     } finally {
       setLoading(false)
     }
   }
   // -----------------------------EXCLUIR ----------------------------------
   async function excluir(id) {
-    if (!confirm("Deseja realmente excluir este serviço?")) return
+    if (!confirm("Deseja realmente excluir esta Oficina?")) return
 
     try {
-      await apiClient.delete("/servico/" + id)
-      toast.success("Serviço excluído com sucesso!")
-      carregarServico()
+      await apiClient.delete("/oficina/" + id)
+      toast.success("Oficina excluída com sucesso!")
+      carreagarOficina()
     } catch {
-      toast.error("Erro ao excluir serviço")
+      toast.error("Erro ao excluir Oficina")
     }
   }
 
@@ -93,13 +101,13 @@ export default function OficinaPage() {
         <div style={styles.header}>
 
           <h1 style={styles.title}>
-            <i className="fas fa-wrench" style={{ marginRight: "8px" }}></i>
-            Gerenciamento de Serviços
+            <i className="fas fa-building flag" style={{ marginRight: "8px" }}></i>
+            Gerenciamento de Oficinas
           </h1>
 
           <button onClick={abrirNovo} style={styles.buttonPrimary}>
             <i className="fas fa-plus" style={{ marginRight: "6px" }}></i>
-            Novo Serviço
+            Nova Oficina
           </button>
 
         </div>
@@ -109,27 +117,31 @@ export default function OficinaPage() {
             <tr>
               <th>ID</th>
               <th>Nome</th>
+              <th>Data Cadastro</th>
+              <th>Cidade</th>
               <th style={{ textAlign: "center" }}>Ações</th>
             </tr>
           </thead>
 
           <tbody>
-            {!Array.isArray(servicos) ? (
+            {!Array.isArray(oficinas) ? (
               <tr>
                 <td colSpan="4" style={styles.emptyState}>
                   <div style={styles.emptyContainer}>
-                    <p style={styles.emptyTitle}>Nenhum serviço cadastrado</p>
+                    <p style={styles.emptyTitle}>Nenhuma Oficina cadastrado</p>
                     <p style={styles.emptyText}>
-                      Clique em <strong>+ Novo Serviço</strong> para começar.
+                      Clique em <strong>+ Nova Oficina</strong> para começar.
                     </p>
                   </div>
                 </td>
               </tr>
             ) : (
-              servicos.map((s) => (
+              oficinas.map((s) => (
                 <tr key={s.id} style={styles.tableRow}>
                   <td style={styles.td}>{s.id}</td>
                   <td style={styles.td}>{s.nome}</td>
+                   <td style={styles.td}>{s.datacadastro}</td>
+                    <td style={styles.td}>{s.cidade}</td>
                   <td style={styles.actions}>
                     <button
                       onClick={() => abrirEdicao(s)}
@@ -156,16 +168,38 @@ export default function OficinaPage() {
         <div style={styles.overlay}>
           <div style={styles.modal}>
             <h2 style={{ marginBottom: 20 }}>
-              {servicoEditando ? "Editar Serviço" : "Novo Serviço"}
+              {oficinaEditando ? "Editar Oficina" : "Nova Ofcina"}
             </h2>
 
-            <form onSubmit={salvarServico}>
+            <form onSubmit={salvarOficina}>
               <div style={styles.inputGroup}>
-                <label>Nome do Serviço</label>
+                <label>Nome da Oficina</label>
                 <input
                   type="text"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
+                  required
+                  style={styles.input}
+                />
+              </div>
+
+               <div style={styles.inputGroup}>
+                <label>Data de Cadastro</label>
+                <input
+                  type="date"
+                  value={datacadastro}
+                  onChange={(e) => setDatacadastro(e.target.value)}
+                  required
+                  style={styles.input}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label>Cidade</label>
+                <input
+                  type="text"
+                  value={cidade}
+                  onChange={(e) => setCidade(e.target.value)}
                   required
                   style={styles.input}
                 />

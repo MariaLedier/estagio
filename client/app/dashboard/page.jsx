@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { apiClient } from "@/utils/apiClient"
+import { apiClient } from "@/utils/apiClient.js"
 import Link from "next/link"
 import ModalVeiculo from "@/components/ModalVeiculo.jsx"
 

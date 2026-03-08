@@ -24,6 +24,12 @@ const doc = {
                 nome:'Vinicio',
                 tipo: 1
             },
+            oficina:{
+                id: 1,
+                nome: 'Okubo',
+                datacadastro: '2026-03-08',
+                cidade: "Osvaldo Cruz",
+            },
         },
         '@schemas': {
            

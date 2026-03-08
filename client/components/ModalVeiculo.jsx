@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { apiClient } from "@/utils/apiClient"
+import { apiClient } from "@/utils/apiClient.js"
 
 export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
 

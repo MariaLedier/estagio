@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { apiClient } from "@/utils/apiClient"
+import { apiClient } from "@/utils/apiClient.js"
 import toast from "react-hot-toast"
 
 export default function ServicosPage() {

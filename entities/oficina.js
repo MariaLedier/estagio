@@ -29,7 +29,7 @@ export default class Servico extends Base {
     }
 
     set datacadastro(value) {
-        this.#nome = value;
+        this.#datacadastro = value;
     }
 
     get cidade() {

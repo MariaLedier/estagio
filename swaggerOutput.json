@@ -443,6 +443,30 @@
         "xml": {
           "name": "usuario"
         }
+      },
+      "oficina": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "nome": {
+            "type": "string",
+            "example": "Okubo"
+          },
+          "datacadastro": {
+            "type": "string",
+            "example": "2026-03-08"
+          },
+          "cidade": {
+            "type": "string",
+            "example": "Osvaldo Cruz"
+          }
+        },
+        "xml": {
+          "name": "oficina"
+        }
       }
     },
     "securitySchemes": {
