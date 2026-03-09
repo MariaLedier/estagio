@@ -30,6 +30,17 @@ const doc = {
                 datacadastro: '2026-03-08',
                 cidade: "Osvaldo Cruz",
             },
+            veiculo:{
+                id: 1,
+                placa: 'ABC1D23',
+                modelo: 'Fiorino',
+                marca: "Fiat",
+                ano: 2023,
+                renavam: 1234567891011,
+                cor: 'Branco', 
+                kmatual: 30000,
+                status: "Ativo",
+            },
         },
         '@schemas': {
            

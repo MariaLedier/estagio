@@ -388,6 +388,132 @@
           }
         ]
       }
+    },
+    "/veiculo/": {
+      "get": {
+        "tags": [
+          "Veiculo"
+        ],
+        "summary": "Listar todos os veículos",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Nenhum veiculo encontrado na consulta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Veiculo"
+        ],
+        "summary": "Cadastra um novo veiculo",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/veiculo"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Veiculo"
+        ],
+        "summary": "Altera um veiculo existente",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/veiculo"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veiculo/{id}": {
+      "delete": {
+        "tags": [
+          "Veiculo"
+        ],
+        "summary": "Deleta lógicamente um veiculo",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -466,6 +592,50 @@
         },
         "xml": {
           "name": "oficina"
+        }
+      },
+      "veiculo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "placa": {
+            "type": "string",
+            "example": "ABC1D23"
+          },
+          "modelo": {
+            "type": "string",
+            "example": "Fiorino"
+          },
+          "marca": {
+            "type": "string",
+            "example": "Fiat"
+          },
+          "ano": {
+            "type": "number",
+            "example": 2023
+          },
+          "renavam": {
+            "type": "number",
+            "example": 1234567891011
+          },
+          "cor": {
+            "type": "string",
+            "example": "Branco"
+          },
+          "kmatual": {
+            "type": "number",
+            "example": 30000
+          },
+          "status": {
+            "type": "string",
+            "example": "Ativo"
+          }
+        },
+        "xml": {
+          "name": "veiculo"
         }
       }
     },
