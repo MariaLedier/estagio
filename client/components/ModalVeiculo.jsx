@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { apiClient } from "@/utils/apiClient.js"
+
 function PneuInfo({ pneu }) {
 
   return (
@@ -23,9 +24,13 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
 
   // ---------------- DADOS VEÍCULO ----------------
   const [placa, setPlaca] = useState("")
-  const [marca, setMarca] = useState("")
   const [modelo, setModelo] = useState("")
+  const [marca, setMarca] = useState("")
   const [ano, setAno] = useState("")
+  const [renavam, setRenavam] = useState("")
+  const [cor, setCor] = useState("")
+  const [kmatual, setKmatual] = useState("")
+  const [status, setStatus] = useState("")
 
   // ---------------- PNEUS ----------------
   const [pneus, setPneus] = useState([
@@ -108,29 +113,32 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
     try {
       setLoading(true)
 
-      await apiClient.post("/veiculo", {
+      // 1️⃣ salva veículo
+      const response = await apiClient.post("/veiculo", {
         placa,
-        marca,
         modelo,
+        marca,
         ano,
-        pneus
+        renavam,
+        cor,
+        kmatual,
+        status
       })
+
+      const veiculoId = response.veiculo_id
+
+      // 2️⃣ salvar pneus
+      for (let pneu of pneus) {
+
+        await apiClient.post("/pneu", {
+          ...pneu,
+          veiculo_id: veiculoId
+        })
+
+      }
 
       atualizarLista()
       fechar()
-
-      // resetar
-      setStep(1)
-      setPlaca("")
-      setMarca("")
-      setModelo("")
-      setAno("")
-      setPneus([
-        { posicao: "Dianteiro Esquerdo", marca: "", status: "Bom" },
-        { posicao: "Dianteiro Direito", marca: "", status: "Bom" },
-        { posicao: "Traseiro Esquerdo", marca: "", status: "Bom" },
-        { posicao: "Traseiro Direito", marca: "", status: "Bom" }
-      ])
 
     } catch (error) {
       console.error("Erro ao salvar veículo", error)
@@ -165,20 +173,20 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
             </div>
 
             <div className="mb-3">
-              <label>Marca</label>
-              <input
-                className="form-control"
-                value={marca}
-                onChange={(e) => setMarca(e.target.value)}
-              />
-            </div>
-
-            <div className="mb-3">
               <label>Modelo</label>
               <input
                 className="form-control"
                 value={modelo}
                 onChange={(e) => setModelo(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label>Marca</label>
+              <input
+                className="form-control"
+                value={marca}
+                onChange={(e) => setMarca(e.target.value)}
               />
             </div>
 
@@ -190,6 +198,48 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
                 value={ano}
                 onChange={(e) => setAno(e.target.value)}
               />
+            </div>
+
+            <div className="mb-4">
+              <label>Renavam</label>
+              <input
+                className="form-control"
+                type="number"
+                value={renavam}
+                onChange={(e) => setRenavam(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label>Cor</label>
+              <input
+                className="form-control"
+                type="text"
+                value={cor}
+                onChange={(e) => setCor(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label>Km Atual</label>
+              <input
+                className="form-control"
+                type="number"
+                value={kmatual}
+                onChange={(e) => setKmatual(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label>Status</label>
+              <select
+                className="form-select"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                <option value="ATIVO">Ativo</option>
+                <option value="INATIVO">Inativo</option>
+              </select>
             </div>
 
             <div className="d-flex justify-content-between">
