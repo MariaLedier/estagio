@@ -5,13 +5,12 @@ export default class Veiculo extends Base {
 
     #id;
     #placa;
-    #modelo;
-    #marca;
     #ano;
     #renavam;
     #cor;
     #kmatual;
-    #status
+    #status;
+    #veiculomodelo;
 
     get id() {
         return this.#id;
@@ -27,22 +26,6 @@ export default class Veiculo extends Base {
 
     set placa(value) {
         this.#placa = value;
-    }
-
-    get modelo() {
-        return this.#modelo;
-    }
-
-    set modelo(value) {
-        this.#modelo = value;
-    }
-
-    get marca() {
-        return this.#marca;
-    }
-
-    set marca(value) {
-        this.#marca = value;
     }
 
 
@@ -88,17 +71,24 @@ export default class Veiculo extends Base {
     set status(value) {
         this.#status = value;
     }
-    constructor(id, placa, modelo, marca, ano, renavam, cor, kmatual, status) {
+
+    get veiculomodelo(){
+        return this.#veiculomodelo
+    }
+
+    set veiculomodelo(value){
+        this.#veiculomodelo = value
+    }
+    constructor(id, placa, ano, renavam, cor, kmatual, status, veiculomodelo) {
         super();
         this.#id = id;
         this.#placa = placa;
-        this.#modelo = modelo;
-        this.#marca = marca;
         this.#ano = ano;
         this.#renavam = renavam;
         this.#cor = cor;
         this.#kmatual = kmatual;
         this.#status = status;
+        this.#veiculomodelo = veiculomodelo
 
     }
 }

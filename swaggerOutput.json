@@ -514,6 +514,80 @@
           }
         ]
       }
+    },
+    "/modelo/{marcaId}": {
+      "get": {
+        "tags": [
+          "Modelo"
+        ],
+        "summary": "Listar todos os modelos das marcas",
+        "description": "",
+        "parameters": [
+          {
+            "name": "marcaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Nenhum serviço encontrado na consulta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/marca/": {
+      "get": {
+        "tags": [
+          "Marca"
+        ],
+        "summary": "Listar todas as marcas",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Nenhum serviço encontrado na consulta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
     }
   },
   "components": {

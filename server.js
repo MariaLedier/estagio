@@ -4,6 +4,10 @@ import servicoRouter from './routes/servicoRoute.js'
 import usuarioRouter from './routes/usuarioRoute.js'
 import oficinaRouter from './routes/oficinaRoute.js'
 import veiculoRouter from './routes/veiculoRoute.js'
+import modeloRouter from './routes/modeloRoute.js'
+import marcaRouter from './routes/marcaRoute.js'
+
+
 
 import swaggerUi from 'swagger-ui-express'
 import cookieParser from 'cookie-parser';
@@ -21,7 +25,9 @@ server.use("/docs", swaggerUi.serve, swaggerUi.setup(outputJson));
 server.use("/servico", servicoRouter);
 server.use("/usuario", usuarioRouter);
 server.use("/oficina", oficinaRouter);
-server.use("/veiculo", veiculoRouter)
+server.use("/veiculo", veiculoRouter);
+server.use("/modelo", modeloRouter);
+server.use("/marca", marcaRouter);
 
 server.listen(5000, function() {
     console.log("backend em funcionamento!");
