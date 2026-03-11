@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import { apiClient } from "@/utils/apiClient"
 import toast from "react-hot-toast"
 
@@ -23,6 +23,11 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
   const [pneuExpandido, setPneuExpandido] = useState(null)
   const [pneuSelecionado, setPneuSelecionado] = useState(null)
 
+
+  // ----------------USE STATE DE VEICULOS --------
+  const [marcas, setMarcas] = useState([])
+  const [modelos, setModelos] = useState([])
+
   // ---------------- REFS VEÍCULO ----------------
 
   const placa = useRef()
@@ -43,6 +48,30 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
     { posicao: "Traseiro Direito", numeroserie: "", marca: "", medida: "", velocidadekm: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_USO" },
     { posicao: "Estepe", numeroserie: "", marca: "", medida: "", velocidadekm: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_ESTOQUE" }
   ])
+
+
+  // CARREGAR MARCA
+  async function carregarMarcas() {
+
+    const dados = await apiClient.get("/marca")
+    setMarcas(dados)
+
+  }
+
+  //CARREGAR MODELO
+  async function carregarModelos(marcaId) {
+
+    const dados = await apiClient.get("/modelo/" + marcaId)
+    setModelos(dados)
+
+  }
+
+  useEffect(() => {
+    console.log("Carregando marcas")
+    carregarMarcas()
+
+  }, [])
+
 
   function alterarPneu(index, campo, valor) {
     const novos = [...pneus]
@@ -141,12 +170,35 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
 
             <div className="form-group">
               <label>Marca</label>
-              <input ref={marca} className="form-control" />
+              <select
+                ref={marca}
+                className="form-control"
+                onChange={(e) => carregarModelos(e.target.value)}
+              >
+                <option value="">Selecione</option>
+
+                {marcas.map((m, index) => (
+                  <option key={index} value={m.id}>
+                    {m.nome}
+                  </option>
+                ))}
+
+              </select>
             </div>
 
             <div className="form-group">
               <label>Modelo</label>
-              <input ref={modelo} className="form-control" />
+              <select ref={modelo} className="form-control">
+
+                <option value="">Selecione</option>
+
+                {modelos.map((m, index) => (
+                  <option key={index} value={m.id}>
+                    {m.nome}
+                  </option>
+                ))}
+
+              </select>
             </div>
 
             <div className="form-group">
