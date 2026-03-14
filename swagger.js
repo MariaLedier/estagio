@@ -33,13 +33,23 @@ const doc = {
             veiculo:{
                 id: 1,
                 placa: 'ABC1D23',
-                modelo: 'Fiorino',
-                marca: "Fiat",
                 ano: 2023,
                 renavam: 1234567891011,
                 cor: 'Branco', 
                 kmatual: 30000,
                 status: "Ativo",
+                modelo: 1
+            },
+             pneus:{
+                id: 1,
+                marca: 'Michellin',
+                medida: '175/25 R15',
+                dataaquisicao: "2026-03-08",
+                valor: 20.00,
+                estado: 'Ruim',
+                status: 'EM_ESTOQUE', 
+                posicao: 'Dianteiro Esquerdo',
+                veiculo: 1,
             },
         },
         '@schemas': {

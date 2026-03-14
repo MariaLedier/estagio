@@ -4,10 +4,8 @@ import Base from "./base.js";
 export default class Pneus extends Base {
 
     #id;
-    #numeroserie
     #marca
     #medida
-    #velocidadekm
     #dataaquisicao
     #valor
     #estado
@@ -21,22 +19,6 @@ export default class Pneus extends Base {
 
     set id(value) {
         this.#id = value;
-    }
-
-    get numeroserie() {
-        return this.#numeroserie;
-    }
-
-    set numeroserie(value) {
-        this.#numeroserie = value;
-    }
-
-    get numeroserie() {
-        return this.#numeroserie;
-    }
-
-    set numeroserie(value) {
-        this.#numeroserie = value;
     }
 
     get marca() {
@@ -53,13 +35,6 @@ export default class Pneus extends Base {
 
     set medida(value) {
         this.#medida = value;
-    }
-    get velocidadekm() {
-        return this.#velocidadekm;
-    }
-
-    set velocidadekm(value) {
-        this.#velocidadekm = value;
     }
     get dataaquisicao() {
         return this.#dataaquisicao;
@@ -112,13 +87,12 @@ export default class Pneus extends Base {
 
 
 
-    constructor(id, numeroserie, marca, medida, velocidadekm, dataaquisicao, valor, estado, status, posicao, veiculo) {
+    constructor(id, marca, medida, dataaquisicao, valor, estado, status, posicao, veiculo) {
         super();
         this.#id = id;
-        this.#numeroserie = numeroserie;
+
         this.#marca = marca;
         this.#medida = medida;
-        this.#velocidadekm = velocidadekm;
         this.#dataaquisicao = dataaquisicao;
         this.#valor = valor;
         this.#estado = estado;

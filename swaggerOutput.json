@@ -588,6 +588,132 @@
           }
         }
       }
+    },
+    "/pneu/": {
+      "get": {
+        "tags": [
+          "Pneus"
+        ],
+        "summary": "Listar todos os Pneus cadastrados",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Nenhum serviço encontrado na consulta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Pneus"
+        ],
+        "summary": "Cadastra um novo pneu",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/pneus"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Pneus"
+        ],
+        "summary": "Altera um Pneus existente",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/pneus"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pneu/{id}": {
+      "delete": {
+        "tags": [
+          "Pneus"
+        ],
+        "summary": "Deleta lógicamente um pneu",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -679,14 +805,6 @@
             "type": "string",
             "example": "ABC1D23"
           },
-          "modelo": {
-            "type": "string",
-            "example": "Fiorino"
-          },
-          "marca": {
-            "type": "string",
-            "example": "Fiat"
-          },
           "ano": {
             "type": "number",
             "example": 2023
@@ -706,10 +824,58 @@
           "status": {
             "type": "string",
             "example": "Ativo"
+          },
+          "modelo": {
+            "type": "number",
+            "example": 1
           }
         },
         "xml": {
           "name": "veiculo"
+        }
+      },
+      "pneus": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "marca": {
+            "type": "string",
+            "example": "Michellin"
+          },
+          "medida": {
+            "type": "string",
+            "example": "175/25 R15"
+          },
+          "dataaquisicao": {
+            "type": "string",
+            "example": "2026-03-08"
+          },
+          "valor": {
+            "type": "number",
+            "example": 20
+          },
+          "estado": {
+            "type": "string",
+            "example": "Ruim"
+          },
+          "status": {
+            "type": "string",
+            "example": "EM_ESTOQUE"
+          },
+          "posicao": {
+            "type": "string",
+            "example": "Dianteiro Esquerdo"
+          },
+          "veiculo": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "xml": {
+          "name": "pneus"
         }
       }
     },

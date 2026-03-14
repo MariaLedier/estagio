@@ -33,13 +33,18 @@ export default class VeiculoController {
     async cadastrar(req, res) {
         try {
 
-            let { placa, modelo , marca, ano, renavam, cor, kmatual, status } = req.body;
-            if (placa && modelo && marca && ano && renavam && cor && kmatual && status) {
+            let { placa, ano, renavam, cor, kmatual, status, modelo } = req.body;
+            if (placa && ano && renavam && cor && kmatual && status && modelo) {
 
-                let entidade = new Veiculo(0, placa, modelo , marca, ano, renavam, cor, kmatual, status);
-                let inseriu = await this.#VeiculoRepositorio.gravar(entidade);
-                if (inseriu == true) {
-                    return res.status(200).json({ msg: "Veículo cadastrado com sucesso" });
+                let entidade = new Veiculo(0, placa, ano, renavam, cor, kmatual, status, modelo);
+
+                let veiculoId = await this.#VeiculoRepositorio.gravar(entidade);
+
+                if (veiculoId) {
+                    return res.status(200).json({
+                        msg: "Veículo cadastrado com sucesso",
+                        veiculo: veiculoId
+                    });
                 }
                 else {
                     //não inseriu no bd
@@ -90,11 +95,11 @@ export default class VeiculoController {
 
     async atualizar(req, res) {
         try {
-            let { id, placa, modelo , marca, ano, renavam, cor, kmatual, status} = req.body;
+            let { id, placa, ano, renavam, cor, kmatual, status, modelo } = req.body;
 
-            if (id && placa && modelo && marca && ano && renavam && cor && kmatual && status) {
+            if (id && placa && ano && renavam && cor && kmatual && status && modelo) {
                 if (await this.#VeiculoRepositorio.obter(id)) {
-                    let entidade = new Veiculo(id, placa, modelo , marca, ano, renavam, cor, kmatual, status);
+                    let entidade = new Veiculo(id, placa, ano, renavam, cor, kmatual, status, modelo);
                     if (await this.#VeiculoRepositorio.alterar(entidade))
                         res.status(200).json({ msg: "Veiculo alterado !" });
                     else

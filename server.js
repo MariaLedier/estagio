@@ -6,6 +6,7 @@ import oficinaRouter from './routes/oficinaRoute.js'
 import veiculoRouter from './routes/veiculoRoute.js'
 import modeloRouter from './routes/modeloRoute.js'
 import marcaRouter from './routes/marcaRoute.js'
+import pneuRouter from './routes/pneuRoute.js'
 
 
 
@@ -28,6 +29,7 @@ server.use("/oficina", oficinaRouter);
 server.use("/veiculo", veiculoRouter);
 server.use("/modelo", modeloRouter);
 server.use("/marca", marcaRouter);
+server.use("/pneu", pneuRouter)
 
 server.listen(5000, function() {
     console.log("backend em funcionamento!");

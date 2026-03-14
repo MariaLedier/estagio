@@ -21,15 +21,34 @@ export default class VeiculoRepository {
 
     async gravar(veiculo) {
 
-        const sql = "insert into tb_veiculos (veiculo_placa, veiculo_modelo, veiculo_marca, veiculo_ano, veiculo_renavam, veiculo_cor, veiculo_kmatual, veiculo_status) values (?, ?, ?, ?, ?, ?, ?, ?)";
+        const sql = `
+    insert into tb_veiculos
+    (
+        veiculo_placa,
+        veiculo_ano,
+        veiculo_renavam,
+        veiculo_cor,
+        veiculo_kmatual,
+        veiculo_status,
+        veiculo_modelo_id
+    )
+    values (?, ?, ?, ?, ?, ?, ?)
+    `;
 
-        const valores = [veiculo.placa, veiculo.modelo, veiculo.marca, veiculo.ano, veiculo.renavam, veiculo.cor, veiculo.kmatual, veiculo.status];
+        const valores = [
+            veiculo.placa,
+            veiculo.ano,
+            veiculo.renavam,
+            veiculo.cor,
+            veiculo.kmatual,
+            veiculo.status,
+            veiculo.modelo
+        ];
 
-        const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
+        const id = await this.#banco.ExecutaComandoLastInserted(sql, valores);
 
-        return result;
+        return id;
     }
-
 
     async obter(id) {
 
@@ -72,17 +91,17 @@ export default class VeiculoRepository {
     }
 
     async alterar(entidadeAtualizada) {
-        const sql = `update tb_veiculos set veiculo_placa = ?,
-                                            veiculo_modelo = ?,
-                                            veiculo_marca = ?,
-                                            veiculo_ano = ?,
-                                            veiculo_renavam = ?,
-                                            veiculo_cor = ?,
-                                            veiculo_kmatual = ?,
-                                            veiculo_status = ?,
+        const sql = `update tb_veiculos set 
+                    veiculo_placa = ?,
+                    veiculo_modelo_id = ?,
+                    veiculo_marca = ?,
+                    veiculo_ano = ?,
+                    veiculo_renavam = ?,
+                    veiculo_cor = ?,
+                    veiculo_kmatual = ?,
+                    veiculo_status = ?
                     where veiculo_id = ?`
-
-        const valores = [entidadeAtualizada.placa, entidadeAtualizada.modelo, entidadeAtualizada.marca, entidadeAtualizada.ano, entidadeAtualizada.renavam, entidadeAtualizada.cor,  entidadeAtualizada.kmatual,entidadeAtualizada.status, entidadeAtualizada.id];
+        const valores = [entidadeAtualizada.placa, entidadeAtualizada.veiculomodelo, entidadeAtualizada.ano, entidadeAtualizada.renavam, entidadeAtualizada.cor, entidadeAtualizada.kmatual, entidadeAtualizada.status, entidadeAtualizada.id];
 
         const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
 
@@ -95,8 +114,7 @@ export default class VeiculoRepository {
         let veiculo = new Veiculo();
         veiculo.id = row["veiculo_id"];
         veiculo.placa = row["veiculo_placa"];
-        veiculo.modelo = row["veiculo_modelo"];
-        veiculo.marca = row["veiculo_marca"];
+        veiculo.modelo = row["veiculo_modelo_id"];
         veiculo.ano = row["veiculo_ano"];
         veiculo.renavam = row["veiculo_renavam"];
         veiculo.cor = row["veiculo_cor"];
