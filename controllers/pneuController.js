@@ -46,15 +46,15 @@ export default class PneuController {
                 }
 
                 let entidade = new Pneu(
-                    id,
+                    0,           // ← id 0 para novo registro
                     marca,
                     medida,
                     dataaquisicao,
                     valor,
                     estado,
-                    pneuAtual.status,
-                    pneuAtual.posicao,
-                    pneuAtual.veiculo?.id || pneuAtual.veiculo || null  // ← extrai só o ID
+                    status,      // ← status calculado acima
+                    posicao || null,
+                    veiculo || null
                 );
 
                 let inseriu = await this.#PneuRepositorio.gravar(entidade);
@@ -79,7 +79,6 @@ export default class PneuController {
         }
 
     }
-
 
     /*----------------------- DELETAR ------------------------ */
 

@@ -84,23 +84,21 @@ export default function PneusPage() {
     }
 
     // FILTROS
+    // Troque a função pneusFiltrados por isso:
     const pneusFiltrados = pneus.filter((p) => {
+        const termo = pesquisa.toLowerCase().replace("_", " ")
 
-        const termo = pesquisa
-            .toLowerCase()
-            .replace("_", " ")
-
-        const marca = p.marca?.toLowerCase()
-        const status = p.status
-            ?.toLowerCase()
-            .replace("_", " ")
+        const marca = p.marca?.toLowerCase() || ""
+        const status = p.status?.toLowerCase().replace("_", " ") || ""
+        const veiculo = p.veiculo?.placa?.toLowerCase() || String(p.veiculo || "").toLowerCase()
 
         return (
             marca.includes(termo) ||
-            status.includes(termo)
+            status.includes(termo) ||
+            veiculo.includes(termo)
         )
-
     })
+
 
     async function carregarPneus() {
         try {
@@ -228,16 +226,18 @@ export default function PneusPage() {
             <div style={styles.card}>
 
                 <div style={styles.header}>
+                    <h1 style={styles.title}>Gerenciamento de Pneus</h1>
 
-
-                    <h1 style={styles.title}>
-                        Gerenciamento de Pneus
-                    </h1>
+                    <input
+                        placeholder="Buscar por marca, status ou veículo..."
+                        value={pesquisa}
+                        onChange={(e) => setPesquisa(e.target.value)}
+                        style={{ padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", width: "280px" }}
+                    />
 
                     <button onClick={abrirNovo} style={styles.buttonPrimary}>
                         + Novo Pneu
                     </button>
-
                 </div>
 
                 <table style={styles.table}>
@@ -249,6 +249,7 @@ export default function PneusPage() {
                             <th>Estado</th>
                             <th>Status</th>
                             <th>Posição</th>
+                            <th>Veículo</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -285,7 +286,7 @@ export default function PneusPage() {
                                         </span>
                                     </td>
                                     <td style={styles.td}>{p.posicao || "-"}</td>
-
+                                    <td style={styles.td}>{p.veiculo?.placa || p.veiculo || "-"}</td>
                                     <td style={styles.actions}>
 
                                         <button

@@ -7,7 +7,7 @@ import veiculoRouter from './routes/veiculoRoute.js'
 import modeloRouter from './routes/modeloRoute.js'
 import marcaRouter from './routes/marcaRoute.js'
 import pneuRouter from './routes/pneuRoute.js'
-
+import abastecimentoRouter from './routes/abastecimentoRoute.js'
 
 
 import swaggerUi from 'swagger-ui-express'
@@ -30,6 +30,7 @@ server.use("/veiculo", veiculoRouter);
 server.use("/modelo", modeloRouter);
 server.use("/marca", marcaRouter);
 server.use("/pneu", pneuRouter)
+server.use("/abastecimento", abastecimentoRouter)
 
 server.listen(5000, function() {
     console.log("backend em funcionamento!");

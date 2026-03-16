@@ -65,6 +65,15 @@ export default class VeiculoRepository {
 
         return veiculo;
     }
+    
+    async atualizarKm(veiculoId, kmNova) {
+        const sql = `
+        UPDATE tb_veiculos 
+        SET veiculo_kmatual = ?
+        WHERE veiculo_id = ?
+    `;
+        return await this.#banco.ExecutaComandoNonQuery(sql, [kmNova, veiculoId]);
+    }
 
     async listar() {
 

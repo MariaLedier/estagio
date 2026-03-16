@@ -122,19 +122,18 @@ export default class VeiculoController {
 
     /*----------------------- OBTER POR ID ------------------------ */
 
-    // async obterPorId(req, res) {
-    //     try{
-    //         let {id} = req.params;
-    //         let usuario = await this.#repositorio.buscarPorId(id);
-    //         if(usuario) {
-    //             return res.status(200).json(usuario);
-    //         }
-    //         else
-    //             return res.status(404).json({msg: "Usuário não encontrado!"});
-    //     }
-    //     catch(exception) {
-    //         console.log(exception);
-    //         return res.status(500).json({msg: exception.message});
-    //     }
-    // }
+    async obterPorId(req, res) {
+        try {
+            let { id } = req.params;
+            let veiculo = await this.#VeiculoRepositorio.obter(id);
+            if (veiculo)
+                return res.status(200).json(veiculo);
+            else
+                return res.status(404).json({ msg: "Veículo não encontrado!" });
+        }
+        catch (exception) {
+            console.log(exception);
+            return res.status(500).json({ msg: exception.message });
+        }
+    }
 }

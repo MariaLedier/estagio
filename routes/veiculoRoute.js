@@ -65,15 +65,10 @@ router.delete("/:id", (req, res) => {
     ctrl.deletar(req, res);
 });
 
-// router.get("/:id", auth.validarToken, (req, res) => {
-//     /* #swagger.security = [{
-//         "bearerAuth": []
-//     }]
-//     */
-//     // #swagger.tags = ['Oficina']
-//     // #swagger.summary = 'Recupera um usuário através de um ID'
-//     ctrl.obterPorId(req, res);
-// });
-
+router.get("/:id", (req, res) => {
+    // #swagger.tags = ['Veiculo']
+    // #swagger.summary = 'Recupera um veículo pelo ID'
+    ctrl.obterPorId(req, res);
+});
 
 export default router;

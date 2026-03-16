@@ -24,7 +24,7 @@ export default class PneusRepository {
         const valores = [
             pneu.marca, pneu.medida, pneu.dataaquisicao, pneu.valor,
             pneu.estado, pneu.status, pneu.posicao,
-            pneu.veiculo?.id ?? pneu.veiculo ?? null 
+            pneu.veiculo?.id ?? pneu.veiculo ?? null
         ];
 
         const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
@@ -49,18 +49,21 @@ export default class PneusRepository {
     }
 
     async listar() {
-
-        const sql = "select * from tb_pneus";
+        const sql = `
+        SELECT p.*, v.veiculo_placa 
+        FROM tb_pneus p
+        LEFT JOIN tb_veiculos v ON p.pneus_veiculo_id = v.veiculo_id
+    `;
         const rows = await this.#banco.ExecutaComando(sql);
         let pneu = [];
 
         for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            pneu.push(this.toMap(row));
+            pneu.push(this.toMap(rows[i]));
         }
 
         return pneu;
     }
+
     async deletar(id) {
 
         const sql = "update tb_pneus set pneus_status = 'DESCARTADO' where pneus_id = ?"
@@ -117,7 +120,6 @@ export default class PneusRepository {
 
 
     toMap(row) {
-
         let pneu = new Pneus();
 
         pneu.id = row["pneus_id"];
@@ -130,7 +132,9 @@ export default class PneusRepository {
         pneu.posicao = row["pneus_posicao"];
 
         if (row["pneus_veiculo_id"]) {
-            pneu.veiculo = new Veiculo(row["pneus_veiculo_id"]);
+            let v = new Veiculo(row["pneus_veiculo_id"]);
+            v.placa = row["veiculo_placa"] || null; 
+            pneu.veiculo = v;
         }
 
         return pneu;
