@@ -5,9 +5,14 @@
 import { useState, useEffect } from "react"
 import { apiClient } from "@/utils/apiClient.js"
 import toast from "react-hot-toast"
+import {
+    formatarMedidaPneu,
+    formatarMoeda,
+} from "@/utils/validacao.js"
 
 export default function PneusPage() {
 
+    // USES STATES
     const [pneus, setPneus] = useState([])
     const [modalAberto, setModalAberto] = useState(false)
     const [pneuEditando, setPneuEditando] = useState(null)
@@ -17,14 +22,85 @@ export default function PneusPage() {
     const [medida, setMedida] = useState("")
     const [dataaquisicao, setDataaquisicao] = useState("")
     const [valor, setValor] = useState("")
-    const [posicao, setPosicao] = useState("")
     const [estado, setEstado] = useState("Bom")
     const [status, setStatus] = useState("EM_ESTOQUE")
 
+    // FILTROS
+    const [pesquisa, setPesquisa] = useState("")
+
+    // TABELA DE MARCAS
+    // TABELA DE MARCAS DE PNEUS
+    const marcasPneu = [
+        { value: "MICHELIN", label: "Michelin" },
+        { value: "PIRELLI", label: "Pirelli" },
+        { value: "BRIDGESTONE", label: "Bridgestone" },
+        { value: "GOODYEAR", label: "Goodyear" },
+        { value: "CONTINENTAL", label: "Continental" },
+        { value: "DUNLOP", label: "Dunlop" },
+        { value: "YOKOHAMA", label: "Yokohama" },
+        { value: "HANKOOK", label: "Hankook" },
+        { value: "FIRESTONE", label: "Firestone" },
+        { value: "KUMHO", label: "Kumho" }
+    ]
 
     useEffect(() => {
         carregarPneus()
     }, [])
+
+    // FORMATAÇÃO DE MEDIDA
+    function handleMedida(valor) {
+        const medidaFormatada = formatarMedidaPneu(valor)
+        setMedida(medidaFormatada)
+    }
+    function handleValor(valor) {
+        const valorFormatado = formatarMoeda(valor)
+        setValor(valorFormatado)
+    }
+
+    // FORMATAR DATA --- FRONT END 
+    function formatarDataInput(data) {
+
+        if (!data) return ""
+
+        const d = new Date(data)
+
+        const ano = d.getFullYear()
+        const mes = String(d.getMonth() + 1).padStart(2, "0")
+        const dia = String(d.getDate()).padStart(2, "0")
+
+        return `${ano}-${mes}-${dia}`
+    }
+
+    function converterMoedaNumero(valor) {
+        if (!valor) return 0
+
+        return Number(
+            valor
+                .replace("R$", "")
+                .replace(/\./g, "")
+                .replace(",", ".")
+                .trim()
+        )
+    }
+
+    // FILTROS
+    const pneusFiltrados = pneus.filter((p) => {
+
+        const termo = pesquisa
+            .toLowerCase()
+            .replace("_", " ")
+
+        const marca = p.marca?.toLowerCase()
+        const status = p.status
+            ?.toLowerCase()
+            .replace("_", " ")
+
+        return (
+            marca.includes(termo) ||
+            status.includes(termo)
+        )
+
+    })
 
     async function carregarPneus() {
         try {
@@ -45,31 +121,20 @@ export default function PneusPage() {
         setMedida("")
         setDataaquisicao("")
         setValor("")
-        setPosicao("")
-        setPosicao("")
         setEstado("Bom")
         setStatus("EM_ESTOQUE")
-        setPosicao("")
-
         setModalAberto(true)
     }
 
     // ---------------- EDITAR ----------------
-
     function abrirEdicao(p) {
-
-        if (p.status === "EM_USO") {
-            toast.error("Pneu em uso não pode ser alterado aqui")
-            return
-        }
 
         setPneuEditando(p)
 
         setMarca(p.marca)
         setMedida(p.medida)
-        setDataaquisicao(p.dataaquisicao)
-        setValor(p.valor)
-        setPosicao(p.posicao)
+        setDataaquisicao(formatarDataInput(p.dataaquisicao))
+        setValor(formatarMoeda(String(p.valor)))
         setEstado(p.estado)
         setStatus(p.status)
 
@@ -97,8 +162,7 @@ export default function PneusPage() {
                     marca,
                     medida,
                     dataaquisicao,
-                    valor: valor.replace(/\D/g, ""),
-                    posicao,
+                    valor: converterMoedaNumero(valor),
                     estado,
                     status
                 })
@@ -111,8 +175,7 @@ export default function PneusPage() {
                     marca,
                     medida,
                     dataaquisicao,
-                    valor: valor.replace(/\D/g, ""),
-                    posicao,
+                    valor: converterMoedaNumero(valor),
                     estado,
                     status: "EM_ESTOQUE"
                 })
@@ -166,6 +229,7 @@ export default function PneusPage() {
 
                 <div style={styles.header}>
 
+
                     <h1 style={styles.title}>
                         Gerenciamento de Pneus
                     </h1>
@@ -191,17 +255,17 @@ export default function PneusPage() {
 
                     <tbody>
 
-                        {pneus.length === 0 ? (
+                        {pneusFiltrados.length === 0 ? (
 
                             <tr>
-                                <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                                <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
                                     Nenhum pneu cadastrado
                                 </td>
                             </tr>
 
                         ) : (
 
-                            pneus.map((p) => (
+                            pneusFiltrados.map((p) => (
 
                                 <tr key={p.id} style={styles.tableRow}>
 
@@ -209,7 +273,18 @@ export default function PneusPage() {
                                     <td style={styles.td}>{p.marca}</td>
                                     <td style={styles.td}>{p.medida}</td>
                                     <td style={styles.td}>{p.estado}</td>
-                                    <td style={styles.td}>{p.status}</td>
+                                    <td style={styles.td}>
+                                        <span style={{
+                                            background: p.status === "EM_USO" ? "#ef4444" : "#22c55e",
+                                            color: "#fff",
+                                            padding: "4px 8px",
+                                            borderRadius: "6px",
+                                            fontSize: "12px"
+                                        }}>
+                                            {p.status.replace("_", " ")}
+                                        </span>
+                                    </td>
+                                    <td style={styles.td}>{p.posicao || "-"}</td>
 
                                     <td style={styles.actions}>
 
@@ -251,21 +326,33 @@ export default function PneusPage() {
 
                             <div style={styles.inputGroup}>
                                 <label>Marca</label>
-                                <input
-                                    type="text"
+
+                                <select
                                     value={marca}
                                     onChange={(e) => setMarca(e.target.value)}
                                     disabled={pneuEditando?.status === "EM_USO"}
                                     style={styles.input}
-                                />
+                                >
+
+                                    <option value="">Selecione a marca</option>
+
+                                    {marcasPneu.map((m) => (
+                                        <option key={m.value} value={m.value}>
+                                            {m.label}
+                                        </option>
+                                    ))}
+
+                                </select>
+
                             </div>
 
                             <div style={styles.inputGroup}>
                                 <label>Medida</label>
                                 <input
                                     type="text"
-                                    value={marca}
-                                    onChange={(e) => setMarca(e.target.value)}
+                                    value={medida}
+                                    onChange={(e) => handleMedida(e.target.value)}
+                                    placeholder="Ex: 275/55 R18"
                                     disabled={pneuEditando?.status === "EM_USO"}
                                     style={styles.input}
                                 />
@@ -286,29 +373,11 @@ export default function PneusPage() {
                                 <input
                                     type="text"
                                     value={valor}
-                                    onChange={(e) => setValor(e.target.value)}
+                                    onChange={(e) => handleValor(e.target.value)}
                                     style={styles.input}
                                 />
                             </div>
 
-                            <div style={styles.inputGroup}>
-                                <label>Posição</label>
-                                <input
-                                    type="text"
-                                    value={posicao}
-                                    onChange={(e) => setPosicao(e.target.value)}
-                                    style={styles.input}
-                                />
-                            </div>
-                            <select
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value)}
-                                disabled={pneuEditando?.status === "EM_USO"}
-                                style={styles.input}
-                            >
-                                <option value="EM_ESTOQUE">EM_ESTOQUE</option>
-                                <option value="DESCARTE">DESCARTE</option>
-                            </select>
 
                             <div style={styles.inputGroup}>
                                 <label>Estado</label>

@@ -21,7 +21,11 @@ export default class PneusRepository {
 
         const sql = "insert into tb_pneus (pneus_marca, pneus_medida, pneus_data_aquisicao, pneus_valor, pneus_estado, pneus_status, pneus_posicao, pneus_veiculo_id) values ( ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        const valores = [pneu.marca, pneu.medida, pneu.dataaquisicao, pneu.valor, pneu.estado, pneu.status, pneu.posicao, pneu.veiculo];
+        const valores = [
+            pneu.marca, pneu.medida, pneu.dataaquisicao, pneu.valor,
+            pneu.estado, pneu.status, pneu.posicao,
+            pneu.veiculo?.id ?? pneu.veiculo ?? null 
+        ];
 
         const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
 
@@ -57,9 +61,52 @@ export default class PneusRepository {
 
         return pneu;
     }
+    async deletar(id) {
+
+        const sql = "update tb_pneus set pneus_status = 'DESCARTADO' where pneus_id = ?"
+
+        const params = [id];
+
+        const result = await this.#banco.ExecutaComandoNonQuery(sql, params);
+
+        return result;
+    }
+    async alterar(entidadeAtualizada) {
+
+        const sql = `
+        update tb_pneus set 
+            pneus_marca = ?,
+            pneus_medida = ?,
+            pneus_data_aquisicao = ?,
+            pneus_valor = ?,
+            pneus_estado = ?,
+            pneus_status = ?,
+            pneus_posicao = ?,
+            pneus_veiculo_id = ?
+        where pneus_id = ?
+    `;
+
+        const valores = [
+            entidadeAtualizada.marca,
+            entidadeAtualizada.medida,
+            entidadeAtualizada.dataaquisicao,
+            entidadeAtualizada.valor,
+            entidadeAtualizada.estado,
+            entidadeAtualizada.status,
+            entidadeAtualizada.posicao,
+            entidadeAtualizada.veiculo?.id ?? entidadeAtualizada.veiculo ?? null,  // ← aqui
+            entidadeAtualizada.id
+        ];
+
+        const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
+
+        return result;
+    }
 
     async deletar(id) {
-        const sql = "update tb_pneus set pneus_status = 'Inativo' where pneu_id = ?"
+
+        const sql = "update tb_pneus set pneus_status = 'DESCARTADO' where pneus_id = ?"
+
         const params = [id];
 
         const result = await this.#banco.ExecutaComandoNonQuery(sql, params);
@@ -67,45 +114,12 @@ export default class PneusRepository {
         return result;
     }
 
-    async alterar(entidadeAtualizada) {
-        const sql = `update tb_usuario set pneus_marca= ?,
-                                           pneus_medida= ?,
-                                           pneus_data_aquisicao = ?,
-                                           pneus_valor = ?,
-                                           pneus_estado = ?,
-                                           pneus_status = ?,
-                                           pneus_posicao = ?,
-                                           pneus_veiculo_id = ?
-                    where pneus_id = ?`
-
-        const valores = [entidadeAtualizada.marca, entidadeAtualizada.medida, entidadeAtualizada.dataaquisicao, entidadeAtualizada.valor, entidadeAtualizada.estado, entidadeAtualizada.status, entidadeAtualizada.posicao, entidadeAtualizada.veiculo, entidadeAtualizada.veiculo.id];
-
-        const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
-
-        return result;
-    }
-
-
-    async verificarPneuVeiculo(id) {
-
-        const sql = "SELECT COUNT(*) as total FROM tb_pneus WHERE veiculo_id = ?";
-
-        const valores = [id];
-
-        const rows = await this.#banco.ExecutaComando(sql, valores);
-
-        let pneu = null;
-        if (rows.length > 0) {
-            pneu = this.toMap(rows[0]);
-        }
-
-        return pneu;
-    }
-
 
 
     toMap(row) {
+
         let pneu = new Pneus();
+
         pneu.id = row["pneus_id"];
         pneu.marca = row["pneus_marca"];
         pneu.medida = row["pneus_medida"];
@@ -114,9 +128,9 @@ export default class PneusRepository {
         pneu.estado = row["pneus_estado"];
         pneu.status = row["pneus_status"];
         pneu.posicao = row["pneus_posicao"];
-        pneu.veiculo = new Veiculo(row["veiculo_id"]);
-        if (row["veiculo_placa"]) {
-            pneu.veiculo.placa = row["veiculo_placa"];
+
+        if (row["pneus_veiculo_id"]) {
+            pneu.veiculo = new Veiculo(row["pneus_veiculo_id"]);
         }
 
         return pneu;

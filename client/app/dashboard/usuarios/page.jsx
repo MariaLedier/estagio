@@ -42,7 +42,7 @@ export default function UsuarioPage() {
     setUsuarioEditando(usuario)
     setNome(usuario.nome)
     setTipo(usuario.tipo)
-    setSenha(usuario.senha)
+    setSenha("")
     setModalAberto(true)
   }
 
@@ -195,7 +195,7 @@ export default function UsuarioPage() {
                <div style={styles.inputGroup}>
                 <label>Senha</label>
                 <input
-                  type="number"
+                  type="password"
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
                   required

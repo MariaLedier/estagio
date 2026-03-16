@@ -34,44 +34,51 @@ export default class PneuController {
     async cadastrar(req, res) {
 
         try {
-            console.log(req.body)
-            let { marca, medida, dataaquisicao, valor, estado, status, posicao, veiculo } = req.body;
 
-            if (marca && medida && estado && status && posicao && veiculo) {
+            let { marca, medida, dataaquisicao, valor, estado, posicao, veiculo } = req.body;
+
+            if (marca && medida && estado) {
+
+                let status = "EM_ESTOQUE";
+
+                if (veiculo && posicao && posicao.toLowerCase() !== "estepe") {
+                    status = "EM_USO";
+                }
 
                 let entidade = new Pneu(
-                    0,
+                    id,
                     marca,
                     medida,
                     dataaquisicao,
                     valor,
                     estado,
-                    status,
-                    posicao,
-                    veiculo
+                    pneuAtual.status,
+                    pneuAtual.posicao,
+                    pneuAtual.veiculo?.id || pneuAtual.veiculo || null  // ← extrai só o ID
                 );
 
                 let inseriu = await this.#PneuRepositorio.gravar(entidade);
 
-                if (inseriu == true) {
+                if (inseriu)
                     return res.status(200).json({ msg: "Pneu cadastrado com sucesso!" });
-                }
-                else {
+                else
                     throw new Error("Erro ao cadastrar pneu no banco de dados");
-                }
 
-            }
-            else {
+            } else {
+
                 return res.status(400).json({ msg: "As informações do pneu não estão corretas!" });
+
             }
 
         }
         catch (exception) {
+
             console.log(exception);
             return res.status(500).json({ msg: exception.message });
-        }
-    }
 
+        }
+
+    }
 
 
     /*----------------------- DELETAR ------------------------ */
@@ -114,39 +121,43 @@ export default class PneuController {
 
         try {
 
-            let { id, marca, medida, dataaquisicao, valor, estado, status, posicao } = req.body;
+            let { id, marca, medida, dataaquisicao, valor, estado } = req.body;
 
-            if (id && marca && medida && estado && status && posicao) {
+            if (id && marca && medida && estado) {
 
-                if (await this.#PneuRepositorio.obter(id)) {
+                let pneuAtual = await this.#PneuRepositorio.obter(id);
 
-                    let entidade = new Pneu(
-                        id,
-                        marca,
-                        medida,
-                        dataaquisicao,
-                        valor,
-                        estado,
-                        status,
-                        posicao
-                    );
+                if (!pneuAtual)
+                    return res.status(404).json({ msg: "Pneu não encontrado para alteração" });
 
-                    if (await this.#PneuRepositorio.alterar(entidade))
-                        res.status(200).json({ msg: "Pneu alterado com sucesso!" });
-                    else
-                        throw new Error("Erro ao alterar pneu no banco de dados");
 
-                }
-                else {
+                // se estiver descartado não altera nada
+                if (pneuAtual.status === "DESCARTADO")
+                    return res.status(400).json({ msg: "Pneu descartado não pode ser alterado" });
 
-                    res.status(404).json({ msg: "Pneu não encontrado para alteração" });
 
-                }
+                let entidade = new Pneu(
+                    id,
+                    marca,
+                    medida,
+                    dataaquisicao,
+                    valor,
+                    estado,
+                    pneuAtual.status,   // mantém status atual
+                    pneuAtual.posicao,  // mantém posição
+                    pneuAtual.veiculo   // mantém veículo
+                );
+
+
+                if (await this.#PneuRepositorio.alterar(entidade))
+                    return res.status(200).json({ msg: "Pneu alterado com sucesso!" });
+                else
+                    throw new Error("Erro ao alterar pneu no banco de dados");
 
             }
             else {
 
-                res.status(400).json({ msg: "As informações do pneu não estão corretas!" });
+                return res.status(400).json({ msg: "As informações do pneu não estão corretas!" });
 
             }
 

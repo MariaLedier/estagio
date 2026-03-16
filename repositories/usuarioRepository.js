@@ -45,7 +45,7 @@ export default class UsuarioRepository {
 
     async listar() {
 
-        const sql = "select * from tb_usuario";
+        const sql = "select usuario_id, usuario_nome, usuario_tipo from tb_usuario";
         const rows = await this.#banco.ExecutaComando(sql);
         let usuario = [];
 

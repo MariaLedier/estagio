@@ -15,6 +15,22 @@ export default function OficinaPage() {
   const [cidade, setCidade] = useState("")
   const [loading, setLoading] = useState(false)
 
+
+  // FORMATAR DATA - FRONTEND
+  function formatarDataInput(data) {
+
+    if (!data) return ""
+
+    const d = new Date(data)
+
+    const ano = d.getFullYear()
+    const mes = String(d.getMonth() + 1).padStart(2, "0")
+    const dia = String(d.getDate()).padStart(2, "0")
+
+    return `${ano}-${mes}-${dia}`
+  }
+
+
   useEffect(() => {
     carreagarOficina()
   }, [])
@@ -41,7 +57,7 @@ export default function OficinaPage() {
   function abrirEdicao(oficinas) {
     setOficinaEditando(oficinas)
     setNome(oficinas.nome)
-    setDatacadastro(oficinas.datacadastro)
+    setDatacadastro(formatarDataInput(oficinas.datacadastro))
     setCidade(oficinas.cidade)
     setModalAberto(true)
   }
@@ -68,7 +84,7 @@ export default function OficinaPage() {
         })
         toast.success("Oficina alterada com sucesso!")
       } else {
-        await apiClient.post("/oficina", { nome, datacadastro, cidade})
+        await apiClient.post("/oficina", { nome, datacadastro, cidade })
         toast.success("Oficina cadastrada com sucesso!")
       }
 
@@ -140,8 +156,8 @@ export default function OficinaPage() {
                 <tr key={s.id} style={styles.tableRow}>
                   <td style={styles.td}>{s.id}</td>
                   <td style={styles.td}>{s.nome}</td>
-                   <td style={styles.td}>{s.datacadastro}</td>
-                    <td style={styles.td}>{s.cidade}</td>
+                  <td style={styles.td}>{s.datacadastro}</td>
+                  <td style={styles.td}>{s.cidade}</td>
                   <td style={styles.actions}>
                     <button
                       onClick={() => abrirEdicao(s)}
@@ -183,11 +199,11 @@ export default function OficinaPage() {
                 />
               </div>
 
-               <div style={styles.inputGroup}>
+              <div style={styles.inputGroup}>
                 <label>Data de Cadastro</label>
                 <input
                   type="date"
-                  value={datacadastro}
+                  value= {datacadastro}
                   onChange={(e) => setDatacadastro(e.target.value)}
                   required
                   style={styles.input}
@@ -230,23 +246,23 @@ export default function OficinaPage() {
   )
 }
 const styles = {
-page: {
-  minHeight: "100vh",
-  background: "linear-gradient(135deg, #ffffff, #ffffff)",
-  padding: "20px",
-  display: "flex",
-  justifyContent: "center"
-},
+  page: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #ffffff, #ffffff)",
+    padding: "20px",
+    display: "flex",
+    justifyContent: "center"
+  },
 
   card: {
-  width: "100%",
-  maxWidth: "1000px",
-  backgroundColor: "#fff",
-  padding: "25px",
-  borderRadius: "16px",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-  boxSizing: "border-box"
-},
+    width: "100%",
+    maxWidth: "1000px",
+    backgroundColor: "#fff",
+    padding: "25px",
+    borderRadius: "16px",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+    boxSizing: "border-box"
+  },
 
   header: {
     display: "flex",
@@ -286,7 +302,7 @@ page: {
 
   actions: {
     display: "flex",
-    
+
     justifyContent: "center",
     gap: "6px"
   },

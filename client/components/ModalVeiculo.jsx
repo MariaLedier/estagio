@@ -223,9 +223,15 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
 
           if (!pneu.marca) continue
 
+          const valorNumerico = pneu.valor
+            .replace("R$", "")
+            .replace(/\./g, "")
+            .replace(",", ".")
+            .trim()
+
           await apiClient.post("/pneu", {
             ...pneu,
-            valor: pneu.valor.replace(/\D/g, ""),
+            valor: parseFloat(valorNumerico) || 0,
             veiculo: veiculoId
           })
 

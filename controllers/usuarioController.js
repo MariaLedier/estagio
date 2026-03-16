@@ -1,6 +1,7 @@
 
 import Usuario from "../entities/usuario.js";
 import UsuarioRepository from "../repositories/usuarioRepository.js";
+import bcrypt from "bcrypt"
 
 export default class UsuarioController {
 
@@ -30,34 +31,35 @@ export default class UsuarioController {
 
 
     /*----------------------- CADASTRAR ------------------------ */
-    async cadastrar(req, res) {
-        try {
+   async cadastrar(req, res) {
 
-            let { nome, tipo, senha} = req.body;
-            if (nome && tipo && senha) {
+  try {
 
-                let entidade = new Usuario(0, nome, tipo, senha);
-                let inseriu = await this.#UsuarioRepositorio.gravar(entidade);
-                if (inseriu == true) {
-                    return res.status(200).json({ msg: "Usuário cadastro com sucesso" });
-                }
-                else {
-                    //não inseriu no bd
-                    throw new Error("Erro ao cadastrar serviço. Não foi possível persisti-lo no banco de dados");
-                }
+    let { nome, tipo, senha } = req.body
 
-            }
-            else {
-                return res.status(400).json({ msg: "O Usuário precisa ter nome e tipo definidos!" })
-            }
-        }
-        catch (exception) {
-            console.log(exception);
-            return res.status(500).json({ msg: exception.message });
-        }
-    }
+    const senhaHash = await bcrypt.hash(senha, 10)
+
+    let usuario = new Usuario(
+      0,
+      nome,
+      tipo,
+      senhaHash   // ← envia hash
+    )
+
+    await this.#UsuarioRepositorio.gravar(usuario)
+
+    res.status(200).json({ msg: "Usuário cadastrado!" })
+
+  } catch (erro) {
+
+    console.log(erro)
+    res.status(500).json({ msg: "Erro ao cadastrar usuário" })
+
+  }
 
 
+ }
+  
 
 
     /*----------------------- DELETAR ------------------------ */
@@ -92,7 +94,7 @@ export default class UsuarioController {
         try {
             let { id, nome, tipo, senha } = req.body;
 
-            if (id && nome && tipo && senha ) {
+            if (id && nome && tipo && senha) {
                 if (await this.#UsuarioRepositorio.obter(id)) {
                     let entidade = new Usuario(id, nome, tipo, senha);
                     if (await this.#UsuarioRepositorio.alterar(entidade))
