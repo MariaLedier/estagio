@@ -28,10 +28,83 @@ export default function AbastecimentoVeiculoPage() {
     const [montado, setMontado] = useState(false)
     const [tipoCombustivel, setTipoCombustivel] = useState("")
 
-
+    // FILTRO DE DATAS
     const [dataInicio, setDataInicio] = useState("")
     const [dataFim, setDataFim] = useState("")
 
+    // ANO POR FILTRO
+    const [anofiltro, setAnofiltro] = useState("")
+
+
+
+
+    // ----------- FILTROS PARA ABASTECIMENTO POR DATA ----------------
+    const abastecimentosFiltrados = abastecimentos
+        .filter(function (a) {
+            const dataAbastecimento = new Date(a.data).toISOString().split("T")[0]
+
+            if (anofiltro) {
+                const anoAbastecimento = dataAbastecimento.split("-")[0]
+                if (anoAbastecimento !== anofiltro) return false
+            }
+
+            if (dataInicio && dataAbastecimento < dataInicio) return false
+            if (dataFim && dataAbastecimento > dataFim) return false
+
+            return true
+        })
+        .sort(function (a, b) {
+            return new Date(a.data) - new Date(b.data)
+        })
+
+
+
+
+    // EXTRAIR ANOS DISPONIVEIS PARA FILTRO POR ANO
+    let anosDisponiveis = []
+    for (let i = 0; i < abastecimentos.length; i++) {
+        const ano = new Date(abastecimentos[i].data).toISOString().split("T")[0].split("-")[0]
+        if (!anosDisponiveis.includes(ano)) {
+            anosDisponiveis.push(ano)
+        }
+    }
+    anosDisponiveis.sort()
+
+    // -------------------- CALULO PARA O BLOCO DE RESUMO ------------------
+
+    let totalLitros = 0
+    let totalValor = 0
+    let somaMedias = 0
+    let qtdMedias = 0
+    let litrosPorCombustivel = {}
+
+    for (let i = 0; i < abastecimentosFiltrados.length; i++) {
+        const a = abastecimentosFiltrados[i]
+
+        totalLitros += Number(a.litros)
+        totalValor += Number(a.valor)
+
+        if (a.kmMedia) {
+            somaMedias += Number(a.kmMedia)
+            qtdMedias++
+        }
+
+        if (a.tipoCombustivel) {
+            if (!litrosPorCombustivel[a.tipoCombustivel]) {
+                litrosPorCombustivel[a.tipoCombustivel] = 0
+            }
+            litrosPorCombustivel[a.tipoCombustivel] += Number(a.litros)
+        }
+    }
+
+    const mediaGeral = qtdMedias > 0
+        ? (somaMedias / qtdMedias).toFixed(2)
+        : null
+
+
+
+
+    // ----------------------------- USE EFFECT ------------------------
 
     useEffect(() => {
         setMontado(true)
@@ -124,18 +197,6 @@ export default function AbastecimentoVeiculoPage() {
         setEditando(null)
     }
 
-    const abastecimentosFiltrados = abastecimentos
-        .filter((a) => {
-            if (!dataInicio && !dataFim) return true
-
-            const dataAbastecimento = new Date(a.data).toISOString().split("T")[0]
-
-            if (dataInicio && dataAbastecimento < dataInicio) return false
-            if (dataFim && dataAbastecimento > dataFim) return false
-
-            return true
-        })
-       .sort((a, b) => new Date(a.data) - new Date(b.data)) // ← mais antigo primeiro
 
     // -------------------- SALVAR --------------------
 
@@ -197,6 +258,8 @@ export default function AbastecimentoVeiculoPage() {
         <div style={styles.page}>
             <div style={styles.card}>
 
+
+
                 {/* HEADER COM INFO DO VEICULO */}
                 <div style={styles.header}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -212,6 +275,55 @@ export default function AbastecimentoVeiculoPage() {
                             </p>
                         </div>
                     </div>
+                    {/* FILTRO POR ANO */}
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <label style={{ fontSize: "13px", color: "#6b7280" }}>Ano:</label>
+                        <select
+                            value={anofiltro}
+                            onChange={function (e) { setAnofiltro(e.target.value) }}
+                            style={{ padding: "8px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                        >
+                            <option value="">Todos</option>
+                            {anosDisponiveis.map(function (ano) {
+                                return (
+                                    <option key={ano} value={ano}>{ano}</option>
+                                )
+                            })}
+                        </select>
+                    </div>
+
+                    {/* BLOCOS DE RESUMO */}
+                    {abastecimentosFiltrados.length > 0 && (
+                        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginBottom: "24px" }}>
+
+                            <div style={styles.bloco}>
+                                <div style={styles.blocoLabel}>Total Gasto</div>
+                                <div style={styles.blocoValor}>
+                                    {totalValor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                                </div>
+                            </div>
+
+                            <div style={styles.bloco}>
+                                <div style={styles.blocoLabel}>Total Litros</div>
+                                <div style={styles.blocoValor}>{totalLitros.toFixed(2)} L</div>
+                            </div>
+
+                            <div style={styles.bloco}>
+                                <div style={styles.blocoLabel}>Média Geral</div>
+                                <div style={styles.blocoValor}>
+                                    {mediaGeral ? `${mediaGeral} km/L` : "-"}
+                                </div>
+                            </div>
+
+                            {Object.entries(litrosPorCombustivel).map(([tipo, litros]) => (
+                                <div key={tipo} style={{ ...styles.bloco, borderTop: "3px solid #2563eb" }}>
+                                    <div style={styles.blocoLabel}>{tipo}</div>
+                                    <div style={styles.blocoValor}>{litros.toFixed(2)} L</div>
+                                </div>
+                            ))}
+
+                        </div>
+                    )}
 
                     {/* FILTROS DE DATA */}
                     <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
@@ -253,7 +365,9 @@ export default function AbastecimentoVeiculoPage() {
                         <tr>
                             <th style={styles.th}>ID</th>
                             <th style={styles.th}>Data</th>
-                            <th style={styles.th}>KM</th>
+                            <th style={styles.th}>KM Anterior</th>
+                            <th style={styles.th}>KM Atual</th>
+                            <th style={styles.th}>Intervalo</th>
                             <th style={styles.th}>Litros</th>
                             <th style={styles.th}>Valor</th>
                             <th style={styles.th}>Combustível</th>
@@ -270,26 +384,49 @@ export default function AbastecimentoVeiculoPage() {
                                 </td>
                             </tr>
                         ) : (
-                            abastecimentosFiltrados.map((a) => (
-                                <tr key={a.id} style={styles.tableRow}>
-                                    <td style={styles.td}>{a.id}</td>
-                                    <td style={styles.td}>{formatarDataInput(a.data)}</td>
-                                    <td style={styles.td}>{Number(a.km).toLocaleString("pt-BR")} km</td>
-                                    <td style={styles.td}>{Number(a.litros).toFixed(2)} L</td>
-                                    <td style={styles.td}>
-                                        {Number(a.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                                    </td>
-                                    <td style={styles.td}>{a.tipoCombustivel || "-"}</td>
-                                    <td style={styles.td}>
-                                        {a.kmMedia ? `${a.kmMedia} km/L` : "-"}
-                                    </td>
-                                    <td style={styles.td}>{a.usuario?.nome || "-"}</td>
-                                    <td style={styles.actions}>
-                                        <button onClick={() => abrirEdicao(a)} style={styles.buttonEdit}>Editar</button>
-                                        <button onClick={() => excluir(a.id)} style={styles.buttonDelete}>Excluir</button>
-                                    </td>
-                                </tr>
-                            ))
+                            abastecimentosFiltrados.map((a, index) => {
+                                const anterior = abastecimentosFiltrados[index - 1]
+                                const kmAnterior = anterior ? Number(anterior.km) : null
+                                const intervalo = kmAnterior ? Number(a.km) - kmAnterior : null
+
+                                return (
+                                    <tr key={a.id} style={styles.tableRow}>
+                                        <td style={styles.td}>{a.id}</td>
+                                        <td style={styles.td}>{formatarDataInput(a.data)}</td>
+                                        <td style={styles.td}>
+                                            {kmAnterior ? Number(kmAnterior).toLocaleString("pt-BR") + " km" : "-"}
+                                        </td>
+                                        <td style={styles.td}>{Number(a.km).toLocaleString("pt-BR")} km</td>
+                                        <td style={styles.td}>
+                                            {intervalo !== null ? (
+                                                <span style={{
+                                                    background: intervalo >= 0 ? "#dcfce7" : "#fee2e2",
+                                                    color: intervalo >= 0 ? "#16a34a" : "#dc2626",
+                                                    padding: "3px 8px",
+                                                    borderRadius: "6px",
+                                                    fontSize: "12px",
+                                                    fontWeight: "bold"
+                                                }}>
+                                                    {intervalo >= 0 ? "+" : ""}{Number(intervalo).toLocaleString("pt-BR")} km
+                                                </span>
+                                            ) : "-"}
+                                        </td>
+                                        <td style={styles.td}>{Number(a.litros).toFixed(2)} L</td>
+                                        <td style={styles.td}>
+                                            {Number(a.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                                        </td>
+                                        <td style={styles.td}>{a.tipoCombustivel || "-"}</td>
+                                        <td style={styles.td}>
+                                            {a.kmMedia ? `${a.kmMedia} km/L` : "-"}
+                                        </td>
+                                        <td style={styles.td}>{a.usuario?.nome || "-"}</td>
+                                        <td style={styles.actions}>
+                                            <button onClick={() => abrirEdicao(a)} style={styles.buttonEdit}>Editar</button>
+                                            <button onClick={() => excluir(a.id)} style={styles.buttonDelete}>Excluir</button>
+                                        </td>
+                                    </tr>
+                                )
+                            })
                         )}
                     </tbody>
                 </table>
@@ -398,8 +535,20 @@ export default function AbastecimentoVeiculoPage() {
 }
 
 const styles = {
-    page: { minHeight: "100vh", background: "#f8fafc", padding: "30px 20px", display: "flex", justifyContent: "center" },
-    card: { width: "100%", maxWidth: "1100px", backgroundColor: "#fff", padding: "25px", borderRadius: "16px", boxShadow: "0 10px 30px rgba(0,0,0,0.08)", boxSizing: "border-box" },
+    page:
+    {
+        minHeight: "100vh",
+        background: "#f8fafc",
+        padding: "30px 20px",
+        display: "flex",
+        justifyContent: "center"
+    },
+    card: {
+        width: "100%",
+        maxWidth: "1100px",
+        backgroundColor: "#fff",
+        padding: "25px", borderRadius: "16px", boxShadow: "0 10px 30px rgba(0,0,0,0.08)", boxSizing: "border-box"
+    },
     header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", flexWrap: "wrap", gap: "10px" },
     title: { margin: 0, fontSize: "22px", fontWeight: "bold" },
     subtitle: { margin: 0, color: "#6b7280", fontSize: "14px" },
@@ -418,5 +567,26 @@ const styles = {
     inputGroup: { marginBottom: "15px", display: "flex", flexDirection: "column", gap: "5px" },
     input: { padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db" },
     modalButtons: { display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" },
-    buttonCancel: { backgroundColor: "#9ca3af", color: "#fff", padding: "10px 16px", borderRadius: "8px", border: "none", cursor: "pointer" }
+    buttonCancel: { backgroundColor: "#9ca3af", color: "#fff", padding: "10px 16px", borderRadius: "8px", border: "none", cursor: "pointer" },
+    bloco: {
+        backgroundColor: "#f8fafc",
+        border: "1px solid #e5e7eb",
+        borderRadius: "12px",
+        padding: "16px 20px",
+        minWidth: "140px",
+        flex: "1"
+    },
+    blocoLabel: {
+        fontSize: "12px",
+        color: "#6b7280",
+        marginBottom: "6px",
+        fontWeight: "600",
+        textTransform: "uppercase"
+    },
+    blocoValor: {
+        fontSize: "20px",
+        fontWeight: "bold",
+        color: "#111827"
+    },
+
 }
