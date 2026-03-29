@@ -8,52 +8,78 @@ const doc = {
     },
     components: {
         schemas: {
-            
+
             erro: {
                 msg: 'Mensagem de erro'
             },
 
-            servico:{
+            servico: {
                 id: 1,
-                nome:'Troca de óleo',
-                valor:79.90
+                nome: 'Troca de óleo',
+                valor: 79.90
 
             },
-            usuario:{
-                id:1,
-                nome:'Vinicio',
+            usuario: {
+                id: 1,
+                nome: 'Vinicio',
                 tipo: 1
             },
-            oficina:{
+            oficina: {
                 id: 1,
                 nome: 'Okubo',
                 datacadastro: '2026-03-08',
                 cidade: "Osvaldo Cruz",
             },
-            veiculo:{
+            veiculo: {
                 id: 1,
                 placa: 'ABC1D23',
                 ano: 2023,
                 renavam: 1234567891011,
-                cor: 'Branco', 
+                cor: 'Branco',
                 kmatual: 30000,
                 status: "Ativo",
                 modelo: 1
             },
-             pneus:{
+            pneus: {
                 id: 1,
                 marca: 'Michellin',
                 medida: '175/25 R15',
                 dataaquisicao: "2026-03-08",
                 valor: 20.00,
                 estado: 'Ruim',
-                status: 'EM_ESTOQUE', 
+                status: 'EM_ESTOQUE',
                 posicao: 'Dianteiro Esquerdo',
                 veiculo: 1,
             },
+            manutencao: {
+
+                "tipo": "CORRETIVA",
+                "data": "2026-03-29",
+                "descricao": "Revisão geral",
+                "status": "AGENDADA",
+                "km": 54000,
+                "veiculo": 1,
+                "usuario": 2,
+                "itens": [
+                    {
+                        "descricao": "Troca de pneus",
+                        "valor": 150.00,
+                        "servico": 7,
+                        "oficina": 2
+                    },
+                    {
+                        "descricao": "Troca de óleo",
+                        "valor": 80.00,
+                        "servico": 8,
+                        "oficina": 2
+                    }
+                ]
+
+
+            },
         },
         '@schemas': {
-           
+
         },
         securitySchemes: {
             bearerAuth: {
@@ -66,7 +92,7 @@ const doc = {
 
 const routes = ['./server.js']
 const outputJson = './swaggerOutput.json';
-swaggerAutogen({openapi: '3.0.0'})(outputJson, routes, doc)
-.then(async () => {
-  await import("./server.js");
-})
+swaggerAutogen({ openapi: '3.0.0' })(outputJson, routes, doc)
+    .then(async () => {
+        await import("./server.js");
+    })

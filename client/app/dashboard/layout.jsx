@@ -42,9 +42,9 @@ export default function DashboardLayout({ children }) {
                     </li>
 
                     <li>
-                        <Link href="/dashboard/veiculos" className="menu-item">
+                        <Link href="/dashboard/manutencao" className="menu-item">
                             <i className="fas fa-car"></i>
-                            <span>Veículos</span>
+                            <span>Manutenção</span>
                         </Link>
                     </li>
 

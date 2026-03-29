@@ -908,6 +908,175 @@
           }
         }
       }
+    },
+    "/manutencao/": {
+      "get": {
+        "tags": [
+          "Manutenção"
+        ],
+        "summary": "Listar todas as manutenções",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Nenhum serviço encontrado na consulta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Manutenção"
+        ],
+        "summary": "Cadastra uma nova manutenção",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/manutencao"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Manutenção"
+        ],
+        "summary": "Altera uma manutenção existente",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/manutencao"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/manutencao/veiculo/{veiculoId}": {
+      "get": {
+        "tags": [
+          "Manutenção"
+        ],
+        "summary": "Listar manutenções por veículo",
+        "description": "",
+        "parameters": [
+          {
+            "name": "veiculoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Nenhum serviço encontrado na consulta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/manutencao/{id}": {
+      "delete": {
+        "tags": [
+          "Manutenção"
+        ],
+        "summary": "Deleta uma manutenção",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1070,6 +1239,66 @@
         },
         "xml": {
           "name": "pneus"
+        }
+      },
+      "manutencao": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "example": "CORRETIVA"
+          },
+          "data": {
+            "type": "string",
+            "example": "2026-03-29"
+          },
+          "descricao": {
+            "type": "string",
+            "example": "Revisão geral"
+          },
+          "status": {
+            "type": "string",
+            "example": "AGENDADA"
+          },
+          "km": {
+            "type": "number",
+            "example": 54000
+          },
+          "veiculo": {
+            "type": "number",
+            "example": 1
+          },
+          "usuario": {
+            "type": "number",
+            "example": 2
+          },
+          "itens": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "descricao": {
+                  "type": "string",
+                  "example": "Troca de óleo"
+                },
+                "valor": {
+                  "type": "number",
+                  "example": 80
+                },
+                "servico": {
+                  "type": "number",
+                  "example": 8
+                },
+                "oficina": {
+                  "type": "number",
+                  "example": 2
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "manutencao"
         }
       }
     },
