@@ -203,7 +203,7 @@ export default function AbastecimentoVeiculoPage() {
     async function salvar(e) {
         e.preventDefault()
 
-        if (!usuarioSelecionado || !data || !km || !litros || !valor) {
+        if (!usuarioSelecionado || !data || !km || !litros || !valor || !tipoCombustivel) {
             toast.error("Preencha todos os campos")
             return
         }
@@ -232,13 +232,14 @@ export default function AbastecimentoVeiculoPage() {
             fecharModal()
             carregarAbastecimentos()
 
-        } catch {
-            toast.error("Erro ao salvar abastecimento")
+        } catch (error) {
+            // MOSTRA MENSAGEM VINDA DO BACKEND
+            const msg = error?.response?.data?.msg || error?.message || "Erro ao salvar abastecimento"
+            toast.error(msg)
         } finally {
             setLoading(false)
         }
     }
-
     // -------------------- EXCLUIR --------------------
 
     async function excluir(abastecimentoId) {

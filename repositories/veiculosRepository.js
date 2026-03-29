@@ -50,22 +50,37 @@ export default class VeiculoRepository {
         return id;
     }
 
-    async obter(id) {
+    async obterPorPlaca(placa) {
+        const sql = `SELECT * FROM tb_veiculos WHERE veiculo_placa = ?`
+        const rows = await this.#banco.ExecutaComando(sql, [placa])
 
-        const sql = "select * from tb_veiculos where veiculo_id = ?";
+        if (rows.length > 0)
+            return this.toMap(rows[0])
 
-        const valores = [id];
-
-        const rows = await this.#banco.ExecutaComando(sql, valores);
-
-        let veiculo = null;
-        if (rows.length > 0) {
-            veiculo = this.toMap(rows[0]);
-        }
-
-        return veiculo;
+        return null
     }
-    
+
+
+    async obter(id) {
+        const sql = `
+        SELECT 
+            v.*, 
+            m.modelo_nome AS modeloNome,
+            ma.marca_nome AS marcaNome,
+            ma.marca_id AS marca
+        FROM tb_veiculos v
+        LEFT JOIN tb_modelo m ON v.veiculo_modelo_id = m.modelo_id
+        LEFT JOIN tb_marca ma ON m.modelo_marca_id = ma.marca_id
+        WHERE v.veiculo_id = ?
+    `;
+
+        const rows = await this.#banco.ExecutaComando(sql, [id]);
+
+        if (rows.length > 0)
+            return this.toMap(rows[0]);
+
+        return null;
+    }
     async atualizarKm(veiculoId, kmNova) {
         const sql = `
         UPDATE tb_veiculos 
@@ -76,18 +91,28 @@ export default class VeiculoRepository {
     }
 
     async listar() {
+        const sql = `
+        SELECT 
+            v.*,
+            m.modelo_nome AS modeloNome,
+            ma.marca_nome AS marcaNome,
+            ma.marca_id AS marca
+        FROM tb_veiculos v
+        LEFT JOIN tb_modelo m ON v.veiculo_modelo_id = m.modelo_id
+        LEFT JOIN tb_marca ma ON m.modelo_marca_id = ma.marca_id
+    `;
 
-        const sql = "select * from tb_veiculos";
         const rows = await this.#banco.ExecutaComando(sql);
-        let veiculo = [];
+        let veiculos = [];
 
         for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            veiculo.push(this.toMap(row));
+            veiculos.push(this.toMap(rows[i]));
         }
 
-        return veiculo;
+        return veiculos;
     }
+
+
 
     // INATIVAÇÃO 
     async deletar(id) {
@@ -100,38 +125,51 @@ export default class VeiculoRepository {
     }
 
     async alterar(entidadeAtualizada) {
-        const sql = `update tb_veiculos set 
-                    veiculo_placa = ?,
-                    veiculo_modelo_id = ?,
-                    veiculo_marca = ?,
-                    veiculo_ano = ?,
-                    veiculo_renavam = ?,
-                    veiculo_cor = ?,
-                    veiculo_kmatual = ?,
-                    veiculo_status = ?
-                    where veiculo_id = ?`
-        const valores = [entidadeAtualizada.placa, entidadeAtualizada.veiculomodelo, entidadeAtualizada.ano, entidadeAtualizada.renavam, entidadeAtualizada.cor, entidadeAtualizada.kmatual, entidadeAtualizada.status, entidadeAtualizada.id];
+        const sql = `
+        UPDATE tb_veiculos SET
+            veiculo_placa = ?,
+            veiculo_modelo_id = ?,
+            veiculo_ano = ?,
+            veiculo_renavam = ?,
+            veiculo_cor = ?,
+            veiculo_kmatual = ?,
+            veiculo_status = ?
+        WHERE veiculo_id = ?
+    `;
 
-        const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
+        const valores = [
+            entidadeAtualizada.placa,
+            entidadeAtualizada.modelo,
+            entidadeAtualizada.ano,
+            entidadeAtualizada.renavam,
+            entidadeAtualizada.cor,
+            entidadeAtualizada.kmatual,
+            entidadeAtualizada.status,
+            entidadeAtualizada.id
+        ];
 
-        return result;
+        return await this.#banco.ExecutaComandoNonQuery(sql, valores);
     }
-
-
-
     toMap(row) {
         let veiculo = new Veiculo();
+        console.log("ROW COMPLETO:", row)
         veiculo.id = row["veiculo_id"];
         veiculo.placa = row["veiculo_placa"];
         veiculo.modelo = row["veiculo_modelo_id"];
+
+
+        veiculo.modeloNome = row["modeloNome"];
+        veiculo.marcaNome = row["marcaNome"];
+
+        // importante pro editar
+        veiculo.marca = row["marca"];
+
         veiculo.ano = row["veiculo_ano"];
         veiculo.renavam = row["veiculo_renavam"];
         veiculo.cor = row["veiculo_cor"];
         veiculo.kmatual = row["veiculo_kmatual"];
-        veiculo.status = row["veiculo_status"]
-
+        veiculo.status = row["veiculo_status"];
 
         return veiculo;
     }
-
 }

@@ -1,12 +1,14 @@
 import Pneu from "../entities/pneus.js";
 import PneusRepository from "../repositories/pneusRepository.js";
-
+import VeiculoRepository from "../repositories/veiculosRepository.js";
 export default class PneuController {
 
     #PneuRepositorio;
+    #VeiculoRepositorio;
 
     constructor() {
         this.#PneuRepositorio = new PneusRepository();
+        this.#VeiculoRepositorio = new VeiculoRepository();
     }
 
 
@@ -32,54 +34,49 @@ export default class PneuController {
 
     /*----------------------- CADASTRAR ------------------------ */
     async cadastrar(req, res) {
-
         try {
-
             let { marca, medida, dataaquisicao, valor, estado, posicao, veiculo } = req.body;
 
             if (marca && medida && estado) {
 
-                let status = "EM_ESTOQUE";
+                // VERIFICA SE VEÍCULO ESTÁ ATIVO QUANDO VINCULADO
+                if (veiculo) {
+                    let veiculoAtual = await this.#VeiculoRepositorio.obter(veiculo)
+
+                    if (!veiculoAtual)
+                        return res.status(404).json({ msg: "Veículo não encontrado!" })
+
+                    if (veiculoAtual.status === "Inativo")
+                        return res.status(400).json({ msg: "Não é possível vincular pneu a um veículo inativo!" })
+                }
+
+                let status = "EM_ESTOQUE"
 
                 if (veiculo && posicao && posicao.toLowerCase() !== "estepe") {
-                    status = "EM_USO";
+                    status = "EM_USO"
                 }
 
                 let entidade = new Pneu(
-                    0,           // ← id 0 para novo registro
-                    marca,
-                    medida,
-                    dataaquisicao,
-                    valor,
-                    estado,
-                    status,      // ← status calculado acima
-                    posicao || null,
-                    veiculo || null
-                );
+                    0, marca, medida, dataaquisicao, valor,
+                    estado, status, posicao || null, veiculo || null
+                )
 
-                let inseriu = await this.#PneuRepositorio.gravar(entidade);
+                let inseriu = await this.#PneuRepositorio.gravar(entidade)
 
                 if (inseriu)
-                    return res.status(200).json({ msg: "Pneu cadastrado com sucesso!" });
+                    return res.status(200).json({ msg: "Pneu cadastrado com sucesso!" })
                 else
-                    throw new Error("Erro ao cadastrar pneu no banco de dados");
+                    throw new Error("Erro ao cadastrar pneu no banco de dados")
 
             } else {
-
-                return res.status(400).json({ msg: "As informações do pneu não estão corretas!" });
-
+                return res.status(400).json({ msg: "As informações do pneu não estão corretas!" })
             }
 
+        } catch (exception) {
+            console.log(exception)
+            return res.status(500).json({ msg: exception.message })
         }
-        catch (exception) {
-
-            console.log(exception);
-            return res.status(500).json({ msg: exception.message });
-
-        }
-
     }
-
     /*----------------------- DELETAR ------------------------ */
 
     async deletar(req, res) {

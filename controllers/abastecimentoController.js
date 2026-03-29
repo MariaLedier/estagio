@@ -53,11 +53,26 @@ export default class AbastecimentoController {
     /*----------------------- CADASTRAR ------------------------ */
     async cadastrar(req, res) {
         try {
-            console.log("BODY RECEBIDO:", req.body)
-
             let { data, km, litros, valor, tipoCombustivel, veiculo, usuario } = req.body;
 
-            if (data && km && litros && valor && tipoCombustivel && veiculo && usuario) {
+            const kmNumero = parseInt(km)
+            const litrosNumero = parseFloat(litros)
+
+            if (data && kmNumero && litrosNumero && valor && tipoCombustivel && veiculo && usuario) {
+
+                // VERIFICA SE VEÍCULO EXISTE E ESTÁ ATIVO
+                let veiculoAtual = await this.#VeiculoRepositorio.obter(veiculo)
+                if (!veiculoAtual)
+                    return res.status(404).json({ msg: "Veículo não encontrado!" })
+
+                if (veiculoAtual.status === "Inativo")
+                    return res.status(400).json({ msg: "Não é possível abastecer um veículo inativo!" })
+
+                // VALIDA KM — não pode ser menor que a KM atual
+                if (kmNumero < veiculoAtual.kmatual)
+                    return res.status(400).json({
+                        msg: `KM informada (${kmNumero}) não pode ser menor que a KM atual do veículo (${veiculoAtual.kmatual})!`
+                    })
 
                 // BUSCA ÚLTIMO ABASTECIMENTO PARA CALCULAR KM MÉDIA
                 let kmMedia = null;
