@@ -176,6 +176,14 @@ export default class ManutencaoRepository {
         return await this.#banco.ExecutaComandoNonQuery(sql, valores);
     }
 
+
+    // PARA CONTA A PAGAR
+
+    async atualizarStatus(id, status) {
+        const sql = `UPDATE tb_manutencao SET manutencao_status = ? WHERE manutencao_id = ?`;
+        return await this.#banco.ExecutaComandoNonQuery(sql, [status, id]);
+    }
+
     async deletarItens(manutencaoId) {
         const sql = `DELETE FROM tb_manutencao_item WHERE item_manutencao_id = ?`;
         return await this.#banco.ExecutaComandoNonQuery(sql, [manutencaoId]);

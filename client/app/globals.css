@@ -11,8 +11,8 @@
 }
 
 /* CONTAINER */
-.admin-container{
-  display:flex;
+.admin-container {
+  display: flex;
 }
 
 /* SIDEBAR */
@@ -66,32 +66,39 @@
   color: var(--primary);
   font-weight: 600;
 }
-.menu-toggle{
-  display:none;
-  font-size:28px;
-  background:none;
-  border:none;
-  cursor:pointer;
 
-  position:fixed;
+.menu-toggle {
+  display: none;
+  font-size: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
 
-  z-index:1001; /* maior que sidebar e overlay */
+  position: fixed;
+
+  z-index: 1001;
+  /* maior que sidebar e overlay */
 }
-.overlay{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100vh;
-  background:rgba(0,0,0,0.4);
-  z-index:998;
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 998;
 }
+
 /* Ajuste para o item Gerenciar com seta alinhada */
 .gerenciar-btn {
   display: flex;
-  align-items: center; /* alinhamento vertical central */
-  justify-content: space-between; /* texto à esquerda, seta à direita */
-  gap: 8px; /* espaçamento entre texto e seta */
+  align-items: center;
+  /* alinhamento vertical central */
+  justify-content: space-between;
+  /* texto à esquerda, seta à direita */
+  gap: 8px;
+  /* espaçamento entre texto e seta */
   margin-bottom: 14px;
   cursor: pointer;
   color: var(--dark);
@@ -228,13 +235,14 @@
   font-weight: 600;
   letter-spacing: 0.5px;
 }
+
 /*--------------------------CARDS-----------------------------  */
 
 .vehicle-card {
   background: white;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   height: 100%;
   transition: all 0.3s ease;
 }
@@ -262,19 +270,19 @@
 
 
 .logo {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px 0;
-    
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+
 }
 
 .logo img {
-    transition: 0.4s ease;
+  transition: 0.4s ease;
 }
 
 .logo img:hover {
-    transform: scale(1.45);
+  transform: scale(1.45);
 }
 
 /*---------------------------------------------------------  */
@@ -287,50 +295,62 @@ i {
 }
 
 .grid-imovel {
-    display: grid;
-    grid-template-columns: 300px 300px 300px;
-    gap: 20px;
-    justify-content: center;
+  display: grid;
+  grid-template-columns: 300px 300px 300px;
+  gap: 20px;
+  justify-content: center;
 }
 
 @media (max-width: 920px) {
   .grid-imovel {
-      grid-template-columns: 300px 300px;
+    grid-template-columns: 300px 300px;
 
   }
 }
 
 @media (max-width: 600px) {
   .grid-imovel {
-      grid-template-columns: 300px;
+    grid-template-columns: 300px;
 
   }
+
   /* MOBILE */
-@media (max-width:900px){
+  @media (max-width:900px) {
 
-  .sidebar{
-    position: fixed;
-    left: -240px;
-    top: 0;
-    width: 240px;
-    height: 100vh;
-    z-index: 999;
+    .sidebar {
+      position: fixed;
+      left: -240px;
+      top: 0;
+      width: 240px;
+      height: 100vh;
+      z-index: 999;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+
+
+    .menu-toggle {
+      display: block;
+    }
+
+    .content {
+      flex: 1;
+      padding: 40px;
+    }
+
+    @media print {
+
+      .no-print {
+        display: none !important;
+      }
+
+      body {
+        background: white !important;
+      }
+
+    }
   }
-
-  .sidebar.open{
-    left: 0;
-  }
-
-
-
-  .menu-toggle {
-    display: block;
-  }
-
- .content{
-  flex: 1;
-  padding: 40px;
-}
-
-}
 }

@@ -30,6 +30,16 @@ export default function ManutencaoVeiculoPage() {
     const [km, setKm] = useState("")
     const [usuarioSelecionado, setUsuarioSelecionado] = useState("")
 
+
+    // MODAL DE PAGAMENTO DE CONTA
+    const [modalPagamentoAberto, setModalPagamentoAberto] = useState(false)
+    const [manutencaoConcluindo, setManutencaoConcluindo] = useState(null)
+    const [formaPagamento, setFormaPagamento] = useState("DINHEIRO")
+    const [valorEntrada, setValorEntrada] = useState("")
+    const [numeroParcelas, setNumeroParcelas] = useState("1")
+    const [vencimentoPrimeira, setVencimentoPrimeira] = useState("")
+    const [totalManutencao, setTotalManutencao] = useState(0)
+
     // ITENS
     const [itens, setItens] = useState([])
 
@@ -131,7 +141,7 @@ export default function ManutencaoVeiculoPage() {
 
     // -------------------- FILTRO --------------------
 
-    const manutencoesFiltradas = manutencoes.filter(function(m) {
+    const manutencoesFiltradas = manutencoes.filter(function (m) {
         const termo = pesquisa.toLowerCase()
         const tipo = m.tipo?.toLowerCase() || ""
         const status = m.status?.toLowerCase() || ""
@@ -160,7 +170,7 @@ export default function ManutencaoVeiculoPage() {
         setStatus(m.status || "AGENDADA")
         setKm(m.km ? String(m.km) : "")
         setUsuarioSelecionado(m.usuario?.id || m.usuario || "")
-        setItens(m.itens && m.itens.length > 0 ? m.itens.map(function(i) {
+        setItens(m.itens && m.itens.length > 0 ? m.itens.map(function (i) {
             return {
                 descricao: i.descricao || "",
                 valor: formatarMoeda(String(i.valor || "0")),
@@ -259,6 +269,58 @@ export default function ManutencaoVeiculoPage() {
         return tipo === "CORRETIVA" ? "#ef4444" : "#2563eb"
     }
 
+
+    // ------------------- PAGAMENTO ----------------------
+    function abrirPagamento(m) {
+        // CALCULA TOTAL DOS ITENS
+        let total = 0
+        for (let i = 0; i < m.itens.length; i++) {
+            total += Number(m.itens[i].valor || 0)
+        }
+        setTotalManutencao(total)
+        setManutencaoConcluindo(m)
+        setFormaPagamento("DINHEIRO")
+        setValorEntrada("")
+        setNumeroParcelas("1")
+        setVencimentoPrimeira("")
+        setModalPagamentoAberto(true)
+    }
+
+    function fecharModalPagamento() {
+        setModalPagamentoAberto(false)
+        setManutencaoConcluindo(null)
+    }
+
+    async function confirmarConclusao(e) {
+        e.preventDefault()
+
+        if (!vencimentoPrimeira) {
+            toast.error("Informe a data de vencimento")
+            return
+        }
+
+        setLoading(true)
+
+        try {
+            await apiClient.post("/conta/gerar", {
+                manutencaoId: manutencaoConcluindo.id,
+                formaPagamento,
+                valorEntrada: converterMoedaNumero(valorEntrada),
+                numeroParcelas: parseInt(numeroParcelas),
+                vencimentoPrimeira
+            })
+
+            toast.success("Manutenção concluída e contas geradas!")
+            fecharModalPagamento()
+            carregarManutencoes()
+
+        } catch {
+            toast.error("Erro ao concluir manutenção")
+        } finally {
+            setLoading(false)
+        }
+    }
+
     // -------------------- RENDER --------------------
 
     return (
@@ -268,7 +330,7 @@ export default function ManutencaoVeiculoPage() {
                 {/* HEADER */}
                 <div style={styles.header}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <button onClick={function() { router.back() }} style={styles.buttonBack}>
+                        <button onClick={function () { router.back() }} style={styles.buttonBack}>
                             ← Voltar
                         </button>
                         <div>
@@ -285,7 +347,7 @@ export default function ManutencaoVeiculoPage() {
                         <input
                             placeholder="Buscar por tipo ou status..."
                             value={pesquisa}
-                            onChange={function(e) { setPesquisa(e.target.value) }}
+                            onChange={function (e) { setPesquisa(e.target.value) }}
                             style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "13px", width: "220px" }}
                         />
                         <button onClick={abrirNovo} style={styles.buttonPrimary}>
@@ -316,7 +378,7 @@ export default function ManutencaoVeiculoPage() {
                                 </td>
                             </tr>
                         ) : (
-                            manutencoesFiltradas.map(function(m) {
+                            manutencoesFiltradas.map(function (m) {
                                 return (
                                     <tr key={m.id} style={styles.tableRow}>
                                         <td style={styles.td}>{m.id}</td>
@@ -336,7 +398,7 @@ export default function ManutencaoVeiculoPage() {
                                         <td style={styles.td}>
                                             {m.itens && m.itens.length > 0 ? (
                                                 <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                                                    {m.itens.map(function(item, i) {
+                                                    {m.itens.map(function (item, i) {
                                                         return (
                                                             <small key={i} style={{ color: "#6b7280" }}>
                                                                 • {item.servico?.nome || "-"} — {item.oficina?.nome || "-"}
@@ -347,8 +409,16 @@ export default function ManutencaoVeiculoPage() {
                                             ) : "-"}
                                         </td>
                                         <td style={styles.actions}>
-                                            <button onClick={function() { abrirEdicao(m) }} style={styles.buttonEdit}>Editar</button>
-                                            <button onClick={function() { excluir(m.id) }} style={styles.buttonDelete}>Excluir</button>
+                                            <button onClick={function () { abrirEdicao(m) }} style={styles.buttonEdit}>Editar</button>
+                                            {m.status !== "CONCLUIDA" && m.status !== "CANCELADA" && (
+                                                <button
+                                                    onClick={function () { abrirPagamento(m) }}
+                                                    style={styles.buttonConcluir}
+                                                >
+                                                    Concluir
+                                                </button>
+                                            )}
+                                            <button onClick={function () { excluir(m.id) }} style={styles.buttonDelete}>Excluir</button>
                                         </td>
                                     </tr>
                                 )
@@ -374,7 +444,7 @@ export default function ManutencaoVeiculoPage() {
 
                                 <div style={styles.inputGroup}>
                                     <label>Tipo</label>
-                                    <select value={tipo} onChange={function(e) { setTipo(e.target.value) }} style={styles.input}>
+                                    <select value={tipo} onChange={function (e) { setTipo(e.target.value) }} style={styles.input}>
                                         <option value="PREVENTIVA">Preventiva</option>
                                         <option value="CORRETIVA">Corretiva</option>
                                     </select>
@@ -382,7 +452,7 @@ export default function ManutencaoVeiculoPage() {
 
                                 <div style={styles.inputGroup}>
                                     <label>Status</label>
-                                    <select value={status} onChange={function(e) { setStatus(e.target.value) }} style={styles.input}>
+                                    <select value={status} onChange={function (e) { setStatus(e.target.value) }} style={styles.input}>
                                         <option value="AGENDADA">Agendada</option>
                                         <option value="EM_ANDAMENTO">Em Andamento</option>
                                         <option value="CONCLUIDA">Concluída</option>
@@ -392,21 +462,21 @@ export default function ManutencaoVeiculoPage() {
 
                                 <div style={styles.inputGroup}>
                                     <label>Data</label>
-                                    <input type="date" value={data} onChange={function(e) { setData(e.target.value) }} style={styles.input} />
+                                    <input type="date" value={data} onChange={function (e) { setData(e.target.value) }} style={styles.input} />
                                 </div>
 
                                 <div style={styles.inputGroup}>
                                     <label>KM</label>
-                                    <input type="number" value={km} onChange={function(e) { setKm(e.target.value) }} style={styles.input} placeholder="Ex: 54000" />
+                                    <input type="number" value={km} onChange={function (e) { setKm(e.target.value) }} style={styles.input} placeholder="Ex: 54000" />
                                 </div>
 
                             </div>
 
                             <div style={styles.inputGroup}>
                                 <label>Usuário Responsável</label>
-                                <select value={usuarioSelecionado} onChange={function(e) { setUsuarioSelecionado(e.target.value) }} style={styles.input}>
+                                <select value={usuarioSelecionado} onChange={function (e) { setUsuarioSelecionado(e.target.value) }} style={styles.input}>
                                     <option value="">Selecione</option>
-                                    {usuarios.map(function(u) {
+                                    {usuarios.map(function (u) {
                                         return <option key={u.id} value={u.id}>{u.nome}</option>
                                     })}
                                 </select>
@@ -416,7 +486,7 @@ export default function ManutencaoVeiculoPage() {
                                 <label>Descrição</label>
                                 <textarea
                                     value={descricao}
-                                    onChange={function(e) { setDescricao(e.target.value) }}
+                                    onChange={function (e) { setDescricao(e.target.value) }}
                                     style={{ ...styles.input, height: "70px", resize: "vertical" }}
                                     placeholder="Descreva a manutenção..."
                                 />
@@ -431,7 +501,7 @@ export default function ManutencaoVeiculoPage() {
                                     </button>
                                 </div>
 
-                                {itens.map(function(item, index) {
+                                {itens.map(function (item, index) {
                                     return (
                                         <div key={index} style={styles.itemRow}>
 
@@ -439,11 +509,11 @@ export default function ManutencaoVeiculoPage() {
                                                 <label style={{ fontSize: "12px", color: "#6b7280" }}>Serviço</label>
                                                 <select
                                                     value={item.servico}
-                                                    onChange={function(e) { alterarItem(index, "servico", e.target.value) }}
+                                                    onChange={function (e) { alterarItem(index, "servico", e.target.value) }}
                                                     style={styles.inputSm}
                                                 >
                                                     <option value="">Selecione</option>
-                                                    {servicos.map(function(s) {
+                                                    {servicos.map(function (s) {
                                                         return <option key={s.id} value={s.id}>{s.nome}</option>
                                                     })}
                                                 </select>
@@ -453,11 +523,11 @@ export default function ManutencaoVeiculoPage() {
                                                 <label style={{ fontSize: "12px", color: "#6b7280" }}>Oficina</label>
                                                 <select
                                                     value={item.oficina}
-                                                    onChange={function(e) { alterarItem(index, "oficina", e.target.value) }}
+                                                    onChange={function (e) { alterarItem(index, "oficina", e.target.value) }}
                                                     style={styles.inputSm}
                                                 >
                                                     <option value="">Selecione</option>
-                                                    {oficinas.map(function(o) {
+                                                    {oficinas.map(function (o) {
                                                         return <option key={o.id} value={o.id}>{o.nome}</option>
                                                     })}
                                                 </select>
@@ -468,7 +538,7 @@ export default function ManutencaoVeiculoPage() {
                                                 <input
                                                     type="text"
                                                     value={item.descricao}
-                                                    onChange={function(e) { alterarItem(index, "descricao", e.target.value) }}
+                                                    onChange={function (e) { alterarItem(index, "descricao", e.target.value) }}
                                                     style={styles.inputSm}
                                                     placeholder="Descrição"
                                                 />
@@ -479,7 +549,7 @@ export default function ManutencaoVeiculoPage() {
                                                 <input
                                                     type="text"
                                                     value={item.valor}
-                                                    onChange={function(e) { handleValorItem(index, e.target.value) }}
+                                                    onChange={function (e) { handleValorItem(index, e.target.value) }}
                                                     style={styles.inputSm}
                                                     placeholder="R$ 0,00"
                                                 />
@@ -487,7 +557,7 @@ export default function ManutencaoVeiculoPage() {
 
                                             <button
                                                 type="button"
-                                                onClick={function() { removerItem(index) }}
+                                                onClick={function () { removerItem(index) }}
                                                 style={styles.buttonRemove}
                                             >
                                                 ✕
@@ -504,6 +574,93 @@ export default function ManutencaoVeiculoPage() {
                                 </button>
                                 <button type="submit" disabled={loading} style={styles.buttonPrimary}>
                                     {loading ? "Salvando..." : "Salvar"}
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            )}
+            {/* MODAL PAGAMENTO */}
+            {modalPagamentoAberto && (
+                <div style={styles.overlay}>
+                    <div style={{ ...styles.modal, width: "480px" }}>
+
+                        <h2 style={{ marginBottom: "6px" }}>Concluir Manutenção</h2>
+                        <p style={{ color: "#6b7280", fontSize: "14px", marginBottom: "20px" }}>
+                            Total da manutenção: <strong>
+                                {totalManutencao.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                            </strong>
+                        </p>
+
+                        <form onSubmit={confirmarConclusao}>
+
+                            <div style={styles.inputGroup}>
+                                <label>Forma de Pagamento</label>
+                                <select
+                                    value={formaPagamento}
+                                    onChange={function (e) { setFormaPagamento(e.target.value) }}
+                                    style={styles.input}
+                                >
+                                    <option value="DINHEIRO">Dinheiro</option>
+                                    <option value="PIX">PIX</option>
+                                    <option value="BOLETO">Boleto</option>
+                                    <option value="CARTAO">Cartão</option>
+                                </select>
+                            </div>
+
+                            <div style={styles.inputGroup}>
+                                <label>Valor de Entrada (opcional)</label>
+                                <input
+                                    type="text"
+                                    value={valorEntrada}
+                                    onChange={function (e) { setValorEntrada(formatarMoeda(e.target.value)) }}
+                                    placeholder="R$ 0,00"
+                                    style={styles.input}
+                                />
+                                {valorEntrada && (
+                                    <small style={{ color: "#6b7280" }}>
+                                        Restante: {(totalManutencao - converterMoedaNumero(valorEntrada))
+                                            .toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                                    </small>
+                                )}
+                            </div>
+
+                            <div style={styles.inputGroup}>
+                                <label>Número de Parcelas</label>
+                                <select
+                                    value={numeroParcelas}
+                                    onChange={function (e) { setNumeroParcelas(e.target.value) }}
+                                    style={styles.input}
+                                >
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(function (n) {
+                                        return <option key={n} value={n}>{n}x</option>
+                                    })}
+                                </select>
+                                {numeroParcelas > 1 && (
+                                    <small style={{ color: "#6b7280" }}>
+                                        {numeroParcelas}x de {((totalManutencao - converterMoedaNumero(valorEntrada)) / numeroParcelas)
+                                            .toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                                    </small>
+                                )}
+                            </div>
+
+                            <div style={styles.inputGroup}>
+                                <label>Vencimento da 1ª Parcela</label>
+                                <input
+                                    type="date"
+                                    value={vencimentoPrimeira}
+                                    onChange={function (e) { setVencimentoPrimeira(e.target.value) }}
+                                    style={styles.input}
+                                />
+                            </div>
+
+                            <div style={styles.modalButtons}>
+                                <button type="button" onClick={fecharModalPagamento} style={styles.buttonCancel}>
+                                    Cancelar
+                                </button>
+                                <button type="submit" disabled={loading} style={{ ...styles.buttonPrimary, backgroundColor: "#22c55e" }}>
+                                    {loading ? "Processando..." : "Confirmar e Concluir"}
                                 </button>
                             </div>
 
@@ -541,5 +698,6 @@ const styles = {
     inputSm: { padding: "8px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px", width: "100%" },
     itemRow: { display: "flex", gap: "8px", alignItems: "flex-end", marginBottom: "10px", padding: "10px", background: "#f8fafc", borderRadius: "8px" },
     modalButtons: { display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" },
-    buttonCancel: { backgroundColor: "#9ca3af", color: "#fff", padding: "10px 16px", borderRadius: "8px", border: "none", cursor: "pointer" }
+    buttonCancel: { backgroundColor: "#9ca3af", color: "#fff", padding: "10px 16px", borderRadius: "8px", border: "none", cursor: "pointer" },
+    buttonConcluir: { backgroundColor: "#22c55e", color: "#fff", padding: "6px 12px", borderRadius: "6px", border: "none", cursor: "pointer" },
 }

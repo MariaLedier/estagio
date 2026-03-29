@@ -36,6 +36,10 @@ export default function AbastecimentoVeiculoPage() {
     const [anofiltro, setAnofiltro] = useState("")
 
 
+    // IMPRESSÃO
+    const [modoImpressao, setModoImpressao] = useState(false)
+
+
 
 
     // ----------- FILTROS PARA ABASTECIMENTO POR DATA ----------------
@@ -253,6 +257,18 @@ export default function AbastecimentoVeiculoPage() {
         }
     }
 
+
+
+    // --------------- IMPRIMIR --------------
+    function handlePrint() {
+        setModoImpressao(true)
+
+        setTimeout(() => {
+            window.print()
+            setModoImpressao(false)
+        }, 300)
+    }
+
     // -------------------- RENDER --------------------
 
     return (
@@ -292,6 +308,12 @@ export default function AbastecimentoVeiculoPage() {
                             })}
                         </select>
                     </div>
+
+
+                    {/* IMPRESSÃO */}
+                    <button onClick={() => handlePrint()} style={styles.printButton}>
+                        🖨️ Imprimir / Salvar PDF
+                    </button>
 
                     {/* BLOCOS DE RESUMO */}
                     {abastecimentosFiltrados.length > 0 && (
@@ -589,5 +611,13 @@ const styles = {
         fontWeight: "bold",
         color: "#111827"
     },
-
+    printButton: {
+        backgroundColor: "#16a34a",
+        color: "#fff",
+        padding: "10px 16px",
+        borderRadius: "8px",
+        border: "none",
+        cursor: "pointer",
+        fontWeight: "bold"
+    }
 }

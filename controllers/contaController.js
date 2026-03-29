@@ -35,88 +35,155 @@ export default class ContaController {
         }
     }
 
+    /*----------------------- HELPER: monta entidade Conta com atribuição explícita ------------------------ */
+    // Evita depender da ordem dos parâmetros do construtor da entidade
+    #montarConta({ descricao, valor, valorPago, formaPagamento, status, vencimento, parcela, totalParcelas, manutencaoId, veiculoId }) {
+        let conta = new Conta();
+        conta.id = 0;
+        conta.descricao = descricao;
+        conta.valor = valor;
+        conta.valorPago = valorPago ?? 0;
+        conta.formaPagamento = formaPagamento;
+        conta.status = status;
+        conta.vencimento = vencimento;
+        conta.parcela = parcela;
+        conta.totalParcelas = totalParcelas;
+        conta.manutencao = manutencaoId;   // repositório faz: conta.manutencao?.id ?? conta.manutencao
+        conta.veiculo = veiculoId;          // repositório faz: conta.veiculo?.id ?? conta.veiculo
+        return conta;
+    }
+
     /*----------------------- CONCLUIR MANUTENÇÃO E GERAR CONTAS ------------------------ */
     async gerarContas(req, res) {
         try {
 
             let { manutencaoId, formaPagamento, valorEntrada, numeroParcelas, vencimentoPrimeira } = req.body;
 
+            console.log("[gerarContas] body recebido:", req.body);
+
             if (!manutencaoId || !formaPagamento || !vencimentoPrimeira)
                 return res.status(400).json({ msg: "Dados incompletos para gerar contas!" });
 
-            // BUSCA MANUTENÇÃO
+            // BUSCA MANUTENÇÃO COM ITENS
             let manutencao = await this.#ManutencaoRepositorio.obter(manutencaoId);
+
+            console.log("[gerarContas] manutencao.status:", manutencao?.status);
+            console.log("[gerarContas] manutencao.veiculo:", manutencao?.veiculo);
+            console.log("[gerarContas] manutencao.itens:", manutencao?.itens);
+
             if (!manutencao)
                 return res.status(404).json({ msg: "Manutenção não encontrada!" });
 
             if (manutencao.status === "CONCLUIDA")
                 return res.status(400).json({ msg: "Manutenção já foi concluída!" });
 
-            // CALCULA TOTAL DOS ITENS
+            // GARANTE QUE ITENS É ARRAY VÁLIDO
+            const itens = Array.isArray(manutencao.itens) ? manutencao.itens : [];
+
+            if (itens.length === 0)
+                return res.status(400).json({ msg: "Esta manutenção não possui itens cadastrados!" });
+
+            // CALCULA TOTAL
             let totalManutencao = 0;
-            for (let i = 0; i < manutencao.itens.length; i++) {
-                totalManutencao += Number(manutencao.itens[i].valor || 0);
+            for (let i = 0; i < itens.length; i++) {
+                totalManutencao += Number(itens[i].valor || 0);
             }
 
+            console.log("[gerarContas] totalManutencao:", totalManutencao);
+
+            if (totalManutencao <= 0)
+                return res.status(400).json({ msg: "O valor total da manutenção deve ser maior que zero!" });
+
             const entrada = Number(valorEntrada || 0);
-            const restante = totalManutencao - entrada;
-            const parcelas = Number(numeroParcelas || 1);
-            const veiculoId = manutencao.veiculo?.id ?? manutencao.veiculo;
+
+            if (entrada > totalManutencao)
+                return res.status(400).json({ msg: "O valor de entrada não pode ser maior que o total!" });
+
+            const restante = parseFloat((totalManutencao - entrada).toFixed(2));
+            const parcelas = Math.max(1, parseInt(numeroParcelas || 1));
+
+            // EXTRAI veiculoId SEGURAMENTE do objeto retornado pelo repositório
+            let veiculoId = null;
+            if (manutencao.veiculo) {
+                if (typeof manutencao.veiculo === "object" && manutencao.veiculo.id) {
+                    veiculoId = manutencao.veiculo.id;
+                } else if (typeof manutencao.veiculo === "number" || typeof manutencao.veiculo === "string") {
+                    veiculoId = manutencao.veiculo;
+                }
+            }
+
+            console.log("[gerarContas] veiculoId resolvido:", veiculoId);
+
+            if (!veiculoId)
+                return res.status(400).json({ msg: "Veículo da manutenção não identificado!" });
+
             const descricaoBase = `Manutenção #${manutencaoId} - ${manutencao.tipo}`;
 
-            // GERA CONTA DA ENTRADA SE HOUVER
+            // HELPER: formata data sem bug de timezone
+            // new Date("2024-01-15") = UTC midnight → vira 2024-01-14 em fuso UTC-3
+            // T12:00:00 força meio-dia local e evita essa armadilha
+            function formatarData(dataStr, mesesAdicionais) {
+                const d = new Date(dataStr + "T12:00:00");
+                d.setMonth(d.getMonth() + mesesAdicionais);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+            }
+
+            // GERA CONTA DE ENTRADA SE HOUVER
             if (entrada > 0) {
-                let contaEntrada = new Conta(
-                    0,
-                    descricaoBase + " (Entrada)",
-                    entrada,
-                    entrada,
+                let contaEntrada = this.#montarConta({
+                    descricao: descricaoBase + " (Entrada)",
+                    valor: entrada,
+                    valorPago: entrada,       // entrada já é paga na hora
                     formaPagamento,
-                    "PAGO",
-                    vencimentoPrimeira,
-                    0,
-                    parcelas,
+                    status: "PAGO",
+                    vencimento: vencimentoPrimeira,
+                    parcela: 0,              // 0 = entrada
+                    totalParcelas: parcelas,
                     manutencaoId,
                     veiculoId
-                );
+                });
                 await this.#ContaRepositorio.gravar(contaEntrada);
             }
 
             // GERA PARCELAS DO RESTANTE
             if (restante > 0) {
-                const valorParcela = parseFloat((restante / parcelas).toFixed(2));
+                // Piso em cada parcela e joga a diferença de centavos na última
+                const valorParcelaBase = Math.floor((restante / parcelas) * 100) / 100;
+                const totalDistribuido = parseFloat((valorParcelaBase * parcelas).toFixed(2));
+                const diferenca = parseFloat((restante - totalDistribuido).toFixed(2));
 
                 for (let i = 1; i <= parcelas; i++) {
-                    // CALCULA VENCIMENTO DE CADA PARCELA (+30 dias por parcela)
-                    const dataVenc = new Date(vencimentoPrimeira);
-                    dataVenc.setMonth(dataVenc.getMonth() + (i - 1));
-                    const vencimento = dataVenc.toISOString().split("T")[0];
+                    const valorParcela = i === parcelas
+                        ? parseFloat((valorParcelaBase + diferenca).toFixed(2))
+                        : valorParcelaBase;
 
-                    let conta = new Conta(
-                        0,
-                        descricaoBase + ` (${i}/${parcelas})`,
-                        valorParcela,
-                        0,
+                    const vencimento = formatarData(vencimentoPrimeira, i - 1);
+
+                    let conta = this.#montarConta({
+                        descricao: descricaoBase + ` (${i}/${parcelas})`,
+                        valor: valorParcela,
+                        valorPago: 0,
                         formaPagamento,
-                        "PENDENTE",
+                        status: "PENDENTE",
                         vencimento,
-                        i,
-                        parcelas,
+                        parcela: i,
+                        totalParcelas: parcelas,
                         manutencaoId,
                         veiculoId
-                    );
+                    });
 
                     await this.#ContaRepositorio.gravar(conta);
                 }
             }
 
-            // ATUALIZA STATUS DA MANUTENÇÃO PARA CONCLUIDA
+            // ATUALIZA STATUS DA MANUTENÇÃO
             await this.#ManutencaoRepositorio.atualizarStatus(manutencaoId, "CONCLUIDA");
 
+            console.log("[gerarContas] concluído com sucesso!");
             return res.status(200).json({ msg: "Contas geradas e manutenção concluída com sucesso!" });
 
         } catch (exception) {
-            console.log(exception);
+            console.log("[gerarContas] ERRO:", exception);
             return res.status(500).json({ msg: exception.message });
         }
     }
@@ -127,8 +194,13 @@ export default class ContaController {
 
             let { id, valorPago } = req.body;
 
-            if (!id || !valorPago)
+            if (!id || valorPago === undefined || valorPago === null)
                 return res.status(400).json({ msg: "Informe o ID e o valor pago!" });
+
+            const pago = Number(valorPago);
+
+            if (isNaN(pago) || pago <= 0)
+                return res.status(400).json({ msg: "Valor pago inválido!" });
 
             let conta = await this.#ContaRepositorio.obter(id);
             if (!conta)
@@ -137,10 +209,14 @@ export default class ContaController {
             if (conta.status === "PAGO")
                 return res.status(400).json({ msg: "Esta conta já foi paga!" });
 
-            const pago = Number(valorPago);
-            const status = pago >= Number(conta.valor) ? "PAGO" : "PARCIAL";
+            // Acumula pagamentos parciais anteriores
+            const totalPagoAnteriormente = Number(conta.valorPago || 0);
+            const totalPagoAgora = parseFloat((totalPagoAnteriormente + pago).toFixed(2));
+            const valorTotal = Number(conta.valor);
 
-            await this.#ContaRepositorio.pagar(id, pago, status);
+            const status = totalPagoAgora >= valorTotal ? "PAGO" : "PARCIAL";
+
+            await this.#ContaRepositorio.pagar(id, totalPagoAgora, status);
 
             return res.status(200).json({ msg: "Pagamento registrado com sucesso!", status });
 
