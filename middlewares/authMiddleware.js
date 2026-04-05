@@ -13,7 +13,8 @@ export default class AuthMiddleware {
         )
     }
 
-    async validarToken(req, res, next) {
+    validarToken = async (req, res, next) => {
+   
         if (req.cookies?.token) {
             let token = req.cookies.token;
             try {
@@ -42,9 +43,9 @@ export default class AuthMiddleware {
     }
 
     // SÓ ADMIN (tipo 2)
-    apenasAdmin(req, res, next) {
-        if (req.usuarioLogado?.tipo !== 2)
-            return res.status(403).json({ msg: "Acesso negado! Apenas administradores." });
-        next();
-    }
+  apenasAdmin = (req, res, next) => {
+    if (req.usuarioLogado?.tipo !== 2)
+        return res.status(403).json({ msg: "Acesso negado! Apenas administradores." });
+    next();
+}
 }

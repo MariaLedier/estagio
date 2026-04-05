@@ -1,11 +1,13 @@
 import express from 'express'
 import ManutencaoController from '../controllers/manutencaoController.js';
+import AuthMiddleware from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
+let auth = new AuthMiddleware();
 let ctrl = new ManutencaoController();
 
-router.get("/", (req, res) => {
+router.get("/",auth.validarToken, (req, res) => {
     // #swagger.tags = ['Manutenção']
     // #swagger.summary = 'Listar todas as manutenções'
 
@@ -17,7 +19,7 @@ router.get("/", (req, res) => {
     ctrl.listar(req, res)
 });
 
-router.get("/veiculo/:veiculoId", (req, res) => {
+router.get("/veiculo/:veiculoId", auth.validarToken,(req, res) => {
     // #swagger.tags = ['Manutenção']
     // #swagger.summary = 'Listar manutenções por veículo'
 
@@ -29,7 +31,7 @@ router.get("/veiculo/:veiculoId", (req, res) => {
     ctrl.listarPorVeiculo(req, res)
 });
 
-router.post("/", (req, res) => {
+router.post("/",auth.validarToken, (req, res) => {
     // #swagger.tags = ['Manutenção']
     // #swagger.summary = 'Cadastra uma nova manutenção'
 
@@ -48,7 +50,7 @@ router.post("/", (req, res) => {
     ctrl.cadastrar(req, res);
 });
 
-router.put("/", (req, res) => {
+router.put("/",auth.validarToken, auth.apenasAdmin, (req, res) => {
     // #swagger.tags = ['Manutenção']
     // #swagger.summary = 'Altera uma manutenção existente'
 
@@ -66,7 +68,7 @@ router.put("/", (req, res) => {
     ctrl.atualizar(req, res);
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", auth.validarToken, auth.apenasAdmin,(req, res) => {
     // #swagger.tags = ['Manutenção']
     // #swagger.summary = 'Deleta uma manutenção'
     ctrl.deletar(req, res);

@@ -1,12 +1,12 @@
 import express from 'express'
-// import AuthMiddleware from '../middlewares/authMiddleware.js';
+import AuthMiddleware from '../middlewares/authMiddleware.js';
 import OficinaController from '../controllers/oficinaController.js';
 
 const router = express.Router();
 
 let ctrl = new OficinaController();
-// let auth = new AuthMiddleware();
-router.get("/",  (req, res) => {
+let auth = new AuthMiddleware();
+router.get("/",  auth.validarToken, (req, res) => {
     //comentarios do swagger
     // #swagger.tags = ['Oficina']
     // #swagger.summary = 'Listar todas as Oficinas'
@@ -19,7 +19,7 @@ router.get("/",  (req, res) => {
     ctrl.listar(req, res)
 });
 
-router.post("/",  (req, res) => {
+router.post("/",   auth.validarToken, auth.apenasAdmin,(req, res) => {
 
     // #swagger.tags = ['Oficina']
     // #swagger.summary = 'Cadastra uma nova oficina'
@@ -37,7 +37,7 @@ router.post("/",  (req, res) => {
     ctrl.cadastrar(req, res);
 });
 
-router.put("/", (req, res) => {
+router.put("/", auth.validarToken, auth.apenasAdmin,(req, res) => {
   
     // #swagger.tags = ['Oficina']
     // #swagger.summary = 'Altera uma oficina existente'
@@ -55,7 +55,7 @@ router.put("/", (req, res) => {
     ctrl.atualizar(req, res);
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", auth.validarToken, auth.apenasAdmin, (req, res) => {
     /* #swagger.security = [{
         "bearerAuth": []
     }]

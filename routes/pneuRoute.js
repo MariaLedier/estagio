@@ -6,7 +6,7 @@ const router = express.Router();
 
 let ctrl = new PneuController();
 let auth = new AuthMiddleware();
-router.get("/", auth.validarToken, (req, res) => {
+router.get("/", auth.validarToken, auth.apenasAdmin, auth.validarToken, (req, res) => {
     //comentarios do swagger
     // #swagger.tags = ['Pneus']
     // #swagger.summary = 'Listar todos os Pneus cadastrados'
@@ -19,7 +19,7 @@ router.get("/", auth.validarToken, (req, res) => {
     ctrl.listar(req, res)
 });
 
-router.post("/",  (req, res) => {
+router.post("/",  auth.validarToken, auth.apenasAdmin, (req, res) => {
 
     // #swagger.tags = ['Pneus']
     // #swagger.summary = 'Cadastra um novo pneu'
@@ -37,7 +37,7 @@ router.post("/",  (req, res) => {
     ctrl.cadastrar(req, res);
 });
 
-router.put("/", (req, res) => {
+router.put("/",  auth.validarToken, auth.apenasAdmin,(req, res) => {
   
     // #swagger.tags = ['Pneus']
     // #swagger.summary = 'Altera um Pneus existente'
@@ -55,7 +55,7 @@ router.put("/", (req, res) => {
     ctrl.atualizar(req, res);
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", auth.validarToken, auth.apenasAdmin, (req, res) => {
     /* #swagger.security = [{
         "bearerAuth": []
     }]

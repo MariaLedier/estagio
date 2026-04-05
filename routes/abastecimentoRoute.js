@@ -1,13 +1,13 @@
 import express from 'express'
-// import AuthMiddleware from '../middlewares/authMiddleware.js';
+import AuthMiddleware from '../middlewares/authMiddleware.js';
 import AbastecimentoController from '../controllers/abastecimentoController.js';
 
 const router = express.Router();
 
 let ctrl = new AbastecimentoController();
-// let auth = new AuthMiddleware();
+let auth = new AuthMiddleware();
 
-router.get("/", (req, res) => {
+router.get("/", auth.validarToken, (req, res) => {
     // #swagger.tags = ['Abastecimento']
     // #swagger.summary = 'Listar todos os abastecimentos'
 
@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
     ctrl.listar(req, res)
 });
 
-router.get("/veiculo/:veiculoId", (req, res) => {
+router.get("/veiculo/:veiculoId", auth.validarToken, (req, res) => {
     // #swagger.tags = ['Abastecimento']
     // #swagger.summary = 'Listar abastecimentos por veículo'
 
@@ -31,7 +31,7 @@ router.get("/veiculo/:veiculoId", (req, res) => {
     ctrl.listarPorVeiculo(req, res)
 });
 
-router.post("/", (req, res) => {
+router.post("/", auth.validarToken, (req, res) => {
     // #swagger.tags = ['Abastecimento']
     // #swagger.summary = 'Cadastra um novo abastecimento'
 
@@ -49,7 +49,7 @@ router.post("/", (req, res) => {
     ctrl.cadastrar(req, res);
 });
 
-router.put("/", (req, res) => {
+router.put("/", auth.validarToken, (req, res) => {
     // #swagger.tags = ['Abastecimento']
     // #swagger.summary = 'Altera um abastecimento existente'
 
@@ -67,7 +67,7 @@ router.put("/", (req, res) => {
     ctrl.atualizar(req, res);
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", auth.validarToken, (req, res) => {
     // #swagger.tags = ['Abastecimento']
     // #swagger.summary = 'Deleta um abastecimento'
     ctrl.deletar(req, res);

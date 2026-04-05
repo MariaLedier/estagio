@@ -1,12 +1,12 @@
 import express from 'express'
-// import AuthMiddleware from '../middlewares/authMiddleware.js';
+import AuthMiddleware from '../middlewares/authMiddleware.js';
 import VeiculoController from '../controllers/veiculoController.js';
 
 const router = express.Router();
 
 let ctrl = new VeiculoController();
-// let auth = new AuthMiddleware();
-router.get("/",  (req, res) => {
+let auth = new AuthMiddleware();
+router.get("/", auth.validarToken, (req, res) => {
     //comentarios do swagger
     // #swagger.tags = ['Veiculo']
     // #swagger.summary = 'Listar todos os veículos'
@@ -19,7 +19,7 @@ router.get("/",  (req, res) => {
     ctrl.listar(req, res)
 });
 
-router.post("/",  (req, res) => {
+router.post("/", auth.validarToken, auth.apenasAdmin, (req, res) => {
 
     // #swagger.tags = ['Veiculo']
     // #swagger.summary = 'Cadastra um novo veiculo'
@@ -37,7 +37,7 @@ router.post("/",  (req, res) => {
     ctrl.cadastrar(req, res);
 });
 
-router.put("/", (req, res) => {
+router.put("/",auth.validarToken, auth.apenasAdmin, (req, res) => {
   
     // #swagger.tags = ['Veiculo']
     // #swagger.summary = 'Altera um veiculo existente'
@@ -55,7 +55,7 @@ router.put("/", (req, res) => {
     ctrl.atualizar(req, res);
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id",auth.validarToken, auth.apenasAdmin, (req, res) => {
     /* #swagger.security = [{
         "bearerAuth": []
     }]
@@ -65,7 +65,7 @@ router.delete("/:id", (req, res) => {
     ctrl.deletar(req, res);
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id",auth.validarToken, (req, res) => {
     // #swagger.tags = ['Veiculo']
     // #swagger.summary = 'Recupera um veículo pelo ID'
     ctrl.obterPorId(req, res);
