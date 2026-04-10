@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { apiClient } from "@/utils/apiClient.js"
 import toast from "react-hot-toast"
-import { formatarMoeda } from "@/utils/validacao.js"
+import { formatarMoeda, formatarKm } from "@/utils/validacao.js"
 
 export default function ManutencaoVeiculoPage() {
 
@@ -69,6 +69,9 @@ export default function ManutencaoVeiculoPage() {
         if (!v) return 0
         return Number(v.replace("R$", "").replace(/\./g, "").replace(",", ".").trim())
     }
+
+    function handleKm(e) { setKm(formatarKm(e.target.value)) }
+
 
     // -------------------- CARREGAR --------------------
 
@@ -409,16 +412,28 @@ export default function ManutencaoVeiculoPage() {
                                             ) : "-"}
                                         </td>
                                         <td style={styles.actions}>
-                                            <button onClick={function () { abrirEdicao(m) }} style={styles.buttonEdit}>Editar</button>
+                                            <button
+                                                onClick={() => abrirEdicao(m)}
+                                                style={styles.buttonEdit}
+                                            >
+                                                <i className="fas fa-pencil-alt"></i>
+                                            </button>
+
                                             {m.status !== "CONCLUIDA" && m.status !== "CANCELADA" && (
                                                 <button
-                                                    onClick={function () { abrirPagamento(m) }}
+                                                    onClick={() => abrirPagamento(m)}
                                                     style={styles.buttonConcluir}
                                                 >
                                                     Concluir
                                                 </button>
                                             )}
-                                            <button onClick={function () { excluir(m.id) }} style={styles.buttonDelete}>Excluir</button>
+
+                                            <button
+                                                onClick={() => excluir(m.id)}
+                                                style={styles.buttonDelete}
+                                            >
+                                                <i className="fas fa-trash"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 )
@@ -467,7 +482,14 @@ export default function ManutencaoVeiculoPage() {
 
                                 <div style={styles.inputGroup}>
                                     <label>KM</label>
-                                    <input type="number" value={km} onChange={function (e) { setKm(e.target.value) }} style={styles.input} placeholder="Ex: 54000" />
+                                    <input
+                                        type="text"
+                                        value={formatarKm(km)}
+                                        onChange={handleKm}
+                                        style={styles.input}
+                                        placeholder="Ex: 54.000"
+                                        inputMode="numeric"
+                                    />
                                 </div>
 
                             </div>

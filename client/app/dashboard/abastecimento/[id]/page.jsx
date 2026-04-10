@@ -444,8 +444,11 @@ export default function AbastecimentoVeiculoPage() {
                                         </td>
                                         <td style={styles.td}>{a.usuario?.nome || "-"}</td>
                                         <td style={styles.actions}>
-                                            <button onClick={() => abrirEdicao(a)} style={styles.buttonEdit}>Editar</button>
-                                            <button onClick={() => excluir(a.id)} style={styles.buttonDelete}>Excluir</button>
+                                            <button onClick={() => abrirEdicao(a)} style={styles.buttonEdit}> <i className="fas fa-pencil-alt"></i></button>
+
+
+
+                                            <button onClick={() => excluir(a.id)} style={styles.buttonDelete}> <i className="fas fa-trash"></i></button>
                                         </td>
                                     </tr>
                                 )
