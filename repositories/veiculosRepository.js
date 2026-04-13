@@ -30,9 +30,10 @@ export default class VeiculoRepository {
         veiculo_cor,
         veiculo_kmatual,
         veiculo_status,
-        veiculo_modelo_id
+        veiculo_modelo_id,
+        veiculo_tanque
     )
-    values (?, ?, ?, ?, ?, ?, ?)
+    values (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
         const valores = [
@@ -42,7 +43,8 @@ export default class VeiculoRepository {
             veiculo.cor,
             veiculo.kmatual,
             veiculo.status,
-            veiculo.modelo
+            veiculo.modelo,
+            veiculo.tanque
         ];
 
         const id = await this.#banco.ExecutaComandoLastInserted(sql, valores);
@@ -133,7 +135,8 @@ export default class VeiculoRepository {
             veiculo_renavam = ?,
             veiculo_cor = ?,
             veiculo_kmatual = ?,
-            veiculo_status = ?
+            veiculo_status = ?,
+            veiculo_tanque = ?
         WHERE veiculo_id = ?
     `;
 
@@ -145,6 +148,7 @@ export default class VeiculoRepository {
             entidadeAtualizada.cor,
             entidadeAtualizada.kmatual,
             entidadeAtualizada.status,
+            entidadeAtualizada.tanque,
             entidadeAtualizada.id
         ];
 
@@ -169,6 +173,7 @@ export default class VeiculoRepository {
         veiculo.cor = row["veiculo_cor"];
         veiculo.kmatual = row["veiculo_kmatual"];
         veiculo.status = row["veiculo_status"];
+        veiculo.tanque = row["veiculo_tanque"];
 
         return veiculo;
     }

@@ -20,8 +20,8 @@ export default class AbastecimentoRepository {
         INSERT INTO tb_abastecimento 
             (abastecimento_data, abastecimento_km, abastecimento_litros, abastecimento_valor,
              abastecimento_tipo_combustivel, abastecimento_km_media,
-             abastecimento_veiculo_id, abastecimento_usuario_id) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+             abastecimento_veiculo_id, abastecimento_usuario_id, abastecimento_pagamento) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
         const valores = [
@@ -32,7 +32,8 @@ export default class AbastecimentoRepository {
             abastecimento.tipoCombustivel,
             abastecimento.kmMedia,
             abastecimento.veiculo?.id ?? abastecimento.veiculo ?? null,
-            abastecimento.usuario?.id ?? abastecimento.usuario ?? null
+            abastecimento.usuario?.id ?? abastecimento.usuario ?? null,
+            abastecimento.pagamento
         ];
 
         return await this.#banco.ExecutaComandoNonQuery(sql, valores);
@@ -90,7 +91,8 @@ export default class AbastecimentoRepository {
             abastecimento_tipo_combustivel = ?,
             abastecimento_km_media = ?,
             abastecimento_veiculo_id = ?,
-            abastecimento_usuario_id = ?
+            abastecimento_usuario_id = ?,
+            abastecimento_pagamento = ?
         WHERE abastecimento_id = ?
     `;
 
@@ -103,6 +105,7 @@ export default class AbastecimentoRepository {
             abastecimento.kmMedia,
             abastecimento.veiculo?.id ?? abastecimento.veiculo ?? null,
             abastecimento.usuario?.id ?? abastecimento.usuario ?? null,
+            abastecimento.pagamento,
             abastecimento.id
         ];
 
@@ -139,6 +142,8 @@ export default class AbastecimentoRepository {
 
         return await this.#banco.ExecutaComandoNonQuery(sql, [id]);
     }
+
+    
     async obterUltimoPorVeiculo(veiculoId) {
         const sql = `
         SELECT * FROM tb_abastecimento 

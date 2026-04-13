@@ -13,6 +13,7 @@ export default class Veiculo extends Base {
     #marca;
     #modeloNome;
     #marcaNome;
+    #tanque;
 
     get id() { return this.#id; }
     set id(value) { this.#id = value; }
@@ -47,7 +48,12 @@ export default class Veiculo extends Base {
     get marcaNome() { return this.#marcaNome; }
     set marcaNome(value) { this.#marcaNome = value; }
 
-    constructor(id, placa, ano, renavam, cor, kmatual, status, modelo, marca) {
+    get tanque() { return this.#tanque; }
+    set tanque(value) { this.#tanque = value; }
+
+
+    // Altere para 9 parâmetros apenas
+    constructor(id, placa, ano, renavam, cor, kmatual, status, modelo, tanque) {
         super();
         this.#id = id;
         this.#placa = placa;
@@ -57,9 +63,8 @@ export default class Veiculo extends Base {
         this.#kmatual = kmatual;
         this.#status = status;
         this.#modelo = modelo;
-        this.#marca = marca;
-        this.#modeloNome = null;
-        this.#marcaNome = null;
+        this.#tanque = tanque; // Agora o 9º valor cai aqui corretamente
+        this.#marca = null;
     }
 
     toJSON() {
@@ -74,7 +79,8 @@ export default class Veiculo extends Base {
             modelo: this.#modelo,
             marca: this.#marca,
             modeloNome: this.#modeloNome,
-            marcaNome: this.#marcaNome
+            marcaNome: this.#marcaNome,
+            tanque: this.#tanque
         }
     }
 }

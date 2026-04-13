@@ -1,15 +1,19 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { apiClient } from "@/utils/apiClient.js"
 import toast from "react-hot-toast"
 import { formatarMoeda, formatarKm } from "@/utils/validacao.js"
+import { useUser } from "@/app/context/userContext.jsx"
 
 export default function ManutencaoVeiculoPage() {
 
     const { id } = useParams()
     const router = useRouter()
+    const { user } = useUser()
+
+    const isAdmin = user?.tipo === 2   // APENAS ADMIN PODE TROCAR O USUÁRIO
 
     const [montado, setMontado] = useState(false)
     const [veiculo, setVeiculo] = useState(null)
@@ -21,27 +25,28 @@ export default function ManutencaoVeiculoPage() {
     const [modalAberto, setModalAberto] = useState(false)
     const [editando, setEditando] = useState(null)
     const [pesquisa, setPesquisa] = useState("")
-
-    // CAMPOS MANUTENÇÃO
-    const [tipo, setTipo] = useState("PREVENTIVA")
-    const [data, setData] = useState("")
-    const [descricao, setDescricao] = useState("")
-    const [status, setStatus] = useState("AGENDADA")
-    const [km, setKm] = useState("")
-    const [usuarioSelecionado, setUsuarioSelecionado] = useState("")
-
-
-    // MODAL DE PAGAMENTO DE CONTA
-    const [modalPagamentoAberto, setModalPagamentoAberto] = useState(false)
+    const [itens, setItens] = useState([])
+    const [modalConclusaoAberto, setModalConclusaoAberto] = useState(false)
     const [manutencaoConcluindo, setManutencaoConcluindo] = useState(null)
-    const [formaPagamento, setFormaPagamento] = useState("DINHEIRO")
-    const [valorEntrada, setValorEntrada] = useState("")
-    const [numeroParcelas, setNumeroParcelas] = useState("1")
-    const [vencimentoPrimeira, setVencimentoPrimeira] = useState("")
     const [totalManutencao, setTotalManutencao] = useState(0)
 
-    // ITENS
-    const [itens, setItens] = useState([])
+    // REFS DO FORMULÁRIO DE MANUTENÇÃO
+    const tipo = useRef()
+    const status = useRef()
+    const data = useRef()
+    const km = useRef()
+    const usuarioSelecionado = useRef()
+    const descricao = useRef()
+    const campoPesquisa = useRef()
+
+    // REFS DO MODAL DE CONCLUSÃO — só forma de pagamento e observação
+    const formaPagamento = useRef()
+    const descricaoPagamento = useRef()
+
+    function dataDeHoje() {
+        const hoje = new Date()
+        return `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`
+    }
 
     useEffect(() => {
         setMontado(true)
@@ -50,18 +55,18 @@ export default function ManutencaoVeiculoPage() {
     useEffect(() => {
         carregarVeiculo()
         carregarManutencoes()
-        carregarUsuarios()
         carregarServicos()
         carregarOficinas()
+        if (isAdmin) carregarUsuarios()
     }, [id])
 
     if (!montado) return null
 
     // -------------------- FORMATAÇÕES --------------------
 
-    function formatarDataInput(data) {
-        if (!data) return ""
-        const d = new Date(data)
+    function formatarDataInput(valor) {
+        if (!valor) return ""
+        const d = new Date(valor)
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
     }
 
@@ -69,9 +74,6 @@ export default function ManutencaoVeiculoPage() {
         if (!v) return 0
         return Number(v.replace("R$", "").replace(/\./g, "").replace(",", ".").trim())
     }
-
-    function handleKm(e) { setKm(formatarKm(e.target.value)) }
-
 
     // -------------------- CARREGAR --------------------
 
@@ -127,61 +129,66 @@ export default function ManutencaoVeiculoPage() {
     }
 
     function removerItem(index) {
-        const novos = [...itens]
-        novos.splice(index, 1)
-        setItens(novos)
+        const copia = [...itens]
+        copia.splice(index, 1)
+        setItens(copia)
     }
 
     function alterarItem(index, campo, valor) {
-        const novos = [...itens]
-        novos[index][campo] = valor
-        setItens(novos)
-    }
-
-    function handleValorItem(index, valor) {
-        alterarItem(index, "valor", formatarMoeda(valor))
+        const copia = [...itens]
+        copia[index][campo] = valor
+        setItens(copia)
     }
 
     // -------------------- FILTRO --------------------
 
-    const manutencoesFiltradas = manutencoes.filter(function (m) {
+    const manutencoesFiltradas = manutencoes.filter((m) => {
         const termo = pesquisa.toLowerCase()
-        const tipo = m.tipo?.toLowerCase() || ""
-        const status = m.status?.toLowerCase() || ""
-        return tipo.includes(termo) || status.includes(termo)
+        return (
+            (m.tipo?.toLowerCase() || "").includes(termo) ||
+            (m.status?.toLowerCase() || "").includes(termo)
+        )
     })
 
-    // -------------------- MODAL --------------------
+    // -------------------- MODAL DE MANUTENÇÃO --------------------
 
     function abrirNovo() {
         setEditando(null)
-        setTipo("PREVENTIVA")
-        setData("")
-        setDescricao("")
-        setStatus("AGENDADA")
-        setKm("")
-        setUsuarioSelecionado("")
         setItens([{ descricao: "", valor: "", servico: "", oficina: "" }])
         setModalAberto(true)
+
+        setTimeout(() => {
+            tipo.current.value = "PREVENTIVA"
+            status.current.value = "AGENDADA"
+            data.current.value = dataDeHoje()
+            km.current.value = ""
+            descricao.current.value = ""
+            usuarioSelecionado.current.value = user?.id || ""
+        }, 50)
     }
 
     function abrirEdicao(m) {
         setEditando(m)
-        setTipo(m.tipo || "PREVENTIVA")
-        setData(formatarDataInput(m.data))
-        setDescricao(m.descricao || "")
-        setStatus(m.status || "AGENDADA")
-        setKm(m.km ? String(m.km) : "")
-        setUsuarioSelecionado(m.usuario?.id || m.usuario || "")
-        setItens(m.itens && m.itens.length > 0 ? m.itens.map(function (i) {
-            return {
-                descricao: i.descricao || "",
-                valor: formatarMoeda(String(i.valor || "0")),
-                servico: i.servico?.id || i.servico || "",
-                oficina: i.oficina?.id || i.oficina || ""
-            }
-        }) : [{ descricao: "", valor: "", servico: "", oficina: "" }])
+        setItens(
+            m.itens && m.itens.length > 0
+                ? m.itens.map((i) => ({
+                    descricao: i.descricao || "",
+                    valor: formatarMoeda(String(i.valor || "0")),
+                    servico: i.servico?.id || i.servico || "",
+                    oficina: i.oficina?.id || i.oficina || ""
+                }))
+                : [{ descricao: "", valor: "", servico: "", oficina: "" }]
+        )
         setModalAberto(true)
+
+        setTimeout(() => {
+            tipo.current.value = m.tipo || "PREVENTIVA"
+            status.current.value = m.status || "AGENDADA"
+            data.current.value = formatarDataInput(m.data)
+            km.current.value = m.km ? String(m.km) : ""
+            descricao.current.value = m.descricao || ""
+            usuarioSelecionado.current.value = m.usuario?.id || m.usuario || user?.id || ""
+        }, 50)
     }
 
     function fecharModal() {
@@ -189,12 +196,10 @@ export default function ManutencaoVeiculoPage() {
         setEditando(null)
     }
 
-    // -------------------- SALVAR --------------------
+    // -------------------- SALVAR MANUTENÇÃO --------------------
 
-    async function salvar(e) {
-        e.preventDefault()
-
-        if (!tipo || !data || !usuarioSelecionado) {
+    async function salvar() {
+        if (!tipo.current.value || !data.current.value || !usuarioSelecionado.current.value) {
             toast.error("Preencha os campos obrigatórios")
             return
         }
@@ -214,22 +219,22 @@ export default function ManutencaoVeiculoPage() {
                 }
             }
 
-            const payload = {
-                tipo,
-                data,
-                descricao,
-                status,
-                km: km ? parseInt(km) : null,
+            let obj = {
+                tipo: tipo.current.value,
+                data: data.current.value,
+                descricao: descricao.current.value,
+                status: status.current.value,
+                km: km.current.value ? parseInt(km.current.value.replace(/\./g, "")) : null,
                 veiculo: id,
-                usuario: usuarioSelecionado,
+                usuario: usuarioSelecionado.current.value,
                 itens: itensPayload
             }
 
             if (editando) {
-                await apiClient.put("/manutencao", { id: editando.id, ...payload })
+                await apiClient.put("/manutencao", { id: editando.id, ...obj })
                 toast.success("Manutenção alterada!")
             } else {
-                await apiClient.post("/manutencao", payload)
+                await apiClient.post("/manutencao", obj)
                 toast.success("Manutenção cadastrada!")
             }
 
@@ -256,72 +261,79 @@ export default function ManutencaoVeiculoPage() {
         }
     }
 
-    // -------------------- BADGE STATUS --------------------
+    // -------------------- MODAL DE CONCLUSÃO --------------------
 
-    function corStatus(status) {
-        switch (status) {
-            case "AGENDADA": return "#2563eb"
-            case "EM_ANDAMENTO": return "#f59e0b"
-            case "CONCLUIDA": return "#22c55e"
-            case "CANCELADA": return "#ef4444"
-            default: return "#9ca3af"
-        }
-    }
-
-    function corTipo(tipo) {
-        return tipo === "CORRETIVA" ? "#ef4444" : "#2563eb"
-    }
-
-
-    // ------------------- PAGAMENTO ----------------------
-    function abrirPagamento(m) {
-        // CALCULA TOTAL DOS ITENS
+    function abrirConclusao(m) {
+        // Calcula o total somando os valores dos itens
         let total = 0
         for (let i = 0; i < m.itens.length; i++) {
             total += Number(m.itens[i].valor || 0)
         }
         setTotalManutencao(total)
         setManutencaoConcluindo(m)
-        setFormaPagamento("DINHEIRO")
-        setValorEntrada("")
-        setNumeroParcelas("1")
-        setVencimentoPrimeira("")
-        setModalPagamentoAberto(true)
+        setModalConclusaoAberto(true)
+
+        setTimeout(() => {
+            formaPagamento.current.value = "DINHEIRO"
+            descricaoPagamento.current.value = ""
+        }, 50)
     }
 
-    function fecharModalPagamento() {
-        setModalPagamentoAberto(false)
+    function fecharConclusao() {
+        setModalConclusaoAberto(false)
         setManutencaoConcluindo(null)
     }
 
-    async function confirmarConclusao(e) {
-        e.preventDefault()
-
-        if (!vencimentoPrimeira) {
-            toast.error("Informe a data de vencimento")
+    async function confirmarConclusao() {
+        if (!formaPagamento.current.value) {
+            toast.error("Selecione a forma de pagamento")
             return
         }
 
         setLoading(true)
 
         try {
-            await apiClient.post("/conta/gerar", {
-                manutencaoId: manutencaoConcluindo.id,
-                formaPagamento,
-                valorEntrada: converterMoedaNumero(valorEntrada),
-                numeroParcelas: parseInt(numeroParcelas),
-                vencimentoPrimeira
+            // 1. Grava o registro de gasto (conta)
+            // REMOVIDO o campo 'data', pois a tabela tb_conta não tem mais vencimento
+            await apiClient.post("/conta", {
+                manutencao: manutencaoConcluindo.id,
+                veiculo: id,
+                valor: totalManutencao,
+                formaPagamento: formaPagamento.current.value,
+                descricao: descricaoPagamento.current.value
+                // data: dataDeHoje() <- REMOVA ESTA LINHA
             })
 
-            toast.success("Manutenção concluída e contas geradas!")
-            fecharModalPagamento()
+            // 2. Marca a manutenção como concluída
+            await apiClient.put("/manutencao", {
+                id: manutencaoConcluindo.id,
+                status: "CONCLUIDA"
+            })
+
+            toast.success("Manutenção concluída!")
+            fecharConclusao()
             carregarManutencoes()
 
-        } catch {
+        } catch (error) {
+            console.error(error)
             toast.error("Erro ao concluir manutenção")
         } finally {
             setLoading(false)
         }
+    }
+
+    // -------------------- CORES --------------------
+
+    function corStatus(valor) {
+        if (valor === "AGENDADA") return "#2563eb"
+        if (valor === "EM_ANDAMENTO") return "#f59e0b"
+        if (valor === "CONCLUIDA") return "#22c55e"
+        if (valor === "CANCELADA") return "#ef4444"
+        return "#9ca3af"
+    }
+
+    function corTipo(valor) {
+        return valor === "CORRETIVA" ? "#ef4444" : "#2563eb"
     }
 
     // -------------------- RENDER --------------------
@@ -330,27 +342,23 @@ export default function ManutencaoVeiculoPage() {
         <div style={styles.page}>
             <div style={styles.card}>
 
-                {/* HEADER */}
+                {/* CABEÇALHO */}
                 <div style={styles.header}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <button onClick={function () { router.back() }} style={styles.buttonBack}>
+                        <button onClick={() => router.back()} style={styles.buttonBack}>
                             ← Voltar
                         </button>
                         <div>
-                            <h1 style={styles.title}>
-                                🔧 Manutenções — {veiculo?.placa || "..."}
-                            </h1>
-                            <p style={styles.subtitle}>
-                                {veiculo?.marcaNome || ""} {veiculo?.modeloNome || ""} {veiculo?.ano || ""}
-                            </p>
+                            <h1 style={styles.title}>🔧 Manutenções — {veiculo?.placa || "..."}</h1>
+                            <p style={styles.subtitle}>{veiculo?.marcaNome || ""} {veiculo?.modeloNome || ""} {veiculo?.ano || ""}</p>
                         </div>
                     </div>
 
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                         <input
+                            ref={campoPesquisa}
                             placeholder="Buscar por tipo ou status..."
-                            value={pesquisa}
-                            onChange={function (e) { setPesquisa(e.target.value) }}
+                            onChange={() => setPesquisa(campoPesquisa.current.value)}
                             style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "13px", width: "220px" }}
                         />
                         <button onClick={abrirNovo} style={styles.buttonPrimary}>
@@ -381,70 +389,57 @@ export default function ManutencaoVeiculoPage() {
                                 </td>
                             </tr>
                         ) : (
-                            manutencoesFiltradas.map(function (m) {
-                                return (
-                                    <tr key={m.id} style={styles.tableRow}>
-                                        <td style={styles.td}>{m.id}</td>
-                                        <td style={styles.td}>
-                                            <span style={{ background: corTipo(m.tipo), color: "#fff", padding: "3px 8px", borderRadius: "6px", fontSize: "12px", fontWeight: "bold" }}>
-                                                {m.tipo}
-                                            </span>
-                                        </td>
-                                        <td style={styles.td}>{formatarDataInput(m.data)}</td>
-                                        <td style={styles.td}>{m.km ? Number(m.km).toLocaleString("pt-BR") + " km" : "-"}</td>
-                                        <td style={styles.td}>
-                                            <span style={{ background: corStatus(m.status), color: "#fff", padding: "3px 8px", borderRadius: "6px", fontSize: "12px", fontWeight: "bold" }}>
-                                                {m.status?.replace("_", " ")}
-                                            </span>
-                                        </td>
-                                        <td style={styles.td}>{m.usuario?.nome || "-"}</td>
-                                        <td style={styles.td}>
-                                            {m.itens && m.itens.length > 0 ? (
-                                                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                                                    {m.itens.map(function (item, i) {
-                                                        return (
-                                                            <small key={i} style={{ color: "#6b7280" }}>
-                                                                • {item.servico?.nome || "-"} — {item.oficina?.nome || "-"}
-                                                            </small>
-                                                        )
-                                                    })}
-                                                </div>
-                                            ) : "-"}
-                                        </td>
-                                        <td style={styles.actions}>
-                                            <button
-                                                onClick={() => abrirEdicao(m)}
-                                                style={styles.buttonEdit}
-                                            >
-                                                <i className="fas fa-pencil-alt"></i>
-                                            </button>
+                            manutencoesFiltradas.map((m) => (
+                                <tr key={m.id} style={styles.tableRow}>
+                                    <td style={styles.td}>{m.id}</td>
+                                    <td style={styles.td}>
+                                        <span style={{ background: corTipo(m.tipo), color: "#fff", padding: "3px 8px", borderRadius: "6px", fontSize: "12px", fontWeight: "bold" }}>
+                                            {m.tipo}
+                                        </span>
+                                    </td>
+                                    <td style={styles.td}>{formatarDataInput(m.data)}</td>
+                                    <td style={styles.td}>{m.km ? Number(m.km).toLocaleString("pt-BR") + " km" : "-"}</td>
+                                    <td style={styles.td}>
+                                        <span style={{ background: corStatus(m.status), color: "#fff", padding: "3px 8px", borderRadius: "6px", fontSize: "12px", fontWeight: "bold" }}>
+                                            {m.status?.replace("_", " ")}
+                                        </span>
+                                    </td>
+                                    <td style={styles.td}>{m.usuario?.nome || "-"}</td>
+                                    <td style={styles.td}>
+                                        {m.itens && m.itens.length > 0 ? (
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                                                {m.itens.map((item, i) => (
+                                                    <small key={i} style={{ color: "#6b7280" }}>
+                                                        • {item.servico?.nome || "-"} — {item.oficina?.nome || "-"}
+                                                    </small>
+                                                ))}
+                                            </div>
+                                        ) : "-"}
+                                    </td>
+                                    <td style={styles.actions}>
+                                        <button onClick={() => abrirEdicao(m)} style={styles.buttonEdit}>
+                                            <i className="fas fa-pencil-alt"></i>
+                                        </button>
 
-                                            {m.status !== "CONCLUIDA" && m.status !== "CANCELADA" && (
-                                                <button
-                                                    onClick={() => abrirPagamento(m)}
-                                                    style={styles.buttonConcluir}
-                                                >
-                                                    Concluir
-                                                </button>
-                                            )}
-
-                                            <button
-                                                onClick={() => excluir(m.id)}
-                                                style={styles.buttonDelete}
-                                            >
-                                                <i className="fas fa-trash"></i>
+                                        {m.status !== "CONCLUIDA" && m.status !== "CANCELADA" && (
+                                            <button onClick={() => abrirConclusao(m)} style={styles.buttonConcluir}>
+                                                Concluir
                                             </button>
-                                        </td>
-                                    </tr>
-                                )
-                            })
+                                        )}
+
+                                        <button onClick={() => excluir(m.id)} style={styles.buttonDelete}>
+                                            <i className="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
                         )}
                     </tbody>
                 </table>
 
             </div>
 
-            {/* MODAL */}
+            {/* MODAL DE MANUTENÇÃO */}
             {modalAberto && (
                 <div style={styles.overlay}>
                     <div style={styles.modal}>
@@ -453,247 +448,213 @@ export default function ManutencaoVeiculoPage() {
                             {editando ? "Editar Manutenção" : "Nova Manutenção"}
                         </h2>
 
-                        <form onSubmit={salvar}>
-
-                            <div style={styles.grid2}>
-
-                                <div style={styles.inputGroup}>
-                                    <label>Tipo</label>
-                                    <select value={tipo} onChange={function (e) { setTipo(e.target.value) }} style={styles.input}>
-                                        <option value="PREVENTIVA">Preventiva</option>
-                                        <option value="CORRETIVA">Corretiva</option>
-                                    </select>
-                                </div>
-
-                                <div style={styles.inputGroup}>
-                                    <label>Status</label>
-                                    <select value={status} onChange={function (e) { setStatus(e.target.value) }} style={styles.input}>
-                                        <option value="AGENDADA">Agendada</option>
-                                        <option value="EM_ANDAMENTO">Em Andamento</option>
-                                        <option value="CONCLUIDA">Concluída</option>
-                                        <option value="CANCELADA">Cancelada</option>
-                                    </select>
-                                </div>
-
-                                <div style={styles.inputGroup}>
-                                    <label>Data</label>
-                                    <input type="date" value={data} onChange={function (e) { setData(e.target.value) }} style={styles.input} />
-                                </div>
-
-                                <div style={styles.inputGroup}>
-                                    <label>KM</label>
-                                    <input
-                                        type="text"
-                                        value={formatarKm(km)}
-                                        onChange={handleKm}
-                                        style={styles.input}
-                                        placeholder="Ex: 54.000"
-                                        inputMode="numeric"
-                                    />
-                                </div>
-
-                            </div>
+                        <div style={styles.grid2}>
 
                             <div style={styles.inputGroup}>
-                                <label>Usuário Responsável</label>
-                                <select value={usuarioSelecionado} onChange={function (e) { setUsuarioSelecionado(e.target.value) }} style={styles.input}>
-                                    <option value="">Selecione</option>
-                                    {usuarios.map(function (u) {
-                                        return <option key={u.id} value={u.id}>{u.nome}</option>
-                                    })}
+                                <label>Tipo:</label>
+                                <select ref={tipo} style={styles.input}>
+                                    <option value="PREVENTIVA">Preventiva</option>
+                                    <option value="CORRETIVA">Corretiva</option>
                                 </select>
                             </div>
 
                             <div style={styles.inputGroup}>
-                                <label>Descrição</label>
-                                <textarea
-                                    value={descricao}
-                                    onChange={function (e) { setDescricao(e.target.value) }}
-                                    style={{ ...styles.input, height: "70px", resize: "vertical" }}
-                                    placeholder="Descreva a manutenção..."
+                                <label>Status:</label>
+                                <select ref={status} style={styles.input}>
+                                    <option value="AGENDADA">Agendada</option>
+                                    <option value="EM_ANDAMENTO">Em Andamento</option>
+                                    <option value="CONCLUIDA">Concluída</option>
+                                    <option value="CANCELADA">Cancelada</option>
+                                </select>
+                            </div>
+
+                            <div style={styles.inputGroup}>
+                                <label>Data:</label>
+                                <input ref={data} type="date" style={styles.input} />
+                                <small style={{ color: "#9ca3af" }}>Data atual preenchida por padrão</small>
+                            </div>
+
+                            <div style={styles.inputGroup}>
+                                <label>KM:</label>
+                                <input
+                                    ref={km}
+                                    type="text"
+                                    style={styles.input}
+                                    placeholder="Ex: 54.000"
+                                    onChange={() => { km.current.value = formatarKm(km.current.value) }}
                                 />
                             </div>
 
-                            {/* ITENS */}
-                            <div style={{ marginTop: "16px" }}>
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                                    <label style={{ fontWeight: "bold" }}>Itens da Manutenção</label>
-                                    <button type="button" onClick={adicionarItem} style={styles.buttonAdd}>
-                                        + Adicionar Item
+                        </div>
+
+                        {/* USUÁRIO — admin vê select, outros veem só o próprio nome */}
+                        <div style={styles.inputGroup}>
+                            <label>Usuário:</label>
+                            {isAdmin ? (
+                                <select ref={usuarioSelecionado} style={styles.input}>
+                                    <option value="">-- Selecione --</option>
+                                    {usuarios.map((u) => (
+                                        <option key={u.id} value={u.id}>{u.nome}</option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <>
+                                    <input ref={usuarioSelecionado} type="hidden" defaultValue={user?.id || ""} />
+                                    <input
+                                        type="text"
+                                        value={user?.nome || ""}
+                                        readOnly
+                                        style={{ ...styles.input, backgroundColor: "#f1f5f9", color: "#6b7280", cursor: "not-allowed" }}
+                                    />
+                                    <small style={{ color: "#9ca3af" }}>Preenchido automaticamente com seu usuário</small>
+                                </>
+                            )}
+                        </div>
+
+                        <div style={styles.inputGroup}>
+                            <label>Descrição:</label>
+                            <textarea
+                                ref={descricao}
+                                style={{ ...styles.input, height: "70px", resize: "vertical" }}
+                                placeholder="Descreva a manutenção..."
+                            />
+                        </div>
+
+                        {/* ITENS DA MANUTENÇÃO */}
+                        <div style={{ marginTop: "16px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                                <label style={{ fontWeight: "bold" }}>Itens da Manutenção</label>
+                                <button type="button" onClick={adicionarItem} style={styles.buttonAdd}>
+                                    + Adicionar Item
+                                </button>
+                            </div>
+
+                            {itens.map((item, index) => (
+                                <div key={index} style={styles.itemRow}>
+
+                                    <div style={{ flex: 2 }}>
+                                        <label style={{ fontSize: "12px", color: "#6b7280" }}>Serviço</label>
+                                        <select
+                                            value={item.servico}
+                                            onChange={(e) => alterarItem(index, "servico", e.target.value)}
+                                            style={styles.inputSm}
+                                        >
+                                            <option value="">Selecione</option>
+                                            {servicos.map((s) => (
+                                                <option key={s.id} value={s.id}>{s.nome}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div style={{ flex: 2 }}>
+                                        <label style={{ fontSize: "12px", color: "#6b7280" }}>Oficina</label>
+                                        <select
+                                            value={item.oficina}
+                                            onChange={(e) => alterarItem(index, "oficina", e.target.value)}
+                                            style={styles.inputSm}
+                                        >
+                                            <option value="">Selecione</option>
+                                            {oficinas.map((o) => (
+                                                <option key={o.id} value={o.id}>{o.nome}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div style={{ flex: 2 }}>
+                                        <label style={{ fontSize: "12px", color: "#6b7280" }}>Descrição</label>
+                                        <input
+                                            type="text"
+                                            value={item.descricao}
+                                            onChange={(e) => alterarItem(index, "descricao", e.target.value)}
+                                            style={styles.inputSm}
+                                            placeholder="Descrição"
+                                        />
+                                    </div>
+
+                                    <div style={{ flex: 1 }}>
+                                        <label style={{ fontSize: "12px", color: "#6b7280" }}>Valor</label>
+                                        <input
+                                            type="text"
+                                            value={item.valor}
+                                            onChange={(e) => alterarItem(index, "valor", formatarMoeda(e.target.value))}
+                                            style={styles.inputSm}
+                                            placeholder="R$ 0,00"
+                                        />
+                                    </div>
+
+                                    <button type="button" onClick={() => removerItem(index)} style={styles.buttonRemove}>
+                                        ✕
                                     </button>
+
                                 </div>
+                            ))}
+                        </div>
 
-                                {itens.map(function (item, index) {
-                                    return (
-                                        <div key={index} style={styles.itemRow}>
+                        <div style={styles.modalButtons}>
+                            <button type="button" onClick={fecharModal} style={styles.buttonCancel}>
+                                Cancelar
+                            </button>
+                            <button type="button" onClick={salvar} disabled={loading} style={styles.buttonPrimary}>
+                                {loading ? "Salvando..." : "Salvar"}
+                            </button>
+                        </div>
 
-                                            <div style={{ flex: 2 }}>
-                                                <label style={{ fontSize: "12px", color: "#6b7280" }}>Serviço</label>
-                                                <select
-                                                    value={item.servico}
-                                                    onChange={function (e) { alterarItem(index, "servico", e.target.value) }}
-                                                    style={styles.inputSm}
-                                                >
-                                                    <option value="">Selecione</option>
-                                                    {servicos.map(function (s) {
-                                                        return <option key={s.id} value={s.id}>{s.nome}</option>
-                                                    })}
-                                                </select>
-                                            </div>
-
-                                            <div style={{ flex: 2 }}>
-                                                <label style={{ fontSize: "12px", color: "#6b7280" }}>Oficina</label>
-                                                <select
-                                                    value={item.oficina}
-                                                    onChange={function (e) { alterarItem(index, "oficina", e.target.value) }}
-                                                    style={styles.inputSm}
-                                                >
-                                                    <option value="">Selecione</option>
-                                                    {oficinas.map(function (o) {
-                                                        return <option key={o.id} value={o.id}>{o.nome}</option>
-                                                    })}
-                                                </select>
-                                            </div>
-
-                                            <div style={{ flex: 2 }}>
-                                                <label style={{ fontSize: "12px", color: "#6b7280" }}>Descrição</label>
-                                                <input
-                                                    type="text"
-                                                    value={item.descricao}
-                                                    onChange={function (e) { alterarItem(index, "descricao", e.target.value) }}
-                                                    style={styles.inputSm}
-                                                    placeholder="Descrição"
-                                                />
-                                            </div>
-
-                                            <div style={{ flex: 1 }}>
-                                                <label style={{ fontSize: "12px", color: "#6b7280" }}>Valor</label>
-                                                <input
-                                                    type="text"
-                                                    value={item.valor}
-                                                    onChange={function (e) { handleValorItem(index, e.target.value) }}
-                                                    style={styles.inputSm}
-                                                    placeholder="R$ 0,00"
-                                                />
-                                            </div>
-
-                                            <button
-                                                type="button"
-                                                onClick={function () { removerItem(index) }}
-                                                style={styles.buttonRemove}
-                                            >
-                                                ✕
-                                            </button>
-
-                                        </div>
-                                    )
-                                })}
-                            </div>
-
-                            <div style={styles.modalButtons}>
-                                <button type="button" onClick={fecharModal} style={styles.buttonCancel}>
-                                    Cancelar
-                                </button>
-                                <button type="submit" disabled={loading} style={styles.buttonPrimary}>
-                                    {loading ? "Salvando..." : "Salvar"}
-                                </button>
-                            </div>
-
-                        </form>
                     </div>
                 </div>
             )}
-            {/* MODAL PAGAMENTO */}
-            {modalPagamentoAberto && (
+
+            {/* MODAL DE CONCLUSÃO — simples, só pagamento e observação */}
+            {modalConclusaoAberto && (
                 <div style={styles.overlay}>
-                    <div style={{ ...styles.modal, width: "480px" }}>
+                    <div style={{ ...styles.modal, width: "420px" }}>
 
                         <h2 style={{ marginBottom: "6px" }}>Concluir Manutenção</h2>
+
                         <p style={{ color: "#6b7280", fontSize: "14px", marginBottom: "20px" }}>
-                            Total da manutenção: <strong>
+                            Total da manutenção:{" "}
+                            <strong style={{ color: "#111827" }}>
                                 {totalManutencao.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                             </strong>
                         </p>
 
-                        <form onSubmit={confirmarConclusao}>
+                        <div style={styles.inputGroup}>
+                            <label>Forma de Pagamento:</label>
+                            <select ref={formaPagamento} style={styles.input}>
+                                <option value="DINHEIRO">Dinheiro</option>
+                                <option value="PIX">PIX</option>
+                                <option value="BOLETO">Boleto</option>
+                                <option value="CREDITO">Cartão de Crédito</option>
+                                <option value="DEBITO">Cartão de Débito</option>
+                            </select>
+                        </div>
 
-                            <div style={styles.inputGroup}>
-                                <label>Forma de Pagamento</label>
-                                <select
-                                    value={formaPagamento}
-                                    onChange={function (e) { setFormaPagamento(e.target.value) }}
-                                    style={styles.input}
-                                >
-                                    <option value="DINHEIRO">Dinheiro</option>
-                                    <option value="PIX">PIX</option>
-                                    <option value="BOLETO">Boleto</option>
-                                    <option value="CARTAO">Cartão</option>
-                                </select>
-                            </div>
+                        <div style={styles.inputGroup}>
+                            <label>Observação (opcional):</label>
+                            <textarea
+                                ref={descricaoPagamento}
+                                style={{ ...styles.input, height: "70px", resize: "vertical" }}
+                                placeholder="Ex: Pago na oficina João..."
+                            />
+                        </div>
 
-                            <div style={styles.inputGroup}>
-                                <label>Valor de Entrada (opcional)</label>
-                                <input
-                                    type="text"
-                                    value={valorEntrada}
-                                    onChange={function (e) { setValorEntrada(formatarMoeda(e.target.value)) }}
-                                    placeholder="R$ 0,00"
-                                    style={styles.input}
-                                />
-                                {valorEntrada && (
-                                    <small style={{ color: "#6b7280" }}>
-                                        Restante: {(totalManutencao - converterMoedaNumero(valorEntrada))
-                                            .toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                                    </small>
-                                )}
-                            </div>
+                        <div style={styles.modalButtons}>
+                            <button type="button" onClick={fecharConclusao} style={styles.buttonCancel}>
+                                Cancelar
+                            </button>
+                            <button type="button" onClick={confirmarConclusao} disabled={loading} style={{ ...styles.buttonPrimary, backgroundColor: "#22c55e" }}>
+                                {loading ? "Salvando..." : "Confirmar e Concluir"}
+                            </button>
+                        </div>
 
-                            <div style={styles.inputGroup}>
-                                <label>Número de Parcelas</label>
-                                <select
-                                    value={numeroParcelas}
-                                    onChange={function (e) { setNumeroParcelas(e.target.value) }}
-                                    style={styles.input}
-                                >
-                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(function (n) {
-                                        return <option key={n} value={n}>{n}x</option>
-                                    })}
-                                </select>
-                                {numeroParcelas > 1 && (
-                                    <small style={{ color: "#6b7280" }}>
-                                        {numeroParcelas}x de {((totalManutencao - converterMoedaNumero(valorEntrada)) / numeroParcelas)
-                                            .toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                                    </small>
-                                )}
-                            </div>
-
-                            <div style={styles.inputGroup}>
-                                <label>Vencimento da 1ª Parcela</label>
-                                <input
-                                    type="date"
-                                    value={vencimentoPrimeira}
-                                    onChange={function (e) { setVencimentoPrimeira(e.target.value) }}
-                                    style={styles.input}
-                                />
-                            </div>
-
-                            <div style={styles.modalButtons}>
-                                <button type="button" onClick={fecharModalPagamento} style={styles.buttonCancel}>
-                                    Cancelar
-                                </button>
-                                <button type="submit" disabled={loading} style={{ ...styles.buttonPrimary, backgroundColor: "#22c55e" }}>
-                                    {loading ? "Processando..." : "Confirmar e Concluir"}
-                                </button>
-                            </div>
-
-                        </form>
                     </div>
                 </div>
             )}
+
         </div>
     )
 }
 
+// -------------------- ESTILOS --------------------
 const styles = {
     page: { minHeight: "100vh", background: "#f8fafc", padding: "30px 20px", display: "flex", justifyContent: "center" },
     card: { width: "100%", maxWidth: "1200px", backgroundColor: "#fff", padding: "25px", borderRadius: "16px", boxShadow: "0 10px 30px rgba(0,0,0,0.08)", boxSizing: "border-box" },
@@ -706,12 +667,6 @@ const styles = {
     tableRow: { borderBottom: "1px solid #e5e7eb" },
     td: { padding: "10px", verticalAlign: "top" },
     actions: { display: "flex", gap: "6px", padding: "10px" },
-    buttonPrimary: { backgroundColor: "#2563eb", color: "#fff", padding: "10px 18px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold" },
-    buttonBack: { backgroundColor: "#f1f5f9", color: "#374151", padding: "8px 14px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold" },
-    buttonEdit: { backgroundColor: "#facc15", color: "#000", padding: "6px 12px", borderRadius: "6px", border: "none", cursor: "pointer" },
-    buttonDelete: { backgroundColor: "#ef4444", color: "#fff", padding: "6px 12px", borderRadius: "6px", border: "none", cursor: "pointer" },
-    buttonAdd: { backgroundColor: "#f1f5f9", color: "#374151", padding: "6px 12px", borderRadius: "6px", border: "1px solid #d1d5db", cursor: "pointer", fontSize: "13px" },
-    buttonRemove: { backgroundColor: "#fee2e2", color: "#ef4444", border: "none", borderRadius: "6px", padding: "6px 10px", cursor: "pointer", alignSelf: "flex-end" },
     overlay: { position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(4px)" },
     modal: { backgroundColor: "#fff", padding: "30px", borderRadius: "16px", width: "700px", boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" },
     grid2: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" },
@@ -720,6 +675,12 @@ const styles = {
     inputSm: { padding: "8px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px", width: "100%" },
     itemRow: { display: "flex", gap: "8px", alignItems: "flex-end", marginBottom: "10px", padding: "10px", background: "#f8fafc", borderRadius: "8px" },
     modalButtons: { display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" },
+    buttonPrimary: { backgroundColor: "#2563eb", color: "#fff", padding: "10px 18px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold" },
+    buttonBack: { backgroundColor: "#f1f5f9", color: "#374151", padding: "8px 14px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold" },
+    buttonEdit: { backgroundColor: "#facc15", color: "#000", padding: "6px 12px", borderRadius: "6px", border: "none", cursor: "pointer" },
+    buttonDelete: { backgroundColor: "#ef4444", color: "#fff", padding: "6px 12px", borderRadius: "6px", border: "none", cursor: "pointer" },
+    buttonAdd: { backgroundColor: "#f1f5f9", color: "#374151", padding: "6px 12px", borderRadius: "6px", border: "1px solid #d1d5db", cursor: "pointer", fontSize: "13px" },
+    buttonRemove: { backgroundColor: "#fee2e2", color: "#ef4444", border: "none", borderRadius: "6px", padding: "6px 10px", cursor: "pointer", alignSelf: "flex-end" },
     buttonCancel: { backgroundColor: "#9ca3af", color: "#fff", padding: "10px 16px", borderRadius: "8px", border: "none", cursor: "pointer" },
     buttonConcluir: { backgroundColor: "#22c55e", color: "#fff", padding: "6px 12px", borderRadius: "6px", border: "none", cursor: "pointer" },
 }

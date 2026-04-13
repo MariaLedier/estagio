@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { apiClient } from "@/utils/apiClient.js"
 import toast from "react-hot-toast"
 import { formatarMoeda, formatarKm } from "@/utils/validacao.js"
+import { useUser } from "@/app/context/userContext.jsx"
 
 export default function AbastecimentoVeiculoPage() {
 
@@ -23,6 +24,7 @@ export default function AbastecimentoVeiculoPage() {
     const [litros, setLitros] = useState("")
     const [valor, setValor] = useState("")
     const [usuarioSelecionado, setUsuarioSelecionado] = useState("")
+    const [formaPagamento, setFormaPagamento] = useState("")
 
 
     const [montado, setMontado] = useState(false)
@@ -38,6 +40,10 @@ export default function AbastecimentoVeiculoPage() {
 
     // IMPRESSÃO
     const [modoImpressao, setModoImpressao] = useState(false)
+
+    //USUARIO
+    const { user } = useUser()
+    const isAdmin = user?.tipo === 2
 
 
 
@@ -176,12 +182,13 @@ export default function AbastecimentoVeiculoPage() {
 
     function abrirNovo() {
         setEditando(null)
-        setData("")
+        setData(new Date().toISOString().split("T")[0]) // data de hoje
         setKm("")
         setLitros("")
         setValor("")
         setTipoCombustivel("")
-        setUsuarioSelecionado("")
+        setUsuarioSelecionado(user?.id || "") // usuário logado
+        setFormaPagamento("")
         setModalAberto(true)
     }
 
@@ -193,6 +200,7 @@ export default function AbastecimentoVeiculoPage() {
         setValor(formatarMoeda(String(a.valor)))
         setTipoCombustivel(a.tipoCombustivel || "")
         setUsuarioSelecionado(a.usuario?.id || a.usuario || "")
+        setFormaPagamento(a.abastecimento_pagamento || "")
         setModalAberto(true)
     }
 
@@ -206,8 +214,17 @@ export default function AbastecimentoVeiculoPage() {
 
     async function salvar(e) {
         e.preventDefault()
+        // 1. Converte litros para número para comparar
+        const litrosDigitados = parseFloat(litros.replace(",", "."));
+        const capacidadeTanque = veiculo?.tanque ? parseFloat(veiculo.tanque) : 0;
 
-        if (!usuarioSelecionado || !data || !km || !litros || !valor || !tipoCombustivel) {
+        // 2. Validação da capacidade
+        if (capacidadeTanque > 0 && litrosDigitados > capacidadeTanque) {
+            toast.error(`Limite excedido! O tanque deste veículo é de apenas ${capacidadeTanque} litros.`);
+            return;
+        }
+
+        if (!usuarioSelecionado || !data || !km || !litros || !valor || !tipoCombustivel || !formaPagamento) {
             toast.error("Preencha todos os campos")
             return
         }
@@ -222,7 +239,8 @@ export default function AbastecimentoVeiculoPage() {
                 valor: converterMoedaNumero(valor),
                 tipoCombustivel,
                 veiculo: id,
-                usuario: usuarioSelecionado
+                usuario: usuarioSelecionado,
+                pagamento: formaPagamento
             }
 
             if (editando) {
@@ -471,16 +489,27 @@ export default function AbastecimentoVeiculoPage() {
 
                             <div style={styles.inputGroup}>
                                 <label>Usuário</label>
-                                <select
-                                    value={usuarioSelecionado}
-                                    onChange={(e) => setUsuarioSelecionado(e.target.value)}
-                                    style={styles.input}
-                                >
-                                    <option value="">Selecione o usuário</option>
-                                    {usuarios.map((u) => (
-                                        <option key={u.id} value={u.id}>{u.nome}</option>
-                                    ))}
-                                </select>
+                                {isAdmin ? (
+                                    // ADMIN PODE ALTERAR
+                                    <select
+                                        value={usuarioSelecionado}
+                                        onChange={function (e) { setUsuarioSelecionado(e.target.value) }}
+                                        style={styles.input}
+                                    >
+                                        <option value="">Selecione o usuário</option>
+                                        {usuarios.map(function (u) {
+                                            return <option key={u.id} value={u.id}>{u.nome}</option>
+                                        })}
+                                    </select>
+                                ) : (
+                                    // VENDEDOR VÊ APENAS O PRÓPRIO NOME — BLOQUEADO
+                                    <input
+                                        type="text"
+                                        value={user?.nome || ""}
+                                        disabled
+                                        style={{ ...styles.input, backgroundColor: "#f1f5f9", color: "#6b7280" }}
+                                    />
+                                )}
                             </div>
 
                             <div style={styles.inputGroup}>
@@ -488,11 +517,11 @@ export default function AbastecimentoVeiculoPage() {
                                 <input
                                     type="date"
                                     value={data}
-                                    onChange={(e) => setData(e.target.value)}
+                                    onChange={function (e) { setData(e.target.value) }}
                                     style={styles.input}
                                 />
-                            </div>
 
+                            </div>
                             <div style={styles.inputGroup}>
                                 <label>KM Atual</label>
                                 <input
@@ -505,14 +534,30 @@ export default function AbastecimentoVeiculoPage() {
                             </div>
 
                             <div style={styles.inputGroup}>
-                                <label>Litros</label>
+                                <label>
+                                    Litros
+                                    {veiculo?.tanque && (
+                                        <span style={{ fontSize: '11px', color: '#6b7280', marginLeft: '5px' }}>
+                                            (Máx: {veiculo.tanque}L)
+                                        </span>
+                                    )}
+                                </label>
                                 <input
                                     type="text"
                                     value={litros}
                                     onChange={handleLitros}
                                     placeholder="Ex: 40,5"
-                                    style={styles.input}
+                                    style={{
+                                        ...styles.input,
+                                        // Se passar do limite, a borda fica vermelha
+                                        borderColor: (parseFloat(litros.replace(",", ".")) > veiculo?.tanque) ? "#ef4444" : "#d1d5db"
+                                    }}
                                 />
+                                {parseFloat(litros.replace(",", ".")) > veiculo?.tanque && (
+                                    <span style={{ color: "#ef4444", fontSize: "12px", marginTop: "2px" }}>
+                                        Valor maior que a capacidade do tanque!
+                                    </span>
+                                )}
                             </div>
 
                             <div style={styles.inputGroup}>
@@ -540,6 +585,21 @@ export default function AbastecimentoVeiculoPage() {
                                     <option value="DIESEL_S10">Diesel S10</option>
                                     <option value="GNV">GNV</option>
                                     <option value="FLEX">Flex</option>
+                                </select>
+                            </div>
+
+                            <div style={styles.inputGroup}>
+                                <label>Forma de Pagamento</label>
+                                <select
+                                    value={formaPagamento}
+                                    onChange={(e) => setFormaPagamento(e.target.value)}
+                                    style={styles.input}
+                                >
+                                    <option value="">Selecione o pagamento</option>
+                                    <option value="DINHEIRO">Dinheiro</option>
+                                    <option value="PIX">Pix</option>
+                                    <option value="CARTAO">Cartão</option>
+                                    <option value="CARTAO_EMPRESARIAL">Cartão Empresarial</option>
                                 </select>
                             </div>
 

@@ -26,10 +26,10 @@ export default class VeiculoController {
     /*----------------------- CADASTRAR ------------------------ */
     async cadastrar(req, res) {
         try {
-            let { placa, ano, renavam, cor, kmatual, status, modelo, pneus } = req.body;
+            let { placa, ano, renavam, cor, kmatual, status, modelo, tanque, pneus } = req.body;
 
             // Verifica campos obrigatórios do veículo
-            if (!placa || !ano || !renavam || !cor || !kmatual || !status || !modelo) {
+            if (!placa || !ano || !renavam || !cor || !kmatual || !status || !modelo || !tanque) {
                 return res.status(400).json({ msg: "Preencha todos os dados do veículo!" });
             }
 
@@ -54,20 +54,8 @@ export default class VeiculoController {
                     return res.status(400).json({ msg: `Pneu ausente: ${posicao}` });
                 }
 
-                if (!pneu.marca) {
-                    return res.status(400).json({ msg: `Informe a marca do pneu: ${posicao}` });
-                }
-
-                if (!pneu.medida) {
-                    return res.status(400).json({ msg: `Informe a medida do pneu: ${posicao}` });
-                }
-
-                if (!pneu.dataaquisicao) {
-                    return res.status(400).json({ msg: `Informe a data de aquisição do pneu: ${posicao}` });
-                }
-
-                if (!pneu.valor && pneu.valor !== 0) {
-                    return res.status(400).json({ msg: `Informe o valor do pneu: ${posicao}` });
+                if (!pneu.marca || !pneu.medida || !pneu.dataaquisicao || (!pneu.valor && pneu.valor !== 0)) {
+                    return res.status(400).json({ msg: `Dados incompletos para o pneu: ${posicao}` });
                 }
             }
 
@@ -77,8 +65,8 @@ export default class VeiculoController {
                 return res.status(400).json({ msg: "Já existe um veículo cadastrado com esta placa!" });
             }
 
-            // Grava o veículo
-            let entidade = new Veiculo(0, placa, ano, renavam, cor, kmatual, status, modelo);
+            // Grava o veículo - Ordem dos 9 parâmetros: id, placa, ano, renavam, cor, kmatual, status, modelo, tanque
+            let entidade = new Veiculo(0, placa, ano, renavam, cor, kmatual, status, modelo, tanque);
             let veiculoId = await this.#VeiculoRepositorio.gravar(entidade);
 
             if (!veiculoId) {
@@ -119,9 +107,10 @@ export default class VeiculoController {
     /*----------------------- ATUALIZAR ------------------------ */
     async atualizar(req, res) {
         try {
-            let { id, placa, ano, renavam, cor, kmatual, status, modelo } = req.body;
+            // CORREÇÃO: Incluído 'tanque' na desestruturação abaixo
+            let { id, placa, ano, renavam, cor, kmatual, status, modelo, tanque } = req.body;
 
-            if (!id || !placa || !ano || !renavam || !cor || !kmatual || !status || !modelo) {
+            if (!id || !placa || !ano || !renavam || !cor || !kmatual || !status || !modelo || !tanque) {
                 return res.status(400).json({ msg: "As informações do veículo não estão completas!" });
             }
 
@@ -129,16 +118,15 @@ export default class VeiculoController {
             if (!veiculoAtual)
                 return res.status(404).json({ msg: "Veículo não encontrado para alteração" });
 
-            // Bloqueia alteração de veículo inativo
             if (veiculoAtual.status === "Inativo")
                 return res.status(400).json({ msg: "Não é possível alterar um veículo inativo!" });
 
-            // Verifica placa duplicada (ignora o próprio veículo)
             let placaExistente = await this.#VeiculoRepositorio.obterPorPlaca(placa);
             if (placaExistente && placaExistente.id != id)
                 return res.status(400).json({ msg: "Já existe outro veículo cadastrado com esta placa!" });
 
-            let entidade = new Veiculo(id, placa, ano, renavam, cor, kmatual, status, modelo);
+            // CORREÇÃO: Passando exatamente os 9 parâmetros esperados pela entidade
+            let entidade = new Veiculo(id, placa, ano, renavam, cor, kmatual, status, modelo, tanque);
 
             if (await this.#VeiculoRepositorio.alterar(entidade))
                 res.status(200).json({ msg: "Veículo alterado com sucesso!" });

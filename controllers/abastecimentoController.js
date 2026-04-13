@@ -53,12 +53,12 @@ export default class AbastecimentoController {
     /*----------------------- CADASTRAR ------------------------ */
     async cadastrar(req, res) {
         try {
-            let { data, km, litros, valor, tipoCombustivel, veiculo, usuario } = req.body;
+            let { data, km, litros, valor, tipoCombustivel, veiculo, usuario, pagamento } = req.body;
 
             const kmNumero = parseInt(km)
             const litrosNumero = parseFloat(litros)
 
-            if (data && kmNumero && litrosNumero && valor && tipoCombustivel && veiculo && usuario) {
+            if (data && kmNumero && litrosNumero && valor && tipoCombustivel && veiculo && usuario && pagamento) {
 
                 // VERIFICA SE VEÍCULO EXISTE E ESTÁ ATIVO
                 let veiculoAtual = await this.#VeiculoRepositorio.obter(veiculo)
@@ -94,7 +94,8 @@ export default class AbastecimentoController {
                     tipoCombustivel,
                     kmMedia,
                     veiculo,
-                    usuario
+                    usuario,
+                    pagamento
                 );
 
                 let inseriu = await this.#AbastecimentoRepositorio.gravar(entidade);
@@ -125,9 +126,9 @@ export default class AbastecimentoController {
     async atualizar(req, res) {
         try {
 
-            let { id, data, km, litros, valor, veiculo, usuario } = req.body;
+            let { id, data, km, litros, valor, veiculo, usuario, pagamento } = req.body;
 
-            if (id && data && km && litros && valor && veiculo && usuario) {
+            if (id && data && km && litros && valor && veiculo && usuario && pagamento) {
 
                 let atual = await this.#AbastecimentoRepositorio.obter(id);
 
@@ -141,7 +142,8 @@ export default class AbastecimentoController {
                     litros,
                     valor,
                     veiculo,
-                    usuario
+                    usuario,
+                    pagamento
                 );
 
                 if (await this.#AbastecimentoRepositorio.alterar(entidade))

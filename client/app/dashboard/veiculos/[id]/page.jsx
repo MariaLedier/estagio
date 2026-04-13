@@ -27,6 +27,7 @@ export default function VeiculoDetalhePage() {
     const [cor, setCor] = useState("")
     const [kmatual, setKmatual] = useState("")
     const [status, setStatus] = useState("")
+    const [tanque, setTanque] = useState("")
 
     // MODAL TROCA DE PNEU
     const [modalTrocaAberto, setModalTrocaAberto] = useState(false)
@@ -53,11 +54,11 @@ export default function VeiculoDetalhePage() {
         { value: "MARROM", label: "Marrom" }
     ]
 
-    useEffect(function() {
+    useEffect(function () {
         setMontado(true)
     }, [])
 
-    useEffect(function() {
+    useEffect(function () {
         carregarVeiculo()
         carregarMarcas()
     }, [id])
@@ -104,6 +105,7 @@ export default function VeiculoDetalhePage() {
         setCor(veiculo.cor || "")
         setKmatual(veiculo.kmatual ? String(veiculo.kmatual) : "")
         setStatus(veiculo.status || "")
+        setTanque(veiculo.tanque || "")
         if (veiculo.marca) carregarModelos(veiculo.marca)
         setEditando(true)
     }
@@ -121,7 +123,7 @@ export default function VeiculoDetalhePage() {
             toast.error("Renavam inválido")
             return
         }
-        if (!placa || !modelo || !ano || !renavam || !cor || !kmatual) {
+        if (!placa || !modelo || !ano || !renavam || !cor || !kmatual || !tanque) {
             toast.error("Preencha todos os campos")
             return
         }
@@ -137,6 +139,7 @@ export default function VeiculoDetalhePage() {
                 renavam,
                 cor,
                 kmatual: kmatual.replace(/\./g, ""),
+                tanque,
                 status
             })
             toast.success("Veículo atualizado!")
@@ -274,7 +277,7 @@ export default function VeiculoDetalhePage() {
                 {/* HEADER */}
                 <div style={styles.header}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <button onClick={function() { router.back() }} style={styles.buttonBack}>
+                        <button onClick={function () { router.back() }} style={styles.buttonBack}>
                             ← Voltar
                         </button>
                         <div>
@@ -358,13 +361,13 @@ export default function VeiculoDetalhePage() {
                             <h3 style={{ marginBottom: "16px" }}>Ações Rápidas</h3>
                             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                                 <button
-                                    onClick={function() { router.push("/dashboard/abastecimento/" + id) }}
+                                    onClick={function () { router.push("/dashboard/abastecimento/" + id) }}
                                     style={styles.atalho}
                                 >
                                     ⛽ Abastecimentos
                                 </button>
                                 <button
-                                    onClick={function() { router.push("/dashboard/manutencao/" + id) }}
+                                    onClick={function () { router.push("/dashboard/manutencao/" + id) }}
                                     style={styles.atalho}
                                 >
                                     🔧 Manutenções
@@ -376,7 +379,7 @@ export default function VeiculoDetalhePage() {
                                     🔄 Trocar Pneu
                                 </button>
                                 <button
-                                    onClick={function() { router.push("/dashboard/pneus/" + id) }}
+                                    onClick={function () { router.push("/dashboard/pneus/" + id) }}
                                     style={styles.atalho}
                                 >
                                     🛞 Ver Pneus
@@ -398,7 +401,7 @@ export default function VeiculoDetalhePage() {
                                 <label>Placa</label>
                                 <input
                                     value={placa}
-                                    onChange={function(e) { setPlaca(formatarPlaca(e.target.value)) }}
+                                    onChange={function (e) { setPlaca(formatarPlaca(e.target.value)) }}
                                     style={styles.input}
                                 />
                                 {placa && !validarPlaca(placa) && (
@@ -410,14 +413,14 @@ export default function VeiculoDetalhePage() {
                                 <label>Marca</label>
                                 <select
                                     value={marca}
-                                    onChange={function(e) {
+                                    onChange={function (e) {
                                         setMarca(e.target.value)
                                         carregarModelos(e.target.value)
                                     }}
                                     style={styles.input}
                                 >
                                     <option value="">Selecione</option>
-                                    {marcas.map(function(m) {
+                                    {marcas.map(function (m) {
                                         return <option key={m.id} value={m.id}>{m.nome}</option>
                                     })}
                                 </select>
@@ -427,11 +430,11 @@ export default function VeiculoDetalhePage() {
                                 <label>Modelo</label>
                                 <select
                                     value={modelo}
-                                    onChange={function(e) { setModelo(e.target.value) }}
+                                    onChange={function (e) { setModelo(e.target.value) }}
                                     style={styles.input}
                                 >
                                     <option value="">Selecione</option>
-                                    {modelos.map(function(m) {
+                                    {modelos.map(function (m) {
                                         return <option key={m.id} value={m.id}>{m.nome}</option>
                                     })}
                                 </select>
@@ -442,7 +445,7 @@ export default function VeiculoDetalhePage() {
                                 <input
                                     type="number"
                                     value={ano}
-                                    onChange={function(e) { setAno(e.target.value) }}
+                                    onChange={function (e) { setAno(e.target.value) }}
                                     style={styles.input}
                                 />
                             </div>
@@ -451,7 +454,7 @@ export default function VeiculoDetalhePage() {
                                 <label>Renavam</label>
                                 <input
                                     value={renavam}
-                                    onChange={function(e) { setRenavam(formatarRenavam(e.target.value)) }}
+                                    onChange={function (e) { setRenavam(formatarRenavam(e.target.value)) }}
                                     style={styles.input}
                                 />
                                 {renavam && !validarRenavam(renavam) && (
@@ -463,11 +466,11 @@ export default function VeiculoDetalhePage() {
                                 <label>Cor</label>
                                 <select
                                     value={cor}
-                                    onChange={function(e) { setCor(e.target.value) }}
+                                    onChange={function (e) { setCor(e.target.value) }}
                                     style={styles.input}
                                 >
                                     <option value="">Selecione</option>
-                                    {coresVeiculo.map(function(c) {
+                                    {coresVeiculo.map(function (c) {
                                         return <option key={c.value} value={c.value}>{c.label}</option>
                                     })}
                                 </select>
@@ -477,16 +480,25 @@ export default function VeiculoDetalhePage() {
                                 <label>KM Atual</label>
                                 <input
                                     value={kmatual}
-                                    onChange={function(e) { setKmatual(formatarKm(e.target.value)) }}
+                                    onChange={function (e) { setKmatual(formatarKm(e.target.value)) }}
                                     style={styles.input}
                                 />
                             </div>
 
                             <div style={styles.inputGroup}>
+                                <label>Tanque</label>
+                                <input
+                                    type="number"
+                                    value={tanque}
+                                    onChange={function (e) { setTanque(e.target.value) }}
+                                    style={styles.input}
+                                />
+                            </div>
+                            <div style={styles.inputGroup}>
                                 <label>Status</label>
                                 <select
                                     value={status}
-                                    onChange={function(e) { setStatus(e.target.value) }}
+                                    onChange={function (e) { setStatus(e.target.value) }}
                                     style={styles.input}
                                 >
                                     <option value="ATIVO">Ativo</option>
@@ -531,11 +543,11 @@ export default function VeiculoDetalhePage() {
                                 <label>Pneu que vai SAIR do veículo</label>
                                 <select
                                     value={pneuSaida}
-                                    onChange={function(e) { selecionarPneuSaida(e.target.value) }}
+                                    onChange={function (e) { selecionarPneuSaida(e.target.value) }}
                                     style={styles.input}
                                 >
                                     <option value="">Selecione o pneu</option>
-                                    {pneusVeiculo.map(function(p) {
+                                    {pneusVeiculo.map(function (p) {
                                         return (
                                             <option key={p.id} value={p.id}>
                                                 {p.posicao} — {p.marca} {p.medida} ({p.estado})
@@ -549,7 +561,7 @@ export default function VeiculoDetalhePage() {
                                 <label>Posição da troca</label>
                                 <select
                                     value={posicaoTroca}
-                                    onChange={function(e) { setPosicaoTroca(e.target.value) }}
+                                    onChange={function (e) { setPosicaoTroca(e.target.value) }}
                                     style={styles.input}
                                 >
                                     <option value="">Selecione a posição</option>
@@ -565,14 +577,14 @@ export default function VeiculoDetalhePage() {
                                 <label>Pneu novo (do estoque)</label>
                                 <select
                                     value={pneuEntrada}
-                                    onChange={function(e) { setPneuEntrada(e.target.value) }}
+                                    onChange={function (e) { setPneuEntrada(e.target.value) }}
                                     style={styles.input}
                                 >
                                     <option value="">Selecione o pneu novo</option>
                                     {pneusEstoque.length === 0 ? (
                                         <option disabled>Nenhum pneu em estoque</option>
                                     ) : (
-                                        pneusEstoque.map(function(p) {
+                                        pneusEstoque.map(function (p) {
                                             return (
                                                 <option key={p.id} value={p.id}>
                                                     {p.marca} — {p.medida} — {p.estado}
@@ -587,11 +599,11 @@ export default function VeiculoDetalhePage() {
                                 <label>Usuário Responsável</label>
                                 <select
                                     value={usuarioTroca}
-                                    onChange={function(e) { setUsuarioTroca(e.target.value) }}
+                                    onChange={function (e) { setUsuarioTroca(e.target.value) }}
                                     style={styles.input}
                                 >
                                     <option value="">Selecione o usuário</option>
-                                    {usuarios.map(function(u) {
+                                    {usuarios.map(function (u) {
                                         return <option key={u.id} value={u.id}>{u.nome}</option>
                                     })}
                                 </select>
@@ -601,11 +613,11 @@ export default function VeiculoDetalhePage() {
                                 <label>Oficina</label>
                                 <select
                                     value={oficinaTroca}
-                                    onChange={function(e) { setOficinaTroca(e.target.value) }}
+                                    onChange={function (e) { setOficinaTroca(e.target.value) }}
                                     style={styles.input}
                                 >
                                     <option value="">Selecione a oficina</option>
-                                    {oficinas.map(function(o) {
+                                    {oficinas.map(function (o) {
                                         return <option key={o.id} value={o.id}>{o.nome}</option>
                                     })}
                                 </select>
@@ -616,7 +628,7 @@ export default function VeiculoDetalhePage() {
                                 <input
                                     type="text"
                                     value={valorTroca}
-                                    onChange={function(e) { setValorTroca(formatarMoeda(e.target.value)) }}
+                                    onChange={function (e) { setValorTroca(formatarMoeda(e.target.value)) }}
                                     placeholder="R$ 0,00"
                                     style={styles.input}
                                 />

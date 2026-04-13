@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { apiClient } from "@/utils/apiClient"
 import {
   formatarRenavam,
@@ -13,7 +13,7 @@ import {
 } from "@/utils/validacao.js"
 import toast from "react-hot-toast"
 
-// Mostra a marca e o estado do pneu no desenho do carro
+// Mostra marca e estado embaixo de cada pneu no desenho do carro
 function InfoPneu({ pneu }) {
   return (
     <div style={{ fontSize: "10px", textAlign: "center" }}>
@@ -23,166 +23,158 @@ function InfoPneu({ pneu }) {
   )
 }
 
+// Lista de pneus que começa no estado padrão
+const PNEUS_PADRAO = [
+  { posicao: "Dianteiro Esquerdo", marca: "", medida: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_USO" },
+  { posicao: "Dianteiro Direito", marca: "", medida: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_USO" },
+  { posicao: "Traseiro Esquerdo", marca: "", medida: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_USO" },
+  { posicao: "Traseiro Direito", marca: "", medida: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_USO" },
+  { posicao: "Estepe", marca: "", medida: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_ESTOQUE" }
+]
+
 // Retorna a cor do círculo do pneu de acordo com o estado
 function corDoPneu(estado) {
-  if (estado === "Bom")   return "#2ecc71"
+  if (estado === "Bom") return "#2ecc71"
   if (estado === "Médio") return "#f1c40f"
-  if (estado === "Ruim")  return "#e74c3c"
+  if (estado === "Ruim") return "#e74c3c"
   return "#777"
 }
 
 const CORES_VEICULO = [
-  { value: "BRANCO",   label: "Branco"   },
-  { value: "PRETO",    label: "Preto"    },
-  { value: "PRATA",    label: "Prata"    },
-  { value: "CINZA",    label: "Cinza"    },
+  { value: "BRANCO", label: "Branco" },
+  { value: "PRETO", label: "Preto" },
+  { value: "PRATA", label: "Prata" },
+  { value: "CINZA", label: "Cinza" },
   { value: "VERMELHO", label: "Vermelho" },
-  { value: "AZUL",     label: "Azul"     },
-  { value: "VERDE",    label: "Verde"    },
-  { value: "AMARELO",  label: "Amarelo"  },
-  { value: "MARROM",   label: "Marrom"   }
+  { value: "AZUL", label: "Azul" },
+  { value: "VERDE", label: "Verde" },
+  { value: "AMARELO", label: "Amarelo" },
+  { value: "MARROM", label: "Marrom" }
 ]
 
 const MARCAS_PNEU = [
-  { value: "MICHELIN",    label: "Michelin"    },
-  { value: "PIRELLI",     label: "Pirelli"     },
+  { value: "MICHELIN", label: "Michelin" },
+  { value: "PIRELLI", label: "Pirelli" },
   { value: "BRIDGESTONE", label: "Bridgestone" },
-  { value: "GOODYEAR",    label: "Goodyear"    },
+  { value: "GOODYEAR", label: "Goodyear" },
   { value: "CONTINENTAL", label: "Continental" },
-  { value: "DUNLOP",      label: "Dunlop"      },
-  { value: "YOKOHAMA",    label: "Yokohama"    },
-  { value: "HANKOOK",     label: "Hankook"     },
-  { value: "FIRESTONE",   label: "Firestone"   },
-  { value: "KUMHO",       label: "Kumho"       }
-]
-
-// Estado padrão dos pneus — usado para montar e limpar a lista
-const PNEUS_PADRAO = [
-  { posicao: "Dianteiro Esquerdo", marca: "", medida: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_USO"     },
-  { posicao: "Dianteiro Direito",  marca: "", medida: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_USO"     },
-  { posicao: "Traseiro Esquerdo",  marca: "", medida: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_USO"     },
-  { posicao: "Traseiro Direito",   marca: "", medida: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_USO"     },
-  { posicao: "Estepe",             marca: "", medida: "", dataaquisicao: "", valor: "", estado: "Bom", status: "EM_ESTOQUE" }
+  { value: "DUNLOP", label: "Dunlop" },
+  { value: "YOKOHAMA", label: "Yokohama" },
+  { value: "HANKOOK", label: "Hankook" },
+  { value: "FIRESTONE", label: "Firestone" },
+  { value: "KUMHO", label: "Kumho" }
 ]
 
 export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
 
-  const [passo,      setPasso]      = useState(1)
+  const [passo, setPasso] = useState(1)
   const [carregando, setCarregando] = useState(false)
   const [pneuAberto, setPneuAberto] = useState(null)
-  const [marcas,     setMarcas]     = useState([])
-  const [modelos,    setModelos]    = useState([])
 
-  // Os pneus ficam no useState porque a tela do carro precisa atualizar ao vivo
-  const [pneus, setPneus] = useState(PNEUS_PADRAO.map(p => ({ ...p })))
+  // Dados do veículo
+  const [placa, setPlaca] = useState("")
+  const [marca, setMarca] = useState("")
+  const [modelo, setModelo] = useState("")
+  const [ano, setAno] = useState("")
+  const [renavam, setRenavam] = useState("")
+  const [cor, setCor] = useState("")
+  const [kmAtual, setKmAtual] = useState("")
+  const [tanque, setTanque] = useState("")
+  const [status, setStatus] = useState("ATIVO")
 
-  // Refs dos campos do veículo — 
-  const placa   = useRef()
-  const marca   = useRef()
-  const modelo  = useRef()
-  const ano     = useRef()
-  const renavam = useRef()
-  const cor     = useRef()
-  const kmAtual = useRef()
-  const status  = useRef()
+  // Listas que vêm do banco
+  const [marcas, setMarcas] = useState([])
+  const [modelos, setModelos] = useState([])
 
-  // Carrega as marcas quando o modal abre
+  // Lista de pneus
+  const [pneus, setPneus] = useState(PNEUS_PADRAO)
+
+  // Carrega marcas quando o modal abre
   useEffect(() => {
-    carregarMarcas()
+    async function buscarMarcas() {
+      const dados = await apiClient.get("/marca")
+      setMarcas(dados)
+    }
+    buscarMarcas()
   }, [])
 
-  async function carregarMarcas() {
-    const dados = await apiClient.get("/marca")
-    setMarcas(dados)
-  }
-
-  async function carregarModelos(marcaId) {
+  // Carrega modelos quando o usuário escolhe uma marca
+  async function buscarModelos(marcaId) {
     const dados = await apiClient.get("/modelo/" + marcaId)
     setModelos(dados)
   }
 
-  // Muda um campo de um pneu específico
+  // Muda um campo de um pneu específico pelo índice
   function atualizarPneu(indice, campo, valor) {
     const copia = [...pneus]
     copia[indice][campo] = valor
     setPneus(copia)
   }
 
-  // Limpa todos os campos e volta ao início
-  function limparTudo() {
-    placa.current.value   = ""
-    marca.current.value   = ""
-    modelo.current.value  = ""
-    ano.current.value     = ""
-    renavam.current.value = ""
-    cor.current.value     = ""
-    kmAtual.current.value = ""
-    status.current.value  = "ATIVO"
 
-    setPneus(PNEUS_PADRAO.map(p => ({ ...p })))
+  // Limpa tudo para o estado inicial
+  function limparTudo() {
+    // Reset dos dados do veículo
+    setPlaca("")
+    setMarca("")
+    setModelo("")
+    setAno("")
+    setRenavam("")
+    setCor("")
+    setKmAtual("")
+    setTanque("")
+    setStatus("ATIVO")
+
+    // Reset dos pneus: mapeia o array padrão criando novos objetos
+    const novosPneus = PNEUS_PADRAO.map(p => ({
+      ...p,
+      marca: "",
+      medida: "",
+      dataaquisicao: "",
+      valor: "",
+      estado: "Bom"
+    }))
+
+    setPneus(novosPneus)
     setPasso(1)
     setPneuAberto(null)
-    setModelos([])
   }
 
-  // Valida os campos do passo 1 antes de avançar
+  // Validação do passo 1 (dados do veículo)
   function validarPasso1() {
-    if (!placa.current.value) {
-      toast.error("Informe a placa")
-      return false
-    }
-    if (!validarPlaca(placa.current.value)) {
-      toast.error("Placa inválida")
-      return false
-    }
-    if (!marca.current.value) {
-      toast.error("Selecione a marca")
-      return false
-    }
-    if (!modelo.current.value) {
-      toast.error("Selecione o modelo")
-      return false
-    }
-    if (!ano.current.value) {
-      toast.error("Informe o ano")
-      return false
-    }
-    if (!renavam.current.value) {
-      toast.error("Informe o renavam")
-      return false
-    }
-    if (!validarRenavam(renavam.current.value)) {
-      toast.error("Renavam inválido")
-      return false
-    }
-    if (!cor.current.value) {
-      toast.error("Selecione a cor")
-      return false
-    }
+    if (!placa) { toast.error("Informe a placa"); return false }
+    if (!validarPlaca(placa)) { toast.error("Placa inválida"); return false }
+    if (!marca) { toast.error("Selecione a marca"); return false }
+    if (!modelo) { toast.error("Selecione o modelo"); return false }
+    if (!ano) { toast.error("Informe o ano"); return false }
+    if (!renavam) { toast.error("Informe o renavam"); return false }
+    if (!validarRenavam(renavam)) { toast.error("Renavam inválido"); return false }
+    if (!cor) { toast.error("Selecione a cor"); return false }
+    if (!tanque) { toast.error("Indique o tamanho do tanque em Litros"); return false }
     return true
   }
 
-  // Valida se todos os pneus estão preenchidos antes de salvar
+  // Validação do passo 2 — todos os pneus precisam estar preenchidos
   function validarPneus() {
     for (let i = 0; i < pneus.length; i++) {
       const p = pneus[i]
       if (!p.marca) {
-        toast.error("Preencha a marca do pneu: " + p.posicao)
+        toast.error(`Preencha a marca do pneu: ${p.posicao}`)
         setPneuAberto(i)
         return false
       }
       if (!p.medida) {
-        toast.error("Preencha a medida do pneu: " + p.posicao)
+        toast.error(`Preencha a medida do pneu: ${p.posicao}`)
         setPneuAberto(i)
         return false
       }
       if (!p.dataaquisicao) {
-        toast.error("Preencha a data de aquisição do pneu: " + p.posicao)
+        toast.error(`Preencha a data de aquisição do pneu: ${p.posicao}`)
         setPneuAberto(i)
         return false
       }
       if (!p.valor) {
-        toast.error("Preencha o valor do pneu: " + p.posicao)
+        toast.error(`Preencha o valor do pneu: ${p.posicao}`)
         setPneuAberto(i)
         return false
       }
@@ -202,35 +194,32 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
     try {
       setCarregando(true)
 
-      // Monta o objeto do veículo 
-      let obj = {
-        placa:   placa.current.value,
-        marca:   marca.current.value,
-        modelo:  modelo.current.value,
-        ano:     ano.current.value,
-        renavam: renavam.current.value,
-        cor:     cor.current.value,
-        kmatual: kmAtual.current.value.replace(/\./g, ""),
-        status:  status.current.value
-      }
-
-      const resposta = await apiClient.post("/veiculo", obj)
-      const veiculoId = resposta.veiculo || resposta.data?.veiculo
-
-      // Salva cada pneu vinculado ao veículo
-      for (let pneu of pneus) {
-        const valorNumerico = pneu.valor
+      // 1. Prepare a lista de pneus formatada antes de enviar
+      const pneusFormatados = pneus.map(p => ({
+        ...p,
+        valor: parseFloat(p.valor
           .replace("R$", "")
           .replace(/\./g, "")
           .replace(",", ".")
-          .trim()
+          .trim()) || 0
+      }))
 
-        await apiClient.post("/pneu", {
-          ...pneu,
-          valor: parseFloat(valorNumerico) || 0,
-          veiculo: veiculoId
-        })
-      }
+      // 2. Envie TUDO em uma única requisição
+      const resposta = await apiClient.post("/veiculo", {
+        placa,
+        modelo,
+        marca,
+        ano,
+        renavam,
+        cor,
+        kmatual: kmAtual.replace(/\./g, ""),
+        tanque,
+        status,
+        pneus: pneusFormatados // Adicione esta linha!
+      })
+
+      // Se o seu backend já salva os pneus dentro do método de cadastrar veículo, 
+      // você não precisa mais do "for (const pneu of pneus)" que estava aqui embaixo.
 
       toast.success("Veículo cadastrado com sucesso!")
       limparTudo()
@@ -239,12 +228,13 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
 
     } catch (erro) {
       console.error(erro)
-      toast.error("Erro ao salvar o veículo")
+      toast.error(erro.response?.data?.msg || "Erro ao salvar o veículo")
     } finally {
       setCarregando(false)
     }
   }
 
+  // Não renderiza nada se o modal estiver fechado
   if (!aberto) return null
 
   return (
@@ -252,149 +242,182 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
       <div style={estilos.modal}>
 
         <h3 className="mb-2">Cadastrar Veículo</h3>
-        <p className="text-muted mb-3">Passo {passo} de 2</p>
+        <p className="text-muted mb-4">Passo {passo} de 2</p>
 
-        {/* ===== PASSO 1 — DADOS DO VEÍCULO ===== */}
+        {/* ========== PASSO 1 — DADOS DO VEÍCULO ========== */}
         {passo === 1 && (
           <>
-            <div className="form-group">
-              <label>Placa:</label>
+            <div className="form-group mb-3">
+              <label>Placa *</label>
               <input
-                ref={placa}
-                type="text"
                 className="form-control"
-                onChange={(e) => { placa.current.value = formatarPlaca(e.target.value) }}
+                value={placa}
+                onChange={(e) => setPlaca(formatarPlaca(e.target.value))}
               />
+              {placa && !validarPlaca(placa) && (
+                <small style={{ color: "red" }}>Placa inválida</small>
+              )}
             </div>
 
-            <div className="form-group">
-              <label>Marca:</label>
+            <div className="form-group mb-3">
+              <label>Marca *</label>
               <select
-                ref={marca}
                 className="form-control"
+                value={marca}
                 onChange={(e) => {
-                  carregarModelos(e.target.value)
-                  modelo.current.value = ""
+                  setMarca(e.target.value)
+                  setModelo("")
+                  buscarModelos(e.target.value)
                 }}
               >
-                <option value="">-- Selecione --</option>
+                <option value="">Selecione a marca</option>
                 {marcas.map((m) => (
                   <option key={m.id} value={m.id}>{m.nome}</option>
                 ))}
               </select>
             </div>
 
-            <div className="form-group">
-              <label>Modelo:</label>
-              <select ref={modelo} className="form-control">
-                <option value="">-- Selecione --</option>
+            <div className="form-group mb-3">
+              <label>Modelo *</label>
+              <select
+                className="form-control"
+                value={modelo}
+                onChange={(e) => setModelo(e.target.value)}
+              >
+                <option value="">Selecione o modelo</option>
                 {modelos.map((m) => (
                   <option key={m.id} value={m.id}>{m.nome}</option>
                 ))}
               </select>
             </div>
 
-            <div className="form-group">
-              <label>Ano:</label>
-              <input ref={ano} type="number" className="form-control" />
-            </div>
-
-            <div className="form-group">
-              <label>Renavam:</label>
+            <div className="form-group mb-3">
+              <label>Ano *</label>
               <input
-                ref={renavam}
-                type="text"
+                type="number"
                 className="form-control"
-                onChange={(e) => { renavam.current.value = formatarRenavam(e.target.value) }}
+                value={ano}
+                onChange={(e) => setAno(e.target.value)}
               />
             </div>
 
-            <div className="form-group">
-              <label>Cor:</label>
-              <select ref={cor} className="form-control">
-                <option value="">-- Selecione --</option>
+            <div className="form-group mb-3">
+              <label>Renavam *</label>
+              <input
+                type="text"
+                className="form-control"
+                value={renavam}
+                onChange={(e) => setRenavam(formatarRenavam(e.target.value))}
+              />
+            </div>
+
+            <div className="form-group mb-3">
+              <label>Cor *</label>
+              <select
+                className="form-control"
+                value={cor}
+                onChange={(e) => setCor(e.target.value)}
+              >
+                <option value="">Selecione a cor</option>
                 {CORES_VEICULO.map((c, i) => (
                   <option key={i} value={c.value}>{c.label}</option>
                 ))}
               </select>
             </div>
 
-            <div className="form-group">
-              <label>Km Atual:</label>
+            <div className="form-group mb-3">
+              <label>Km Atual*</label>
               <input
-                ref={kmAtual}
-                type="text"
                 className="form-control"
-                onChange={(e) => { kmAtual.current.value = formatarKm(e.target.value) }}
+                value={kmAtual}
+                onChange={(e) => setKmAtual(formatarKm(e.target.value))}
               />
             </div>
 
-            <div className="form-group">
-              <label>Status:</label>
-              <select ref={status} className="form-control">
+            <div className="form-group mb-3">
+              <label>Tanque *</label>
+              <input
+                type="number"
+                className="form-control"
+                value={tanque}
+                onChange={(e) => setTanque(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group mb-4">
+              <label>Status</label>
+              <select
+                className="form-control"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
                 <option value="ATIVO">Ativo</option>
                 <option value="INATIVO">Inativo</option>
               </select>
             </div>
 
-            <div className="mt-3 d-flex justify-content-between">
-              <button className="btn btn-secondary" onClick={() => { limparTudo(); fechar() }}>
+            <div className="d-flex justify-content-between">
+              <button
+                className="btn btn-secondary"
+                onClick={() => { limparTudo(); fechar() }}
+              >
                 Cancelar
               </button>
-              <button className="btn btn-warning" onClick={irParaPasso2}>
+              <button
+                className="btn btn-warning"
+                onClick={irParaPasso2}
+              >
                 Próximo →
               </button>
             </div>
           </>
         )}
 
-        {/* ===== PASSO 2 — PNEUS ===== */}
+        {/* ========== PASSO 2 — PNEUS ========== */}
         {passo === 2 && (
           <div style={{ display: "flex", gap: "40px" }}>
 
             {/* Formulário dos pneus */}
             <div style={{ flex: 1 }}>
-              <h5 className="mb-3">
-                Pneus <small style={{ color: "red", fontSize: "13px" }}>* Todos obrigatórios</small>
-              </h5>
+              <h5 className="mb-3">Pneus <small style={{ color: "red", fontSize: "13px" }}>* Todos obrigatórios</small></h5>
 
               {pneus.map((pneu, indice) => (
                 <div key={indice} className="border rounded mb-2">
 
-                  {/* Cabeçalho clicável */}
+                  {/* Cabeçalho clicável que expande o pneu */}
                   <div
                     style={{ padding: "10px", cursor: "pointer", background: "#f5f5f5", fontWeight: "bold" }}
                     onClick={() => setPneuAberto(pneuAberto === indice ? null : indice)}
                   >
                     {pneu.posicao}
+                    {/* Indica se o pneu está completo ou não */}
                     {pneu.marca && pneu.medida && pneu.dataaquisicao && pneu.valor
                       ? <span style={{ color: "green", marginLeft: "8px" }}>✓</span>
-                      : <span style={{ color: "red",   marginLeft: "8px" }}>✗ incompleto</span>
+                      : <span style={{ color: "red", marginLeft: "8px" }}>✗ incompleto</span>
                     }
                   </div>
 
-                  {/* Campos — só aparecem quando o pneu está expandido */}
+                  {/* Campos do pneu — só aparecem quando expandido */}
                   {pneuAberto === indice && (
                     <div style={{ padding: "10px" }}>
 
-                      <div className="form-group">
-                        <label>Marca:</label>
+                      <div className="mb-2">
+                        <label>Marca *</label>
                         <select
                           className="form-control"
                           value={pneu.marca}
                           onChange={(e) => atualizarPneu(indice, "marca", e.target.value)}
                         >
-                          <option value="">-- Selecione --</option>
+                          <option value="">Selecione a marca</option>
                           {MARCAS_PNEU.map((m, i) => (
                             <option key={i} value={m.value}>{m.label}</option>
                           ))}
                         </select>
                       </div>
 
-                      <div className="form-group">
-                        <label>Medida:</label>
+                      <div className="mb-2">
+                        <label>Medida *</label>
                         <input
-                          type="text"
                           className="form-control"
                           placeholder="175/65 R14"
                           value={pneu.medida}
@@ -402,8 +425,8 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
                         />
                       </div>
 
-                      <div className="form-group">
-                        <label>Data de Aquisição:</label>
+                      <div className="mb-2">
+                        <label>Data de Aquisição *</label>
                         <input
                           type="date"
                           className="form-control"
@@ -412,10 +435,9 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
                         />
                       </div>
 
-                      <div className="form-group">
-                        <label>Valor:</label>
+                      <div className="mb-2">
+                        <label>Valor *</label>
                         <input
-                          type="text"
                           className="form-control"
                           placeholder="R$ 0,00"
                           value={pneu.valor}
@@ -423,8 +445,8 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
                         />
                       </div>
 
-                      <div className="form-group">
-                        <label>Estado:</label>
+                      <div className="mb-2">
+                        <label>Estado</label>
                         <select
                           className="form-control"
                           value={pneu.estado}
@@ -442,38 +464,47 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
                 </div>
               ))}
 
-              <div className="mt-3 d-flex justify-content-between">
+              <div className="d-flex justify-content-between mt-3">
                 <button className="btn btn-secondary" onClick={() => setPasso(1)}>
                   ← Voltar
                 </button>
-                <button className="btn btn-primary" onClick={salvarVeiculo} disabled={carregando}>
+                <button
+                  className="btn btn-primary"
+                  onClick={salvarVeiculo}
+                  disabled={carregando}
+                >
                   {carregando ? "Salvando..." : "Gravar"}
                 </button>
               </div>
             </div>
 
-            {/* Desenho do carro */}
+            {/* Desenho do carro com os pneus */}
             <div style={{ flex: 1 }}>
               <h5 className="mb-3">Posição dos Pneus</h5>
 
               <div style={estilos.carro}>
 
+                {/* Dianteiro Esquerdo */}
                 <div style={{ ...estilos.pneu, top: 20, left: -35, background: corDoPneu(pneus[0].estado) }}>
                   <InfoPneu pneu={pneus[0]} />
                 </div>
 
+                {/* Dianteiro Direito */}
                 <div style={{ ...estilos.pneu, top: 20, right: -35, background: corDoPneu(pneus[1].estado) }}>
                   <InfoPneu pneu={pneus[1]} />
                 </div>
 
+                {/* Traseiro Esquerdo */}
                 <div style={{ ...estilos.pneu, bottom: 20, left: -35, background: corDoPneu(pneus[2].estado) }}>
                   <InfoPneu pneu={pneus[2]} />
                 </div>
 
+                {/* Traseiro Direito */}
                 <div style={{ ...estilos.pneu, bottom: 20, right: -35, background: corDoPneu(pneus[3].estado) }}>
                   <InfoPneu pneu={pneus[3]} />
                 </div>
 
+                {/* Estepe */}
                 <div style={{ ...estilos.pneu, bottom: -60, left: "50%", transform: "translateX(-50%)", background: corDoPneu(pneus[4].estado) }}>
                   <InfoPneu pneu={pneus[4]} />
                 </div>
@@ -489,11 +520,20 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
   )
 }
 
-// ---------- ESTILOS ----------
+
+
+
+
+
+
+
+
+// -------------- ESTILO DA PÁGINA --------
 const estilos = {
   fundo: {
     position: "fixed",
-    top: 0, left: 0,
+    top: 0,
+    left: 0,
     width: "100vw",
     height: "100vh",
     background: "rgba(0,0,0,0.6)",

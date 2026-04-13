@@ -12,6 +12,7 @@ export default class Abastecimento extends Base {
     #kmMedia;
     #veiculo;
     #usuario;
+    #pagamento
 
     get id() { return this.#id; }
     set id(value) { this.#id = value; }
@@ -40,7 +41,10 @@ export default class Abastecimento extends Base {
     get usuario() { return this.#usuario; }
     set usuario(value) { this.#usuario = value; }
 
-    constructor(id, data, km, litros, valor, tipoCombustivel, kmMedia, veiculo, usuario) {
+    get pagamento() { return this.#pagamento; }
+    set pagamento(value) { this.#pagamento = value; }
+
+    constructor(id, data, km, litros, valor, tipoCombustivel, kmMedia, veiculo, usuario, pagamento) {
         super();
         this.#id = id;
         this.#data = data;
@@ -51,5 +55,6 @@ export default class Abastecimento extends Base {
         this.#kmMedia = kmMedia;
         this.#veiculo = veiculo;
         this.#usuario = usuario;
+        this.#pagamento = pagamento;
     }
 }

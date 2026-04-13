@@ -15,28 +15,26 @@ export default class ContaRepository {
 
     async gravar(conta) {
         const sql = `
-            INSERT INTO tb_conta
-                (conta_descricao, conta_valor, conta_valor_pago, conta_forma_pagamento,
-                 conta_status, conta_vencimento, conta_parcela, conta_total_parcelas,
-                 conta_manutencao_id, conta_veiculo_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
+        INSERT INTO tb_conta 
+            (conta_descricao, conta_valor, conta_valor_pago, 
+             conta_forma_pagamento, conta_status, 
+             conta_manutencao_id, conta_veiculo_id) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
 
         const valores = [
-            conta.descricao,
+            conta.descricao || null,
             conta.valor,
             conta.valorPago || 0,
             conta.formaPagamento,
             conta.status,
-            conta.vencimento,
-            conta.parcela,
-            conta.totalParcelas,
             conta.manutencao?.id ?? conta.manutencao ?? null,
             conta.veiculo?.id ?? conta.veiculo ?? null
         ];
 
         return await this.#banco.ExecutaComandoLastInserted(sql, valores);
     }
+
 
     async obter(id) {
         const sql = `
@@ -95,17 +93,6 @@ export default class ContaRepository {
         return lista;
     }
 
-    async pagar(id, valorPago, status) {
-        const sql = `
-            UPDATE tb_conta SET
-                conta_valor_pago = ?,
-                conta_status = ?
-            WHERE conta_id = ?
-        `;
-
-        return await this.#banco.ExecutaComandoNonQuery(sql, [valorPago, status, id]);
-    }
-
     async alterar(conta) {
         const sql = `
             UPDATE tb_conta SET
@@ -135,19 +122,14 @@ export default class ContaRepository {
         const sql = `DELETE FROM tb_conta WHERE conta_id = ?`;
         return await this.#banco.ExecutaComandoNonQuery(sql, [id]);
     }
-
     toMap(row) {
         let conta = new Conta();
-
         conta.id = row["conta_id"];
         conta.descricao = row["conta_descricao"];
         conta.valor = row["conta_valor"];
         conta.valorPago = row["conta_valor_pago"];
         conta.formaPagamento = row["conta_forma_pagamento"];
         conta.status = row["conta_status"];
-        conta.vencimento = row["conta_vencimento"];
-        conta.parcela = row["conta_parcela"];
-        conta.totalParcelas = row["conta_total_parcelas"];
 
         if (row["conta_manutencao_id"]) {
             let m = new Manutencao();
@@ -157,10 +139,9 @@ export default class ContaRepository {
 
         if (row["conta_veiculo_id"]) {
             let v = new Veiculo(row["conta_veiculo_id"]);
-            v.placa = row["veiculo_placa"] || null;
+            v.placa = row["veiculo_placa"];
             conta.veiculo = v;
         }
-
         return conta;
     }
 }
