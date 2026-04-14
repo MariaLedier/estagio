@@ -156,7 +156,6 @@ export default class VeiculoRepository {
     }
     toMap(row) {
         let veiculo = new Veiculo();
-        console.log("ROW COMPLETO:", row)
         veiculo.id = row["veiculo_id"];
         veiculo.placa = row["veiculo_placa"];
         veiculo.modelo = row["veiculo_modelo_id"];

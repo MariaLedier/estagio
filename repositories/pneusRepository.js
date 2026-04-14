@@ -64,6 +64,45 @@ export default class PneusRepository {
         return pneu;
     }
 
+
+    async listarPorVeiculo(veiculoId) {
+        const sql = `
+        SELECT p.*, v.veiculo_placa 
+        FROM tb_pneus p
+        LEFT JOIN tb_veiculos v ON p.pneus_veiculo_id = v.veiculo_id
+        WHERE p.pneus_veiculo_id = ?
+        ORDER BY p.pneus_posicao ASC
+    `;
+
+        const rows = await this.#banco.ExecutaComando(sql, [veiculoId]);
+        const lista = [];
+
+        for (let row of rows) {
+            lista.push(this.toMap(row));
+        }
+
+        return lista;
+    }
+
+    async listarEstoque() {
+        const sql = `
+        SELECT p.*, v.veiculo_placa 
+        FROM tb_pneus p
+        LEFT JOIN tb_veiculos v ON p.pneus_veiculo_id = v.veiculo_id
+        WHERE p.pneus_status = 'EM_ESTOQUE'
+        ORDER BY p.pneus_data_aquisicao DESC
+    `;
+
+        const rows = await this.#banco.ExecutaComando(sql);
+        const lista = [];
+
+        for (let row of rows) {
+            lista.push(this.toMap(row));
+        }
+
+        return lista;
+    }
+
     async deletar(id) {
 
         const sql = "update tb_pneus set pneus_status = 'DESCARTADO' where pneus_id = ?"
@@ -119,6 +158,12 @@ export default class PneusRepository {
 
 
 
+    // ------ TROCA DE PNEUS ------
+    async executarSQL(sql, valores) {
+        return await this.#banco.ExecutaComandoNonQuery(sql, valores);
+    }
+
+
     toMap(row) {
         let pneu = new Pneus();
 
@@ -133,7 +178,7 @@ export default class PneusRepository {
 
         if (row["pneus_veiculo_id"]) {
             let v = new Veiculo(row["pneus_veiculo_id"]);
-            v.placa = row["veiculo_placa"] || null; 
+            v.placa = row["veiculo_placa"] || null;
             pneu.veiculo = v;
         }
 

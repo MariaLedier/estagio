@@ -78,15 +78,6 @@ export default function DashboardLayout({ children }) {
                         </Link>
                     </li>
 
-                    {/* Contas — só ADMIN */}
-                    {isAdmin && (
-                        <li>
-                            <Link href="/dashboard/contas" className="menu-item">
-                                <i className="fas fa-money-bill"></i>
-                                <span>Contas</span>
-                            </Link>
-                        </li>
-                    )}
 
                     {/* Gerenciar — só ADMIN */}
                     {isAdmin && (

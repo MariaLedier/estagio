@@ -8,7 +8,6 @@ import marcaRouter from './routes/marcaRoute.js'
 import pneuRouter from './routes/pneuRoute.js'
 import abastecimentoRouter from './routes/abastecimentoRoute.js'
 import manutencaoRouter from './routes/manutencaoRoute.js'
-import contaRouter from './routes/contaRoute.js'
 import autenticacaoRouter from './routes/autenticacaoRoute.js'
 import swaggerUi from 'swagger-ui-express'
 import cookieParser from 'cookie-parser';
@@ -34,7 +33,6 @@ server.use("/marca",         marcaRouter);
 server.use("/pneu",          pneuRouter);
 server.use("/abastecimento", abastecimentoRouter);
 server.use("/manutencao",    manutencaoRouter);
-server.use("/conta",         contaRouter);
 
 server.listen(5000, function() {
     console.log("backend em funcionamento!");

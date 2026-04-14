@@ -276,7 +276,7 @@ export default function PneusPage() {
                                     <td style={styles.td}>{p.estado}</td>
                                     <td style={styles.td}>
                                         <span style={{
-                                            background: p.status === "EM_USO" ? "#ef4444" : "#22c55e",
+                                            background: p.status === "EM_USO" ? "#ff0101" : "#22c55e",
                                             color: "#fff",
                                             padding: "4px 8px",
                                             borderRadius: "6px",

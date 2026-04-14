@@ -38,6 +38,9 @@ export default class ManutencaoRepository {
         return await this.#banco.ExecutaComandoLastInserted(sql, valores);
     }
 
+
+
+// ---------------- GRAVAR ITEM DA MANUTENÇÃO ------------------
     async gravarItem(item) {
         const sql = `
             INSERT INTO tb_manutencao_item

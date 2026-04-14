@@ -65,6 +65,18 @@ router.delete("/:id", auth.validarToken, auth.apenasAdmin, (req, res) => {
     ctrl.deletar(req, res);
 });
 
+router.post("/trocar", auth.validarToken, (req, res) => {
+    ctrl.trocarPneu(req, res);
+});
+
+router.get("/estoque", auth.validarToken, (req, res) => {
+    ctrl.listarEstoque(req, res);
+});
+
+router.get("/veiculo/:veiculoId", auth.validarToken, (req, res) => {
+    ctrl.listarPorVeiculo(req, res);
+});
+
 // router.get("/:id", auth.validarToken, (req, res) => {
 //     /* #swagger.security = [{
 //         "bearerAuth": []

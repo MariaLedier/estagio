@@ -943,6 +943,117 @@
         ]
       }
     },
+    "/pneu/trocar": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pneuSaidaId": {
+                    "example": "any"
+                  },
+                  "pneuEntradaId": {
+                    "example": "any"
+                  },
+                  "posicao": {
+                    "example": "any"
+                  },
+                  "veiculoId": {
+                    "example": "any"
+                  },
+                  "kmAtual": {
+                    "example": "any"
+                  },
+                  "usuario": {
+                    "example": "any"
+                  },
+                  "novoPneu": {
+                    "example": "any"
+                  },
+                  "descricaoManutencao": {
+                    "example": "any"
+                  },
+                  "oficina": {
+                    "example": "any"
+                  },
+                  "valorServico": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pneu/estoque": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/pneu/veiculo/{veiculoId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "veiculoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/abastecimento/": {
       "get": {
         "tags": [
@@ -1281,200 +1392,6 @@
           "Manutenção"
         ],
         "summary": "Deleta uma manutenção",
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/conta/": {
-      "get": {
-        "tags": [
-          "Conta"
-        ],
-        "summary": "Listar todas as contas",
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Nenhum serviço encontrado na consulta",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/erro"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/erro"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/conta/manutencao/{manutencaoId}": {
-      "get": {
-        "tags": [
-          "Conta"
-        ],
-        "summary": "Listar contas por manutenção",
-        "description": "",
-        "parameters": [
-          {
-            "name": "manutencaoId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Nenhum serviço encontrado na consulta",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/erro"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/erro"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/conta/gerar": {
-      "post": {
-        "tags": [
-          "Conta"
-        ],
-        "summary": "Gerar contas ao concluir manutenção",
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/gerar"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/conta/pagar": {
-      "post": {
-        "tags": [
-          "Conta"
-        ],
-        "summary": "Efetuar pagamento de uma conta",
-        "description": "",
-        "responses": {
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/pagar"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/conta/{id}": {
-      "delete": {
-        "tags": [
-          "Conta"
-        ],
-        "summary": "Deletar uma conta",
         "description": "",
         "parameters": [
           {

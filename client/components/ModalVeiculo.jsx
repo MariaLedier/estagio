@@ -194,32 +194,33 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
     try {
       setCarregando(true)
 
-      // 1. Prepare a lista de pneus formatada antes de enviar
       const pneusFormatados = pneus.map(p => ({
         ...p,
-        valor: parseFloat(p.valor
-          .replace("R$", "")
-          .replace(/\./g, "")
-          .replace(",", ".")
-          .trim()) || 0
+        valor: parseFloat(
+          p.valor.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()
+        ) || 0
       }))
 
-      // 2. Envie TUDO em uma única requisição
       const resposta = await apiClient.post("/veiculo", {
-        placa,
-        modelo,
-        marca,
-        ano,
-        renavam,
-        cor,
+        placa, modelo, marca, ano, renavam, cor,
         kmatual: kmAtual.replace(/\./g, ""),
-        tanque,
-        status,
-        pneus: pneusFormatados // Adicione esta linha!
+        tanque, status,
+        pneus: pneusFormatados 
       })
 
-      // Se o seu backend já salva os pneus dentro do método de cadastrar veículo, 
-      // você não precisa mais do "for (const pneu of pneus)" que estava aqui embaixo.
+     
+      const veiculoId = resposta?.veiculo ?? resposta?.data?.veiculo
+      console.log("veiculoId:", veiculoId)
+      console.log("resposta:", resposta)
+
+      // Salva cada pneu separadamente na tabela de pneus
+      for (const pneu of pneusFormatados) {
+        if (!pneu.marca) continue
+        await apiClient.post("/pneu", {
+          ...pneu,
+          veiculo: veiculoId
+        })
+      }
 
       toast.success("Veículo cadastrado com sucesso!")
       limparTudo()
@@ -227,13 +228,12 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
       fechar()
 
     } catch (erro) {
-      console.error(erro)
+      console.error("Erro completo:", erro)
       toast.error(erro.response?.data?.msg || "Erro ao salvar o veículo")
     } finally {
       setCarregando(false)
     }
   }
-
   // Não renderiza nada se o modal estiver fechado
   if (!aberto) return null
 

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { apiClient } from "@/utils/apiClient.js"
 import toast from "react-hot-toast"
-import { formatarMoeda, formatarKm } from "@/utils/validacao.js"
+import { formatarMoeda, formatarKm, formatarMedidaPneu } from "@/utils/validacao.js"
 import { useUser } from "@/app/context/userContext.jsx"
 
 export default function ManutencaoVeiculoPage() {
@@ -29,6 +29,23 @@ export default function ManutencaoVeiculoPage() {
     const [modalConclusaoAberto, setModalConclusaoAberto] = useState(false)
     const [manutencaoConcluindo, setManutencaoConcluindo] = useState(null)
     const [totalManutencao, setTotalManutencao] = useState(0)
+
+
+    // ------------- TROCA DE PNEU----------------
+    const [modalTrocaAberto, setModalTrocaAberto] = useState(false)
+    const [pneusVeiculo, setPneusVeiculo] = useState([])
+    const [pneuSaidaId, setPneuSaidaId] = useState("")
+    const [posicaoTroca, setPosicaoTroca] = useState("")
+    const [novoPneuMarca, setNovoPneuMarca] = useState("")
+    const [novoPneuMedida, setNovoPneuMedida] = useState("")
+    const [novoPneuValor, setNovoPneuValor] = useState("")
+    const [valorServico, setValorServico] = useState("")
+    const [oficinaTroca, setOficinaTroca] = useState("")
+
+    const MARCAS_PNEU = [
+        "MICHELIN", "PIRELLI", "BRIDGESTONE", "GOODYEAR",
+        "CONTINENTAL", "DUNLOP", "YOKOHAMA", "HANKOOK", "FIRESTONE", "KUMHO"
+    ]
 
     // REFS DO FORMULÁRIO DE MANUTENÇÃO
     const tipo = useRef()
@@ -336,6 +353,90 @@ export default function ManutencaoVeiculoPage() {
         return valor === "CORRETIVA" ? "#ef4444" : "#2563eb"
     }
 
+
+
+
+
+
+
+
+    //  -------------------- MODAL PARA TROCA DE PNEUS ----------------------
+    async function abrirTrocaPneu() {
+        setModalTrocaAberto(true)
+        setPneuSaidaId("")
+        setPosicaoTroca("")
+        setNovoPneuMarca("")
+        setNovoPneuMedida("")
+        setNovoPneuValor("")
+        setValorServico("")
+        setOficinaTroca("")
+
+        try {
+            const pneusV = await apiClient.get("/pneu/veiculo/" + id)
+            setPneusVeiculo(Array.isArray(pneusV) ? pneusV : [])
+        } catch {
+            toast.error("Erro ao carregar pneus")
+        }
+    }
+
+    function fecharTrocaPneu() {
+        setModalTrocaAberto(false)
+    }
+
+    function selecionarPneuSaida(pneuId) {
+        setPneuSaidaId(pneuId)
+        for (let i = 0; i < pneusVeiculo.length; i++) {
+            if (String(pneusVeiculo[i].id) === String(pneuId)) {
+                setPosicaoTroca(pneusVeiculo[i].posicao || "")
+                break
+            }
+        }
+    }
+
+    async function confirmarTroca() {
+        if (!pneuSaidaId) { toast.error("Selecione o pneu que vai sair"); return }
+        if (!posicaoTroca) { toast.error("Informe a posição"); return }
+        if (!oficinaTroca) { toast.error("Selecione a oficina"); return }
+
+       
+
+        setLoading(true)
+        try {
+            const payload = {
+                pneuSaidaId,
+                posicao: posicaoTroca,
+                veiculoId: id,
+                kmAtual: veiculo?.kmatual || null,
+                usuario: user?.id,
+                oficina: oficinaTroca,
+                valorServico: converterMoedaNumero(valorServico),
+                descricaoManutencao: `Troca de pneu — ${posicaoTroca}`,
+                novoPneu: {
+                    marca: novoPneuMarca,
+                    medida: novoPneuMedida,
+                    valor: converterMoedaNumero(novoPneuValor),
+                    dataaquisicao: dataDeHoje(),
+                    estado: "Bom"
+                }
+            }
+
+            await apiClient.post("/pneu/trocar", payload)
+            toast.success("Troca realizada! Manutenção gerada.")
+            fecharTrocaPneu()
+            carregarManutencoes()
+
+        } catch {
+            toast.error("Erro ao realizar troca")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+
+    // --------------- FIM DO MODAL
+
+
+
     // -------------------- RENDER --------------------
 
     return (
@@ -363,6 +464,12 @@ export default function ManutencaoVeiculoPage() {
                         />
                         <button onClick={abrirNovo} style={styles.buttonPrimary}>
                             + Nova Manutenção
+                        </button>
+                        <button
+                            onClick={abrirTrocaPneu}
+                            style={{ ...styles.buttonPrimary, backgroundColor: "#f59e0b", color: "#000" }}
+                        >
+                            🔄 Trocar Pneu
                         </button>
                     </div>
                 </div>
@@ -650,7 +757,154 @@ export default function ManutencaoVeiculoPage() {
                 </div>
             )}
 
+
+
+
+            {/* MODAL DE TROCA DE PNEU */}
+            {modalTrocaAberto && (
+                <div style={styles.overlay}>
+                    <div style={{ ...styles.modal, width: "560px" }}>
+
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                            <h2 style={{ margin: 0 }}>🔄 Trocar Pneu — {veiculo?.placa}</h2>
+                            <button onClick={fecharTrocaPneu} style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer" }}>✕</button>
+                        </div>
+
+                        {/* PNEU QUE SAI */}
+                        <div style={styles.inputGroup}>
+                            <label>Pneu que vai SAIR:</label>
+                            <select
+                                value={pneuSaidaId}
+                                onChange={function (e) { selecionarPneuSaida(e.target.value) }}
+                                style={styles.input}
+                            >
+                                <option value="">Selecione o pneu</option>
+                                {pneusVeiculo.map(function (p) {
+                                    return (
+                                        <option key={p.id} value={p.id}>
+                                            {p.posicao} — {p.marca} {p.medida} ({p.estado})
+                                        </option>
+                                    )
+                                })}
+                            </select>
+                        </div>
+
+                        {/* POSIÇÃO */}
+                        <div style={styles.inputGroup}>
+                            <label>Posição:</label>
+                            <select value={posicaoTroca} onChange={function (e) { setPosicaoTroca(e.target.value) }} style={styles.input}>
+                                <option value="">Selecione</option>
+                                <option value="Dianteiro Esquerdo">Dianteiro Esquerdo</option>
+                                <option value="Dianteiro Direito">Dianteiro Direito</option>
+                                <option value="Traseiro Esquerdo">Traseiro Esquerdo</option>
+                                <option value="Traseiro Direito">Traseiro Direito</option>
+                                <option value="Estepe">Estepe</option>
+                            </select>
+                        </div>
+
+                        {/* CHECKBOX — estoque ou novo */}
+                        <div style={{ display: "flex", gap: "20px", marginBottom: "16px" }}>
+
+                            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+
+                                Cadastrar pneu novo
+                            </label>
+                        </div>
+
+                        {/* PNEU NOVO */}
+                        {(
+                            <div style={{ background: "#f8fafc", padding: "14px", borderRadius: "10px", marginBottom: "12px" }}>
+                                <label style={{ fontWeight: "bold", marginBottom: "10px", display: "block" }}>Dados do Pneu Novo:</label>
+
+                                <div style={styles.inputGroup}>
+                                    <label>Marca:</label>
+                                    <select value={novoPneuMarca} onChange={function (e) { setNovoPneuMarca(e.target.value) }} style={styles.input}>
+                                        <option value="">Selecione</option>
+                                        {MARCAS_PNEU.map(function (m) {
+                                            return <option key={m} value={m}>{m}</option>
+                                        })}
+                                    </select>
+                                </div>
+
+                                <div style={styles.inputGroup}>
+                                    <label>Medida:</label>
+                                    <input
+                                        type="text"
+                                        value={novoPneuMedida}
+                                        // Chamada da função de formatação aqui:
+                                        onChange={function (e) {
+                                            setNovoPneuMedida(formatarMedidaPneu(e.target.value))
+                                        }}
+                                        placeholder="Ex: 175/65 R14"
+                                        style={styles.input}
+                                    />
+                                </div>
+
+                                <div style={styles.inputGroup}>
+                                    <label>Valor do pneu (opcional):</label>
+                                    <input
+                                        type="text"
+                                        value={novoPneuValor}
+                                        onChange={function (e) { setNovoPneuValor(formatarMoeda(e.target.value)) }}
+                                        placeholder="R$ 0,00"
+                                        style={styles.input}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* OFICINA E VALOR */}
+                        <div style={styles.inputGroup}>
+                            <label>Oficina:</label>
+                            <select value={oficinaTroca} onChange={function (e) { setOficinaTroca(e.target.value) }} style={styles.input}>
+                                <option value="">Selecione</option>
+                                {oficinas.map(function (o) {
+                                    return <option key={o.id} value={o.id}>{o.nome}</option>
+                                })}
+                            </select>
+                        </div>
+
+                        <div style={styles.inputGroup}>
+                            <label>Valor do serviço (mão de obra):</label>
+                            <input
+                                type="text"
+                                value={valorServico}
+                                onChange={function (e) { setValorServico(formatarMoeda(e.target.value)) }}
+                                placeholder="R$ 0,00"
+                                style={styles.input}
+                            />
+                        </div>
+
+                        {/* AVISO */}
+                        {pneuSaidaId && (
+                            <div style={{ background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: "8px", padding: "12px", marginBottom: "16px", fontSize: "13px", color: "#78350f" }}>
+                                <div style={{ fontWeight: "bold", marginBottom: "4px" }}>⚠ O que vai acontecer:</div>
+                                <div>• Pneu que sai será marcado como DESCARTADO</div>
+                                <div>• Histórico de uso será registrado na tabela de descartes</div>
+                                <div>• Uma manutenção CORRETIVA será criada automaticamente</div>
+                                <div>• KM registrada: {Number(veiculo?.kmatual || 0).toLocaleString("pt-BR")} km</div>
+                            </div>
+                        )}
+
+                        <div style={styles.modalButtons}>
+                            <button onClick={fecharTrocaPneu} style={styles.buttonCancel}>Cancelar</button>
+                            <button
+                                onClick={confirmarTroca}
+                                disabled={loading}
+                                style={{ ...styles.buttonPrimary, backgroundColor: "#f59e0b", color: "#000" }}
+                            >
+                                {loading ? "Processando..." : "Confirmar Troca"}
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
         </div>
+
+
+
     )
 }
 
