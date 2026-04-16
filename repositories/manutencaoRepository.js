@@ -53,7 +53,7 @@ export default class ManutencaoRepository {
             item.descricao,
             item.valor,
             item.manutencao?.id ?? item.manutencao ?? null,
-            item.servico?.id ?? item.servico ?? null,
+            item.servico?.id ?? item.servico ?? 10,
             item.oficina?.id ?? item.oficina ?? null
         ];
 

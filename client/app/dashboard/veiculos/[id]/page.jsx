@@ -29,19 +29,6 @@ export default function VeiculoDetalhePage() {
     const [status, setStatus] = useState("")
     const [tanque, setTanque] = useState("")
 
-    // MODAL TROCA DE PNEU
-    const [modalTrocaAberto, setModalTrocaAberto] = useState(false)
-    const [pneusVeiculo, setPneusVeiculo] = useState([])
-    const [pneusEstoque, setPneusEstoque] = useState([])
-    const [oficinas, setOficinas] = useState([])
-    const [usuarios, setUsuarios] = useState([])
-    const [pneuSaida, setPneuSaida] = useState("")
-    const [pneuEntrada, setPneuEntrada] = useState("")
-    const [posicaoTroca, setPosicaoTroca] = useState("")
-    const [valorTroca, setValorTroca] = useState("")
-    const [oficinaTroca, setOficinaTroca] = useState("")
-    const [usuarioTroca, setUsuarioTroca] = useState("")
-
     const coresVeiculo = [
         { value: "BRANCO", label: "Branco" },
         { value: "PRETO", label: "Preto" },
@@ -114,6 +101,10 @@ export default function VeiculoDetalhePage() {
         setEditando(false)
     }
 
+
+
+    //  ----------------- SALVAR ----------------
+
     async function salvar() {
         if (!validarPlaca(placa)) {
             toast.error("Placa inválida")
@@ -152,6 +143,9 @@ export default function VeiculoDetalhePage() {
         }
     }
 
+
+
+    // ---------------- INATIVAR -------------------------
     async function inativar() {
         if (!confirm("Deseja realmente inativar este veículo?")) return
         try {
@@ -163,104 +157,6 @@ export default function VeiculoDetalhePage() {
         }
     }
 
-    // -------------------- TROCA DE PNEU --------------------
-
-    async function abrirTrocaPneu() {
-        setModalTrocaAberto(true)
-        setPneuSaida("")
-        setPneuEntrada("")
-        setPosicaoTroca("")
-        setValorTroca("")
-        setOficinaTroca("")
-        setUsuarioTroca("")
-
-        try {
-            const pneusV = await apiClient.get("/pneu/veiculo/" + id)
-            setPneusVeiculo(Array.isArray(pneusV) ? pneusV : [])
-
-            const estoque = await apiClient.get("/pneu/estoque")
-            setPneusEstoque(Array.isArray(estoque) ? estoque : [])
-
-            const ofs = await apiClient.get("/oficina")
-            setOficinas(Array.isArray(ofs) ? ofs : [])
-
-            const users = await apiClient.get("/usuario")
-            setUsuarios(Array.isArray(users) ? users : [])
-
-        } catch {
-            toast.error("Erro ao carregar dados para troca")
-        }
-    }
-
-    function fecharTrocaPneu() {
-        setModalTrocaAberto(false)
-    }
-
-    function selecionarPneuSaida(pneuId) {
-        setPneuSaida(pneuId)
-        for (let i = 0; i < pneusVeiculo.length; i++) {
-            if (String(pneusVeiculo[i].id) === String(pneuId)) {
-                setPosicaoTroca(pneusVeiculo[i].posicao || "")
-                break
-            }
-        }
-    }
-
-    async function confirmarTroca(e) {
-        e.preventDefault()
-
-        if (!pneuSaida) {
-            toast.error("Selecione o pneu que vai sair")
-            return
-        }
-        if (!pneuEntrada) {
-            toast.error("Selecione o pneu novo")
-            return
-        }
-        if (!posicaoTroca) {
-            toast.error("Informe a posição")
-            return
-        }
-        if (!usuarioTroca) {
-            toast.error("Selecione o usuário responsável")
-            return
-        }
-        if (!oficinaTroca) {
-            toast.error("Selecione a oficina")
-            return
-        }
-        if (!valorTroca) {
-            toast.error("Informe o valor do serviço")
-            return
-        }
-
-        setLoading(true)
-        try {
-            const valorNumero = Number(
-                valorTroca.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()
-            )
-
-            await apiClient.post("/pneu/trocar", {
-                pneuSaida,
-                pneuEntrada,
-                posicao: posicaoTroca,
-                veiculo: id,
-                kmAtual: veiculo?.kmatual || null,
-                usuario: usuarioTroca,
-                valor: valorNumero,
-                oficina: oficinaTroca
-            })
-
-            toast.success("Pneu trocado! Redirecionando para contas...")
-            fecharTrocaPneu()
-            router.push("/dashboard/contas")
-
-        } catch {
-            toast.error("Erro ao realizar troca")
-        } finally {
-            setLoading(false)
-        }
-    }
 
     // -------------------- RENDER --------------------
 
@@ -373,17 +269,12 @@ export default function VeiculoDetalhePage() {
                                     🔧 Manutenções
                                 </button>
                                 <button
-                                    onClick={abrirTrocaPneu}
-                                    style={{ ...styles.atalho, borderColor: "#f59e0b", color: "#d97706" }}
+                                    onClick={function () { router.push("/dashboard/manutencao/" + id) }}
+                                    style={styles.atalho}
                                 >
                                     🔄 Trocar Pneu
                                 </button>
-                                <button
-                                    onClick={function () { router.push("/dashboard/pneus/" + id) }}
-                                    style={styles.atalho}
-                                >
-                                    🛞 Ver Pneus
-                                </button>
+                               
                             </div>
                         </div>
                     </>
@@ -521,149 +412,6 @@ export default function VeiculoDetalhePage() {
                 )}
 
             </div>
-
-            {/* MODAL TROCA DE PNEU */}
-            {modalTrocaAberto && (
-                <div style={styles.overlay}>
-                    <div style={styles.modal}>
-
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                            <h2 style={{ margin: 0 }}>🔄 Trocar Pneu — {veiculo?.placa}</h2>
-                            <button
-                                onClick={fecharTrocaPneu}
-                                style={{ background: "none", border: "none", fontSize: "20px", cursor: "pointer", color: "#9ca3af" }}
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <form onSubmit={confirmarTroca}>
-
-                            <div style={styles.inputGroup}>
-                                <label>Pneu que vai SAIR do veículo</label>
-                                <select
-                                    value={pneuSaida}
-                                    onChange={function (e) { selecionarPneuSaida(e.target.value) }}
-                                    style={styles.input}
-                                >
-                                    <option value="">Selecione o pneu</option>
-                                    {pneusVeiculo.map(function (p) {
-                                        return (
-                                            <option key={p.id} value={p.id}>
-                                                {p.posicao} — {p.marca} {p.medida} ({p.estado})
-                                            </option>
-                                        )
-                                    })}
-                                </select>
-                            </div>
-
-                            <div style={styles.inputGroup}>
-                                <label>Posição da troca</label>
-                                <select
-                                    value={posicaoTroca}
-                                    onChange={function (e) { setPosicaoTroca(e.target.value) }}
-                                    style={styles.input}
-                                >
-                                    <option value="">Selecione a posição</option>
-                                    <option value="Dianteiro Esquerdo">Dianteiro Esquerdo</option>
-                                    <option value="Dianteiro Direito">Dianteiro Direito</option>
-                                    <option value="Traseiro Esquerdo">Traseiro Esquerdo</option>
-                                    <option value="Traseiro Direito">Traseiro Direito</option>
-                                    <option value="Estepe">Estepe</option>
-                                </select>
-                            </div>
-
-                            <div style={styles.inputGroup}>
-                                <label>Pneu novo (do estoque)</label>
-                                <select
-                                    value={pneuEntrada}
-                                    onChange={function (e) { setPneuEntrada(e.target.value) }}
-                                    style={styles.input}
-                                >
-                                    <option value="">Selecione o pneu novo</option>
-                                    {pneusEstoque.length === 0 ? (
-                                        <option disabled>Nenhum pneu em estoque</option>
-                                    ) : (
-                                        pneusEstoque.map(function (p) {
-                                            return (
-                                                <option key={p.id} value={p.id}>
-                                                    {p.marca} — {p.medida} — {p.estado}
-                                                </option>
-                                            )
-                                        })
-                                    )}
-                                </select>
-                            </div>
-
-                            <div style={styles.inputGroup}>
-                                <label>Usuário Responsável</label>
-                                <select
-                                    value={usuarioTroca}
-                                    onChange={function (e) { setUsuarioTroca(e.target.value) }}
-                                    style={styles.input}
-                                >
-                                    <option value="">Selecione o usuário</option>
-                                    {usuarios.map(function (u) {
-                                        return <option key={u.id} value={u.id}>{u.nome}</option>
-                                    })}
-                                </select>
-                            </div>
-
-                            <div style={styles.inputGroup}>
-                                <label>Oficina</label>
-                                <select
-                                    value={oficinaTroca}
-                                    onChange={function (e) { setOficinaTroca(e.target.value) }}
-                                    style={styles.input}
-                                >
-                                    <option value="">Selecione a oficina</option>
-                                    {oficinas.map(function (o) {
-                                        return <option key={o.id} value={o.id}>{o.nome}</option>
-                                    })}
-                                </select>
-                            </div>
-
-                            <div style={styles.inputGroup}>
-                                <label>Valor do Serviço (mão de obra)</label>
-                                <input
-                                    type="text"
-                                    value={valorTroca}
-                                    onChange={function (e) { setValorTroca(formatarMoeda(e.target.value)) }}
-                                    placeholder="R$ 0,00"
-                                    style={styles.input}
-                                />
-                            </div>
-
-                            {/* AVISO */}
-                            {pneuSaida && pneuEntrada && (
-                                <div style={{ background: "#fffbeb", border: "1px solid #fcd34d", borderRadius: "10px", padding: "14px", marginBottom: "16px" }}>
-                                    <div style={{ fontWeight: "bold", marginBottom: "6px", color: "#92400e" }}>⚠ O que vai acontecer:</div>
-                                    <div style={{ fontSize: "13px", color: "#78350f" }}>
-                                        <div>• O pneu que sai será marcado como DESCARTADO</div>
-                                        <div>• KM de saída registrada: {Number(veiculo?.kmatual || 0).toLocaleString("pt-BR")} km</div>
-                                        <div>• Uma manutenção CORRETIVA será criada</div>
-                                        <div>• Uma conta a pagar será gerada</div>
-                                    </div>
-                                </div>
-                            )}
-
-                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "20px" }}>
-                                <button type="button" onClick={fecharTrocaPneu} style={styles.buttonCancel}>
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    style={{ ...styles.buttonPrimary, backgroundColor: "#f59e0b", color: "#000" }}
-                                >
-                                    {loading ? "Processando..." : "Confirmar Troca"}
-                                </button>
-                            </div>
-
-                        </form>
-                    </div>
-                </div>
-            )}
 
         </div>
     )

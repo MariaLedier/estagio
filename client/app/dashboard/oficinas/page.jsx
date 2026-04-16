@@ -31,6 +31,8 @@ export default function OficinaPage() {
   }
 
 
+  // ---------- CARREGAMENTOS -------------
+
   useEffect(() => {
     carreagarOficina()
   }, [])
@@ -110,6 +112,8 @@ export default function OficinaPage() {
     }
   }
 
+
+  // --------------- RETURN NA TELA ---------------------------
   return (
     <div style={styles.page}>
       <div style={styles.card}>
