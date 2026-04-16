@@ -43,8 +43,10 @@ export default function PneusPage() {
         { value: "KUMHO", label: "Kumho" }
     ]
 
-  
-    //  -------------------------------- FORMATAÇÕES --------------------
+    useEffect(() => {
+        carregarPneus()
+    }, [])
+
     // FORMATAÇÃO DE MEDIDA
     function handleMedida(valor) {
         const medidaFormatada = formatarMedidaPneu(valor)
@@ -98,8 +100,6 @@ export default function PneusPage() {
     })
 
 
-
-//  -------------------- CARREGAR ------------------
     async function carregarPneus() {
         try {
             const dados = await apiClient.get("/pneu")
@@ -108,10 +108,6 @@ export default function PneusPage() {
             toast.error("Erro ao carregar pneus")
         }
     }
-
-      useEffect(() => {
-        carregarPneus()
-    }, [])
 
     // ---------------- NOVO ----------------
 
@@ -225,8 +221,6 @@ export default function PneusPage() {
         }
     }
 
-
-    //  ------------------------------- RETURN DA TELA ---------------------
     return (
         <div style={styles.page}>
             <div style={styles.card}>

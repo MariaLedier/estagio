@@ -15,9 +15,6 @@ export default function UsuarioPage() {
   const [senha, setSenha] = useState("")
   const [loading, setLoading] = useState(false)
 
-
-
-  //  --------- CARREGAR -------------
   useEffect(() => {
     carregarUsuario()
   }, [])

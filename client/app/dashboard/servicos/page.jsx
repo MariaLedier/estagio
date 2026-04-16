@@ -13,10 +13,6 @@ export default function ServicosPage() {
   const [nome, setNome] = useState("")
   const [loading, setLoading] = useState(false)
 
-
-
-
-  //  ----------- CARREGAR ------------------
   useEffect(() => {
     carregarServico()
   }, [])
