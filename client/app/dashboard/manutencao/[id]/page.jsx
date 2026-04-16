@@ -398,7 +398,7 @@ export default function ManutencaoVeiculoPage() {
         if (!posicaoTroca) { toast.error("Informe a posição"); return }
         if (!oficinaTroca) { toast.error("Selecione a oficina"); return }
 
-       
+
 
         setLoading(true)
         try {
@@ -647,9 +647,12 @@ export default function ManutencaoVeiculoPage() {
                                             style={styles.inputSm}
                                         >
                                             <option value="">Selecione</option>
-                                            {servicos.map((s) => (
-                                                <option key={s.id} value={s.id}>{s.nome}</option>
-                                            ))}
+                                            {servicos
+                                                .filter((s) => String(s.id) !== "10") // Filtro garantindo que é string
+                                                .map((s) => (
+                                                    <option key={s.id} value={s.id}>{s.nome}</option>
+                                                ))
+                                            }
                                         </select>
                                     </div>
 
