@@ -6,7 +6,7 @@ import { apiClient } from "@/utils/apiClient.js"
 import toast from "react-hot-toast"
 import { useUser } from "@/app/context/userContext.jsx"
 
-// ─── SEÇÕES DO CHECKLIST ──────────────────────────────────────────────────────
+// ─── SEÇÕES E ITENS DO CHECKLIST (33 itens) ───────────────────────────────────
 
 const SECOES = [
     {
@@ -14,12 +14,12 @@ const SECOES = [
         label: "Motor & Fluidos",
         icone: "⚙️",
         itens: [
-            { id: "oleo",            label: "Nível de Óleo" },
-            { id: "agua",            label: "Nível d'Água / Radiador" },
-            { id: "fluido_freio",    label: "Fluido de Freio" },
-            { id: "fluido_direcao",  label: "Fluido de Direção" },
-            { id: "arrefecimento",   label: "Sistema de Arrefecimento" },
-            { id: "correia",         label: "Correia Dentada / Alternador" },
+            { id: "oleo",           label: "Nível de Óleo" },
+            { id: "agua",           label: "Nível d'Água / Radiador" },
+            { id: "fluido_freio",   label: "Fluido de Freio" },
+            { id: "fluido_direcao", label: "Fluido de Direção" },
+            { id: "arrefecimento",  label: "Sistema de Arrefecimento" },
+            { id: "correia",        label: "Correia Dentada / Alternador" },
         ],
     },
     {
@@ -52,12 +52,12 @@ const SECOES = [
         label: "Sistema Elétrico",
         icone: "⚡",
         itens: [
-            { id: "bateria",          label: "Bateria" },
-            { id: "farol_dianteiro",  label: "Farol Dianteiro" },
-            { id: "farol_traseiro",   label: "Farol Traseiro / Lanternas" },
-            { id: "setas",            label: "Setas / Pisca-Alerta" },
-            { id: "luz_re",           label: "Luz de Ré" },
-            { id: "painel",           label: "Painel / Instrumentos" },
+            { id: "bateria",         label: "Bateria" },
+            { id: "farol_dianteiro", label: "Farol Dianteiro" },
+            { id: "farol_traseiro",  label: "Farol Traseiro / Lanternas" },
+            { id: "setas",           label: "Setas / Pisca-Alerta" },
+            { id: "luz_re",          label: "Luz de Ré" },
+            { id: "painel",          label: "Painel / Instrumentos" },
         ],
     },
     {
@@ -65,13 +65,13 @@ const SECOES = [
         label: "Carroceria & Cabine",
         icone: "🚗",
         itens: [
-            { id: "para_brisa",  label: "Para-brisa / Vidros" },
-            { id: "limpador",    label: "Limpador de Para-brisa" },
-            { id: "portas",      label: "Portas / Travas" },
-            { id: "espelhos",    label: "Espelhos Retrovisores" },
-            { id: "cinto",       label: "Cintos de Segurança" },
-            { id: "extintor",    label: "Extintor de Incêndio" },
-            { id: "triangulo",   label: "Triângulo de Sinalização" },
+            { id: "para_brisa", label: "Para-brisa / Vidros" },
+            { id: "limpador",   label: "Limpador de Para-brisa" },
+            { id: "portas",     label: "Portas / Travas" },
+            { id: "espelhos",   label: "Espelhos Retrovisores" },
+            { id: "cinto",      label: "Cintos de Segurança" },
+            { id: "extintor",   label: "Extintor de Incêndio" },
+            { id: "triangulo",  label: "Triângulo de Sinalização" },
         ],
     },
     {
@@ -98,7 +98,7 @@ const COR_STATUS = {
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 
-function checkilstVazio() {
+function checklistVazio() {
     const obj = {}
     SECOES.forEach((s) => s.itens.forEach((i) => { obj[i.id] = "Não verificado" }))
     return obj
@@ -123,7 +123,7 @@ function contarStatus(itens) {
 
 // ─── GERAÇÃO DE PDF (nativa, sem biblioteca) ──────────────────────────────────
 
-function gerarPDF(veiculo, checklist, responsavel, observacoes, data, km) {
+function gerarPDF(veiculo, itens, responsavelNome, observacoes, data, km) {
     const janela = window.open("", "_blank")
     if (!janela) { alert("Permita pop-ups para gerar o PDF."); return }
 
@@ -133,7 +133,7 @@ function gerarPDF(veiculo, checklist, responsavel, observacoes, data, km) {
             padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">${s}</span>`
     }
 
-    const counts = contarStatus(checklist)
+    const counts = contarStatus(itens)
     const total  = Object.values(counts).reduce((a, b) => a + b, 0)
 
     const secoesHtml = SECOES.map((sec) => `
@@ -144,7 +144,7 @@ function gerarPDF(veiculo, checklist, responsavel, observacoes, data, km) {
             </div>
             <table style="width:100%;border-collapse:collapse;">
                 ${sec.itens.map((item) => {
-                    const s = checklist[item.id] || "Não verificado"
+                    const s = itens[item.id] || "Não verificado"
                     return `<tr style="border-bottom:1px solid #f1f5f9;">
                         <td style="padding:5px 4px;font-size:12px;color:#334155;">${item.label}</td>
                         <td style="padding:5px 4px;text-align:right;">${badge(s)}</td>
@@ -175,22 +175,22 @@ function gerarPDF(veiculo, checklist, responsavel, observacoes, data, km) {
     </head><body>
     <div class="no-print" style="margin-bottom:16px;">
         <button onclick="window.print()"
-            style="background:#1d4ed8;color:#fff;border:none;padding:10px 22px;
+            style="background:#2563eb;color:#fff;border:none;padding:10px 22px;
             border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">
             🖨️ Imprimir / Salvar PDF
         </button>
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:flex-start;
-        margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #1d4ed8;">
+        margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #2563eb;">
         <div>
-            <div style="font-size:20px;font-weight:800;color:#1d4ed8;">CONTROLE DE FROTA</div>
+            <div style="font-size:20px;font-weight:800;color:#2563eb;">CONTROLE DE FROTA</div>
             <div style="font-size:12px;color:#64748b;margin-top:2px;">Relatório de Checklist Veicular</div>
         </div>
         <div style="text-align:right;font-size:12px;color:#64748b;">
             <div><b>Data:</b> ${formatarDataBR(data)}</div>
             <div><b>KM:</b> ${km ? Number(km).toLocaleString("pt-BR") + " km" : "—"}</div>
-            <div><b>Responsável:</b> ${responsavel || "—"}</div>
+            <div><b>Responsável:</b> ${responsavelNome || "—"}</div>
         </div>
     </div>
 
@@ -217,7 +217,7 @@ function gerarPDF(veiculo, checklist, responsavel, observacoes, data, km) {
     <div style="margin-top:32px;display:flex;justify-content:flex-end;">
         <div style="text-align:center;width:210px;">
             <div style="border-top:1px solid #94a3b8;padding-top:6px;font-size:11px;color:#64748b;">
-                ${responsavel || "Responsável"}
+                ${responsavelNome || "Responsável"}
             </div>
         </div>
     </div>
@@ -231,24 +231,22 @@ function gerarPDF(veiculo, checklist, responsavel, observacoes, data, km) {
 
 export default function ChecklistVeiculoPage() {
 
-    const { id } = useParams()
-    const router  = useRouter()
-    const { user } = useUser()
+    const { id }    = useParams()
+    const router    = useRouter()
+    const { user }  = useUser()
 
     const isAdmin = user?.tipo === 2
 
-    const [montado,      setMontado]      = useState(false)
-    const [veiculo,      setVeiculo]      = useState(null)
-    const [historico,    setHistorico]    = useState([])
-    const [usuarios,     setUsuarios]     = useState([])
-    const [loading,      setLoading]      = useState(false)
-    const [salvando,     setSalvando]     = useState(false)
-    const [abaAtiva,     setAbaAtiva]     = useState("form")      // "form" | "historico"
-    const [secaoAberta,  setSecaoAberta]  = useState("motor")
-    const [itensChecklist, setItensChecklist] = useState(checkilstVazio())
-    const [pesquisa,     setPesquisa]     = useState("")
-    const [modalPDFAberto, setModalPDFAberto] = useState(false)
-    const [checklistPDF, setChecklistPDF] = useState(null)
+    const [montado,        setMontado]        = useState(false)
+    const [veiculo,        setVeiculo]        = useState(null)
+    const [historico,      setHistorico]      = useState([])
+    const [usuarios,       setUsuarios]       = useState([])
+    const [salvando,       setSalvando]       = useState(false)
+    const [loading,        setLoading]        = useState(false)
+    const [abaAtiva,       setAbaAtiva]       = useState("form")
+    const [secaoAberta,    setSecaoAberta]    = useState("motor")
+    const [itensChecklist, setItensChecklist] = useState(checklistVazio())
+    const [pesquisa,       setPesquisa]       = useState("")
 
     // REFS DO FORMULÁRIO
     const refData        = useRef()
@@ -299,14 +297,14 @@ export default function ChecklistVeiculoPage() {
         }
     }
 
-    // ─── ITEM DO CHECKLIST ────────────────────────────────────────────────────
+    // ─── ITENS DO CHECKLIST ───────────────────────────────────────────────────
 
     function mudarStatus(campo, novoStatus) {
         setItensChecklist((prev) => ({ ...prev, [campo]: novoStatus }))
     }
 
     function resetarFormulario() {
-        setItensChecklist(checkilstVazio())
+        setItensChecklist(checklistVazio())
         setSecaoAberta("motor")
         if (refObservacoes.current) refObservacoes.current.value = ""
         if (refKm.current)          refKm.current.value = veiculo?.kmatual || ""
@@ -316,11 +314,11 @@ export default function ChecklistVeiculoPage() {
     // ─── SALVAR ───────────────────────────────────────────────────────────────
 
     async function salvar() {
-        const responsavelVal = isAdmin
+        const responsavelId = isAdmin
             ? refResponsavel.current?.value
             : user?.id
 
-        if (!responsavelVal) {
+        if (!responsavelId) {
             toast.error("Selecione o responsável")
             return
         }
@@ -331,24 +329,16 @@ export default function ChecklistVeiculoPage() {
 
         setSalvando(true)
         try {
-            // 1. Salvar o checklist
             await apiClient.post("/checklist", {
-                veiculo:      id,
-                usuario:      responsavelVal,
-                data:         refData.current.value,
-                km:           refKm.current?.value ? parseInt(refKm.current.value.replace(/\./g, "")) : null,
-                observacoes:  refObservacoes.current?.value || "",
-                itens:        itensChecklist,
+                veiculo:     id,
+                usuario:     responsavelId,
+                data:        refData.current.value,
+                km:          refKm.current?.value ? parseInt(refKm.current.value.replace(/\./g, "")) : null,
+                observacoes: refObservacoes.current?.value || "",
+                itens:       itensChecklist,   // todos os 33 campos
             })
 
-            // 2. Sincronizar o estado dos componentes no veículo (PATCH)
-            //    O backend deve ler o campo "componentes" e atualizar
-            //    os campos correspondentes na tabela do veículo.
-            await apiClient.patch("/veiculo/" + id, {
-                componentes: itensChecklist,
-            })
-
-            toast.success("Checklist salvo e veículo atualizado!")
+            toast.success("Checklist salvo! Pneus atualizados.")
             resetarFormulario()
             carregarHistorico()
             setAbaAtiva("historico")
@@ -360,7 +350,7 @@ export default function ChecklistVeiculoPage() {
         }
     }
 
-    // ─── EXCLUIR DO HISTÓRICO ─────────────────────────────────────────────────
+    // ─── EXCLUIR ──────────────────────────────────────────────────────────────
 
     async function excluir(checklistId) {
         if (!confirm("Deseja excluir este checklist?")) return
@@ -383,10 +373,19 @@ export default function ChecklistVeiculoPage() {
         )
     })
 
-    // ─── CONTAGEM / RESUMO ────────────────────────────────────────────────────
+    // ─── RESUMO ───────────────────────────────────────────────────────────────
 
-    const counts = contarStatus(itensChecklist)
+    const counts     = contarStatus(itensChecklist)
     const totalItens = Object.values(counts).reduce((a, b) => a + b, 0)
+
+    // ─── NOME DO RESPONSÁVEL SELECIONADO (para PDF) ───────────────────────────
+
+    function nomeResponsavel() {
+        if (!isAdmin) return user?.nome || ""
+        const uid = refResponsavel.current?.value
+        const u   = usuarios.find((u) => String(u.id) === String(uid))
+        return u?.nome || ""
+    }
 
     // ─── RENDER ───────────────────────────────────────────────────────────────
 
@@ -408,14 +407,12 @@ export default function ChecklistVeiculoPage() {
                         </div>
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <input
-                            ref={refPesquisa}
-                            placeholder="Buscar no histórico..."
-                            onChange={() => setPesquisa(refPesquisa.current.value)}
-                            style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "13px", width: "200px" }}
-                        />
-                    </div>
+                    <input
+                        ref={refPesquisa}
+                        placeholder="Buscar no histórico..."
+                        onChange={() => setPesquisa(refPesquisa.current.value)}
+                        style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "13px", width: "200px" }}
+                    />
                 </div>
 
                 {/* ABAS */}
@@ -428,14 +425,10 @@ export default function ChecklistVeiculoPage() {
                             key={aba.key}
                             onClick={() => setAbaAtiva(aba.key)}
                             style={{
-                                padding: "8px 20px",
-                                borderRadius: "8px",
-                                border: "none",
+                                padding: "8px 20px", borderRadius: "8px", border: "none",
                                 background: abaAtiva === aba.key ? "#2563eb" : "transparent",
                                 color: abaAtiva === aba.key ? "#fff" : "#6b7280",
-                                fontWeight: "bold",
-                                fontSize: "13px",
-                                cursor: "pointer",
+                                fontWeight: "bold", fontSize: "13px", cursor: "pointer",
                             }}
                         >
                             {aba.label}
@@ -506,7 +499,7 @@ export default function ChecklistVeiculoPage() {
                                     <div key={s} style={{
                                         flex: 1, minWidth: 90,
                                         background: c.bg, border: `1px solid ${c.border}`,
-                                        borderRadius: "10px", padding: "12px", textAlign: "center"
+                                        borderRadius: "10px", padding: "12px", textAlign: "center",
                                     }}>
                                         <div style={{ fontSize: "22px", fontWeight: 800, color: c.text }}>{n}</div>
                                         <div style={{ fontSize: "11px", fontWeight: 600, color: c.text }}>{s}</div>
@@ -537,7 +530,6 @@ export default function ChecklistVeiculoPage() {
                                             ? "1.5px solid #fde047"
                                             : "1.5px solid #e5e7eb",
                                     }}>
-                                        {/* CABEÇALHO DA SEÇÃO */}
                                         <button
                                             onClick={() => setSecaoAberta(aberta ? null : sec.id)}
                                             style={{
@@ -548,7 +540,9 @@ export default function ChecklistVeiculoPage() {
                                         >
                                             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                                 <span style={{ fontSize: "18px" }}>{sec.icone}</span>
-                                                <span style={{ fontSize: "14px", fontWeight: "bold", color: "#0f172a" }}>{sec.label}</span>
+                                                <span style={{ fontSize: "14px", fontWeight: "bold", color: "#0f172a" }}>
+                                                    {sec.label}
+                                                </span>
                                                 {temRuim && (
                                                     <span style={{ background: "#fee2e2", color: "#991b1b", fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "20px" }}>
                                                         ⚠ ATENÇÃO
@@ -563,7 +557,6 @@ export default function ChecklistVeiculoPage() {
                                             <span style={{ color: "#9ca3af", fontSize: "16px" }}>{aberta ? "▲" : "▼"}</span>
                                         </button>
 
-                                        {/* ITENS */}
                                         {aberta && (
                                             <div style={{ padding: "0 18px 18px" }}>
                                                 {sec.itens.map((item) => (
@@ -626,14 +619,12 @@ export default function ChecklistVeiculoPage() {
                                 onClick={() => gerarPDF(
                                     veiculo,
                                     itensChecklist,
-                                    isAdmin
-                                        ? usuarios.find((u) => String(u.id) === String(refResponsavel.current?.value))?.nome
-                                        : user?.nome,
+                                    nomeResponsavel(),
                                     refObservacoes.current?.value,
                                     refData.current?.value,
                                     refKm.current?.value
                                 )}
-                                style={{ ...styles.buttonSecundario }}
+                                style={styles.buttonSecundario}
                             >
                                 🖨️ Gerar PDF
                             </button>
@@ -692,7 +683,7 @@ export default function ChecklistVeiculoPage() {
                                                                     background: cor.bg, color: cor.text,
                                                                     border: `1px solid ${cor.border}`,
                                                                     padding: "2px 10px", borderRadius: "20px",
-                                                                    fontSize: "11px", fontWeight: 700
+                                                                    fontSize: "11px", fontWeight: 700,
                                                                 }}>
                                                                     {s}: {n}
                                                                 </span>
@@ -754,8 +745,8 @@ const styles = {
     tableRow:      { borderBottom: "1px solid #e5e7eb" },
     td:            { padding: "10px", verticalAlign: "middle", fontSize: "13px" },
     actions:       { display: "flex", gap: "6px", padding: "10px", alignItems: "center" },
-    buttonPrimary: { backgroundColor: "#2563eb", color: "#fff", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold", fontSize: "14px" },
-    buttonSecundario: { backgroundColor: "#f1f5f9", color: "#1d4ed8", border: "1px solid #1d4ed8", padding: "8px 14px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold", fontSize: "13px" },
-    buttonBack:    { backgroundColor: "#f1f5f9", color: "#374151", padding: "8px 14px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold" },
-    buttonDelete:  { backgroundColor: "#ef4444", color: "#fff", padding: "6px 12px", borderRadius: "6px", border: "none", cursor: "pointer" },
+    buttonPrimary:    { backgroundColor: "#2563eb", color: "#fff", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold", fontSize: "14px" },
+    buttonSecundario: { backgroundColor: "#f1f5f9", color: "#2563eb", border: "1px solid #2563eb", padding: "8px 14px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold", fontSize: "13px" },
+    buttonBack:       { backgroundColor: "#f1f5f9", color: "#374151", padding: "8px 14px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold" },
+    buttonDelete:     { backgroundColor: "#ef4444", color: "#fff", padding: "6px 12px", borderRadius: "6px", border: "none", cursor: "pointer" },
 }

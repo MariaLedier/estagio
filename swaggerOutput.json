@@ -1424,6 +1424,190 @@
           }
         }
       }
+    },
+    "/checklist/veiculo/{veiculoId}": {
+      "get": {
+        "tags": [
+          "Checklist"
+        ],
+        "summary": "Listar checklists de um veículo",
+        "description": "",
+        "parameters": [
+          {
+            "name": "veiculoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de checklists com todos os itens (oleo, freios, pneus, etc.)"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/checklist/{id}": {
+      "get": {
+        "tags": [
+          "Checklist"
+        ],
+        "summary": "Obter checklist por ID",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Checklist não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/erro"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Checklist"
+        ],
+        "summary": "Deletar um checklist",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/checklist/": {
+      "post": {
+        "tags": [
+          "Checklist"
+        ],
+        "summary": "Cadastrar novo checklist",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "veiculo": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "usuario": {
+                    "type": "integer",
+                    "example": 3
+                  },
+                  "data": {
+                    "type": "string",
+                    "example": "2026-04-23"
+                  },
+                  "km": {
+                    "type": "integer",
+                    "example": 85420
+                  },
+                  "observacoes": {
+                    "type": "string",
+                    "example": "Pneu traseiro com desgaste"
+                  },
+                  "itens": {
+                    "type": "object",
+                    "example": {
+                      "oleo": "Bom",
+                      "agua": "Bom",
+                      "fluido_freio": "Regular",
+                      "freio_dianteiro": "Bom",
+                      "freio_traseiro": "Ruim",
+                      "pneu_traseiro_esq": "Ruim",
+                      "bateria": "Bom",
+                      "para_brisa": "Bom",
+                      "amortecedor_diant": "Regular"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
