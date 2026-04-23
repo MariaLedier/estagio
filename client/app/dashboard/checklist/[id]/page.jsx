@@ -111,7 +111,7 @@ function dataDeHoje() {
 
 function formatarDataBR(valor) {
     if (!valor) return "-"
-    const d = new Date(valor + "T12:00:00")
+    const d = new Date(valor)
     return d.toLocaleDateString("pt-BR")
 }
 

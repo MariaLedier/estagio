@@ -5,8 +5,7 @@ import Veiculo from "../entities/veiculo.js";
 import Usuario from "../entities/usuario.js";
 
 // ─── MAPEAMENTO PNEU ──────────────────────────────────────────────────────────
-// Apenas estes 5 campos do checklist sincronizam o pneu_estado em tb_pneu.
-// Todos os outros 28 campos ficam somente em tb_checklist_item para relatório.
+// Campo do checklist → posição em tb_pneu
 const CAMPO_PARA_POSICAO_PNEU = {
     pneu_dianteiro_esq: "Dianteiro Esquerdo",
     pneu_dianteiro_dir: "Dianteiro Direito",
@@ -15,24 +14,14 @@ const CAMPO_PARA_POSICAO_PNEU = {
     estepe:             "Estepe",
 };
 
-// ─── TODOS OS CAMPOS DO CHECKLIST (33 itens) ──────────────────────────────────
-// Usado para garantir que todos os campos sejam salvos,
-// mesmo que o frontend não envie algum (salva como "Não verificado")
-const TODOS_OS_CAMPOS = [
-    // Motor & Fluidos
-    "oleo", "agua", "fluido_freio", "fluido_direcao", "arrefecimento", "correia",
-    // Freios
-    "freio_dianteiro", "freio_traseiro", "disco_dianteiro", "disco_traseiro", "freio_mao",
-    // Pneus
-    "pneu_dianteiro_esq", "pneu_dianteiro_dir", "pneu_traseiro_esq", "pneu_traseiro_dir",
-    "estepe", "calibragem",
-    // Elétrico
-    "bateria", "farol_dianteiro", "farol_traseiro", "setas", "luz_re", "painel",
-    // Carroceria & Cabine
-    "para_brisa", "limpador", "portas", "espelhos", "cinto", "extintor", "triangulo",
-    // Suspensão & Direção
-    "amortecedor_diant", "amortecedor_tras", "alinhamento", "barra_direcao",
-];
+// ─── CONVERSÃO DE STATUS ──────────────────────────────────────────────────────
+// O checklist usa "Regular" (padrão do sistema de checklist)
+// mas a tabela de pneus usa "Médio".
+// Esta função converte na hora de sincronizar.
+function statusParaPneu(statusChecklist) {
+    if (statusChecklist === "Regular") return "Médio";
+    return statusChecklist; // "Bom" e "Ruim" ficam iguais
+}
 
 export default class ChecklistRepository {
 
@@ -66,8 +55,6 @@ export default class ChecklistRepository {
     }
 
     // ─── GRAVAR ITEM ──────────────────────────────────────────────────────────
-    // Salva um item individual em tb_checklist_item.
-    // Chamado para TODOS os 33 campos (oleo, freio_dianteiro, pneu_traseiro_esq, bateria, etc.)
 
     async gravarItem(item) {
         const sql = `
@@ -138,8 +125,6 @@ export default class ChecklistRepository {
     }
 
     // ─── LISTAR ITENS ─────────────────────────────────────────────────────────
-    // Retorna objeto { campo: status } com todos os 33 itens
-    // Ex: { oleo: "Bom", freio_dianteiro: "Ruim", pneu_traseiro_esq: "Regular", ... }
 
     async listarItens(checklistId) {
         const sql = `
@@ -159,17 +144,18 @@ export default class ChecklistRepository {
     }
 
     // ─── SINCRONIZAR PNEUS ────────────────────────────────────────────────────
-    // Percorre APENAS os 5 campos de pneu e atualiza pneu_estado em tb_pneu.
-    // Os demais campos (oleo, freios, bateria, etc.) NÃO entram aqui —
-    // eles ficam somente em tb_checklist_item para relatório e histórico.
+    // Atualiza pneu_estado em tb_pneus para os 5 campos de pneu.
+    // Converte "Regular" (checklist) → "Médio" (padrão da tabela de pneus).
+    // Ignora campos com "Não verificado".
 
     async sincronizarPneus(veiculoId, itens) {
         for (let campo of Object.keys(CAMPO_PARA_POSICAO_PNEU)) {
-            const posicao = CAMPO_PARA_POSICAO_PNEU[campo];
-            const status  = itens[campo];
+            const posicao         = CAMPO_PARA_POSICAO_PNEU[campo];
+            const statusChecklist = itens[campo];
 
-            // Só atualiza se o responsável realmente inspecionou
-            if (!status || status === "Não verificado") continue;
+            if (!statusChecklist || statusChecklist === "Não verificado") continue;
+
+            const estadoPneu = statusParaPneu(statusChecklist);
 
             const sql = `
                 UPDATE tb_pneus
@@ -178,7 +164,7 @@ export default class ChecklistRepository {
                 AND    pneus_posicao    = ?
             `;
 
-            await this.#banco.ExecutaComandoNonQuery(sql, [status, veiculoId, posicao]);
+            await this.#banco.ExecutaComandoNonQuery(sql, [estadoPneu, veiculoId, posicao]);
         }
     }
 
