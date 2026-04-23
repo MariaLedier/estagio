@@ -336,7 +336,7 @@ export default class PneuController {
                     `Troca de pneu — ${posicao}`,
                     valorServico,
                     manutencaoId,
-                    null,
+                    1,
                     oficina
                 );
                 await manutencaoRepo.gravarItem(itemEntidade);

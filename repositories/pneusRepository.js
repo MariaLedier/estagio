@@ -145,18 +145,7 @@ export default class PneusRepository {
         return result;
     }
 
-    async deletar(id) {
-
-        const sql = "update tb_pneus set pneus_status = 'DESCARTADO' where pneus_id = ?"
-
-        const params = [id];
-
-        const result = await this.#banco.ExecutaComandoNonQuery(sql, params);
-
-        return result;
-    }
-
-
+ 
 
     // ------ TROCA DE PNEUS ------
     async executarSQL(sql, valores) {

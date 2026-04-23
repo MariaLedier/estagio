@@ -69,7 +69,7 @@ export default class ServicoRepository {
     }
 
     async alterar(entidadeAtualizada) {
-        const sql = `update tb_servico set servico_nome = ?,
+        const sql = `update tb_servico set servico_nome = ?
                     where servico_id = ?`
 
         const valores = [entidadeAtualizada.nome, entidadeAtualizada.id];

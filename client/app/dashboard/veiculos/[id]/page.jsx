@@ -361,29 +361,13 @@ export default function VeiculoDetalhePage() {
                             <h3 style={{ marginBottom: "16px" }}>Ações Rápidas</h3>
                             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                                 <button
-                                    onClick={function () { router.push("/dashboard/abastecimento/" + id) }}
+                                    onClick={function () { router.push("/dashboard/checklist/" + id) }}
                                     style={styles.atalho}
                                 >
-                                    ⛽ Abastecimentos
+                                    Checklist
                                 </button>
-                                <button
-                                    onClick={function () { router.push("/dashboard/manutencao/" + id) }}
-                                    style={styles.atalho}
-                                >
-                                    🔧 Manutenções
-                                </button>
-                                <button
-                                    onClick={abrirTrocaPneu}
-                                    style={{ ...styles.atalho, borderColor: "#f59e0b", color: "#d97706" }}
-                                >
-                                    🔄 Trocar Pneu
-                                </button>
-                                <button
-                                    onClick={function () { router.push("/dashboard/pneus/" + id) }}
-                                    style={styles.atalho}
-                                >
-                                    🛞 Ver Pneus
-                                </button>
+                               
+                                 
                             </div>
                         </div>
                     </>

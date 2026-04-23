@@ -20,9 +20,14 @@ export default class ModeloRepository {
 
     async gravar(modelo) {
 
-        const sql = "insert into tb_modelo (usuario_nome, usuario_tipo, usuario_senha) values ( ?, ?, ?)";
+        const sql = `
+    INSERT INTO tb_modelo (modelo_nome, modelo_marca_id)
+    VALUES (?, ?)
+`;
 
-        const valores = [modelo.nome, modelo.marca];
+        const valores = [modelo.nome, modelo.marca?.id ?? modelo.marca];
+
+
 
         const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
 

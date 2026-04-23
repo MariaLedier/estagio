@@ -12,7 +12,7 @@ export default class Database {
             host: 'localhost',
             user: 'root',       
             password: '',         
-            database: 'bdestagio', 
+            database: 'bancoestagiofrotas', 
             waitForConnections: true,
             connectionLimit: 10
         });

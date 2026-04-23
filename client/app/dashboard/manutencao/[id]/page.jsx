@@ -648,7 +648,7 @@ export default function ManutencaoVeiculoPage() {
                                         >
                                             <option value="">Selecione</option>
                                             {servicos
-                                                .filter((s) => String(s.id) !== "10") // Filtro garantindo que é string
+                                                .filter((s) => String(s.id) !== "1") // Filtro garantindo que é string
                                                 .map((s) => (
                                                     <option key={s.id} value={s.id}>{s.nome}</option>
                                                 ))
