@@ -9,6 +9,7 @@ export default function DashboardLayout({ children }) {
 
     const { user, logout } = useUser()
     const [openGerenciar, setOpenGerenciar] = useState(false)
+    const [openRelatorios, setOpenRelatorios] = useState(false)
     const [menuAberto, setMenuAberto] = useState(false)
 
     const isAdmin = user?.tipo === 2
@@ -62,7 +63,7 @@ export default function DashboardLayout({ children }) {
                         </li>
                     )}
 
-                    {/* Abastecimento — ADMIN e VENDEDOR */}
+                    {/* Abastecimento */}
                     <li>
                         <Link href="/dashboard/abastecimento" className="menu-item">
                             <i className="fas fa-gas-pump"></i>
@@ -70,13 +71,14 @@ export default function DashboardLayout({ children }) {
                         </Link>
                     </li>
 
-                    {/* Manutenção — ADMIN e VENDEDOR */}
+                    {/* Manutenção */}
                     <li>
                         <Link href="/dashboard/manutencao" className="menu-item">
                             <i className="fas fa-car"></i>
                             <span>Manutenção</span>
                         </Link>
                     </li>
+
 
 
                     {/* Gerenciar — só ADMIN */}
@@ -122,6 +124,30 @@ export default function DashboardLayout({ children }) {
                                 </ul>
                             )}
                         </>
+                    )}
+
+
+                    {/* Relatórios — ADMIN e VENDEDOR */}
+                    <li
+                        className={`gerenciar-btn ${openRelatorios ? "open" : ""}`}
+                        onClick={() => setOpenRelatorios(!openRelatorios)}
+                    >
+                        <div>
+                            <i className="fas fa-file-alt"></i>
+                            <span>Relatórios</span>
+                        </div>
+                        <i className={`fas ${openRelatorios ? "fa-chevron-up" : "fa-chevron-down"}`}></i>
+                    </li>
+
+                    {openRelatorios && (
+                        <ul className="submenu">
+                            <li>
+                                <Link href="/dashboard/relatorios/manutencao">
+                                    <i className="fas fa-wrench"></i>
+                                    <span>Manutenção</span>
+                                </Link>
+                            </li>
+                        </ul>
                     )}
 
                     {/* LOGOUT */}

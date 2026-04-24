@@ -11,6 +11,8 @@ export default class Manutencao extends Base {
     #veiculo;
     #usuario;
     #itens;
+    #dataConclusao;
+    #formaPagamento;
 
     get id() { return this.#id; }
     set id(value) { this.#id = value; }
@@ -39,7 +41,13 @@ export default class Manutencao extends Base {
     get itens() { return this.#itens; }
     set itens(value) { this.#itens = value; }
 
-    constructor(id, tipo, data, descricao, status, km, veiculo, usuario) {
+    get dataConclusao() { return this.#dataConclusao; }
+    set dataConclusao(value) { this.#dataConclusao = value; }
+
+    get formaPagamento() { return this.#formaPagamento; }
+    set formaPagamento(value) { this.#formaPagamento = value; }
+
+    constructor(id, tipo, data, descricao, status, km, veiculo, usuario, dataConclusao = null, formaPagamento = null) {
         super();
         this.#id = id;
         this.#tipo = tipo;
@@ -50,6 +58,7 @@ export default class Manutencao extends Base {
         this.#veiculo = veiculo;
         this.#usuario = usuario;
         this.#itens = [];
+        this.#dataConclusao = dataConclusao;
+        this.#formaPagamento = formaPagamento;
     }
-
 }

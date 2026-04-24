@@ -1250,19 +1250,7 @@
             "description": "Unauthorized"
           },
           "404": {
-            "description": "Nenhum serviço encontrado na consulta",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/erro"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/erro"
-                }
-              }
-            }
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -1366,22 +1354,65 @@
             "description": "Unauthorized"
           },
           "404": {
-            "description": "Nenhum serviço encontrado na consulta",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/erro"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/erro"
-                }
-              }
-            }
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/manutencao/concluir": {
+      "patch": {
+        "tags": [
+          "Manutenção"
+        ],
+        "summary": "Conclui uma manutenção registrando data e forma de pagamento",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "dataConclusao": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-04-24"
+                  },
+                  "formaPagamento": {
+                    "type": "string",
+                    "example": "PIX"
+                  }
+                },
+                "required": [
+                  "id",
+                  "formaPagamento"
+                ]
+              }
+            }
           }
         }
       }

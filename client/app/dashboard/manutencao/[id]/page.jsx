@@ -29,6 +29,7 @@ export default function ManutencaoVeiculoPage() {
     const [modalConclusaoAberto, setModalConclusaoAberto] = useState(false)
     const [manutencaoConcluindo, setManutencaoConcluindo] = useState(null)
     const [totalManutencao, setTotalManutencao] = useState(0)
+    const [dataConclusaoInput, setDataConclusaoInput] = useState(dataDeHoje())
 
 
     // ------------- TROCA DE PNEU----------------
@@ -281,13 +282,13 @@ export default function ManutencaoVeiculoPage() {
     // -------------------- MODAL DE CONCLUSÃO --------------------
 
     function abrirConclusao(m) {
-        // Calcula o total somando os valores dos itens
         let total = 0
         for (let i = 0; i < m.itens.length; i++) {
             total += Number(m.itens[i].valor || 0)
         }
         setTotalManutencao(total)
         setManutencaoConcluindo(m)
+        setDataConclusaoInput(dataDeHoje())   // pré-preenche com hoje
         setModalConclusaoAberto(true)
 
         setTimeout(() => {
@@ -308,23 +309,12 @@ export default function ManutencaoVeiculoPage() {
         }
 
         setLoading(true)
-
         try {
-            // 1. Grava o registro de gasto (conta)
-            // REMOVIDO o campo 'data', pois a tabela tb_conta não tem mais vencimento
-            await apiClient.post("/conta", {
-                manutencao: manutencaoConcluindo.id,
-                veiculo: id,
-                valor: totalManutencao,
-                formaPagamento: formaPagamento.current.value,
-                descricao: descricaoPagamento.current.value
-                // data: dataDeHoje() <- REMOVA ESTA LINHA
-            })
-
-            // 2. Marca a manutenção como concluída
-            await apiClient.put("/manutencao", {
+            await apiClient.patch("/manutencao/concluir", {
                 id: manutencaoConcluindo.id,
-                status: "CONCLUIDA"
+                dataConclusao: dataConclusaoInput,
+                formaPagamento: formaPagamento.current.value,
+                // descricaoPagamento fica disponível se quiser salvar futuramente
             })
 
             toast.success("Manutenção concluída!")
@@ -338,7 +328,6 @@ export default function ManutencaoVeiculoPage() {
             setLoading(false)
         }
     }
-
     // -------------------- CORES --------------------
 
     function corStatus(valor) {
@@ -727,6 +716,18 @@ export default function ManutencaoVeiculoPage() {
                             </strong>
                         </p>
 
+                        {/* NOVO: data de conclusão editável */}
+                        <div style={styles.inputGroup}>
+                            <label>Data de Conclusão:</label>
+                            <input
+                                type="date"
+                                value={dataConclusaoInput}
+                                onChange={(e) => setDataConclusaoInput(e.target.value)}
+                                style={styles.input}
+                            />
+                            <small style={{ color: "#9ca3af" }}>Preenchida com hoje; altere se necessário</small>
+                        </div>
+
                         <div style={styles.inputGroup}>
                             <label>Forma de Pagamento:</label>
                             <select ref={formaPagamento} style={styles.input}>
@@ -751,7 +752,12 @@ export default function ManutencaoVeiculoPage() {
                             <button type="button" onClick={fecharConclusao} style={styles.buttonCancel}>
                                 Cancelar
                             </button>
-                            <button type="button" onClick={confirmarConclusao} disabled={loading} style={{ ...styles.buttonPrimary, backgroundColor: "#22c55e" }}>
+                            <button
+                                type="button"
+                                onClick={confirmarConclusao}
+                                disabled={loading}
+                                style={{ ...styles.buttonPrimary, backgroundColor: "#22c55e" }}
+                            >
                                 {loading ? "Salvando..." : "Confirmar e Concluir"}
                             </button>
                         </div>

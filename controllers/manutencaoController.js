@@ -13,7 +13,7 @@ export default class ManutencaoController {
         this.#VeiculoRepositorio = new VeiculoRepository();
     }
 
-    /*----------------------- LISTAR ------------------------ */
+    // -------------------- LISTAR --------------------
     async listar(req, res) {
         try {
             let lista = await this.#ManutencaoRepositorio.listar();
@@ -24,7 +24,7 @@ export default class ManutencaoController {
         }
     }
 
-    /*----------------------- LISTAR POR VEICULO ------------------------ */
+    // -------------------- LISTAR POR VEÍCULO --------------------
     async listarPorVeiculo(req, res) {
         try {
             const veiculoId = req.params.veiculoId;
@@ -36,27 +36,24 @@ export default class ManutencaoController {
         }
     }
 
-    /*----------------------- CADASTRAR ------------------------ */
+    // -------------------- CADASTRAR --------------------
     async cadastrar(req, res) {
         try {
-
             let { tipo, data, descricao, status, km, veiculo, usuario, itens } = req.body;
 
             if (tipo && data && veiculo && usuario) {
 
-                // VALIDA VEÍCULO
-                let veiculoAtual = await this.#VeiculoRepositorio.obter(veiculo)
+                let veiculoAtual = await this.#VeiculoRepositorio.obter(veiculo);
                 if (!veiculoAtual)
-                    return res.status(404).json({ msg: "Veículo não encontrado!" })
+                    return res.status(404).json({ msg: "Veículo não encontrado!" });
 
                 if (veiculoAtual.status === "Inativo")
-                    return res.status(400).json({ msg: "Não é possível criar manutenção para um veículo inativo!" })
+                    return res.status(400).json({ msg: "Não é possível criar manutenção para um veículo inativo!" });
 
-                // VALIDA KM
                 if (km && km < veiculoAtual.kmatual)
                     return res.status(400).json({
                         msg: `KM informada (${km}) não pode ser menor que a KM atual do veículo (${veiculoAtual.kmatual})!`
-                    })
+                    });
 
                 let entidade = new Manutencao(
                     0, tipo, data, descricao,
@@ -68,7 +65,6 @@ export default class ManutencaoController {
                 if (!manutencaoId)
                     throw new Error("Erro ao cadastrar manutenção no banco de dados");
 
-                // GRAVA OS ITENS
                 if (itens && itens.length > 0) {
                     for (let i = 0; i < itens.length; i++) {
                         let itemEntidade = new ManutencaoItem(
@@ -98,11 +94,10 @@ export default class ManutencaoController {
         }
     }
 
-    /*----------------------- ATUALIZAR ------------------------ */
+    // -------------------- ATUALIZAR --------------------
     async atualizar(req, res) {
         try {
-
-            let { id, tipo, data, descricao, status, km, veiculo, usuario, itens } = req.body;
+            let { id, tipo, data, descricao, status, km, veiculo, usuario, itens, dataConclusao, formaPagamento } = req.body;
 
             if (id && tipo && data && veiculo && usuario) {
 
@@ -114,12 +109,13 @@ export default class ManutencaoController {
                     return res.status(400).json({ msg: "Manutenção concluída não pode ser alterada!" });
 
                 let entidade = new Manutencao(
-                    id, tipo, data, descricao, status, km, veiculo, usuario
+                    id, tipo, data, descricao, status, km, veiculo, usuario,
+                    dataConclusao ?? null,
+                    formaPagamento ?? null
                 );
 
                 await this.#ManutencaoRepositorio.alterar(entidade);
 
-                // REGRAVA OS ITENS
                 if (itens && itens.length > 0) {
                     await this.#ManutencaoRepositorio.deletarItens(id);
 
@@ -148,10 +144,40 @@ export default class ManutencaoController {
         }
     }
 
-    /*----------------------- DELETAR ------------------------ */
+    // -------------------- CONCLUIR --------------------
+    async concluir(req, res) {
+        try {
+            const { id, dataConclusao, formaPagamento } = req.body;
+
+            if (!id || !formaPagamento)
+                return res.status(400).json({ msg: "ID e forma de pagamento são obrigatórios!" });
+
+            let atual = await this.#ManutencaoRepositorio.obter(id);
+            if (!atual)
+                return res.status(404).json({ msg: "Manutenção não encontrada!" });
+
+            if (atual.status === "CONCLUIDA")
+                return res.status(400).json({ msg: "Manutenção já está concluída!" });
+
+            if (atual.status === "CANCELADA")
+                return res.status(400).json({ msg: "Manutenção cancelada não pode ser concluída!" });
+
+            // Se não vier data de conclusão, usa a data de hoje
+            const dataFinal = dataConclusao || new Date().toISOString().split("T")[0];
+
+            await this.#ManutencaoRepositorio.concluir(id, dataFinal, formaPagamento);
+
+            return res.status(200).json({ msg: "Manutenção concluída com sucesso!" });
+
+        } catch (exception) {
+            console.log(exception);
+            return res.status(500).json({ msg: exception.message });
+        }
+    }
+
+    // -------------------- DELETAR --------------------
     async deletar(req, res) {
         try {
-
             let { id } = req.params;
 
             let atual = await this.#ManutencaoRepositorio.obter(id);

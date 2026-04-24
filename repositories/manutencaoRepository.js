@@ -16,13 +16,15 @@ export default class ManutencaoRepository {
         this.#banco = new Database();
     }
 
+    // -------------------- GRAVAR --------------------
     async gravar(manutencao) {
         const sql = `
             INSERT INTO tb_manutencao
-                (manutencao_tipo, manutencao_data, manutencao_descricao, 
+                (manutencao_tipo, manutencao_data, manutencao_descricao,
                  manutencao_status, manutencao_km,
-                 manutencao_veiculo_id, manutencao_usuario_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+                 manutencao_veiculo_id, manutencao_usuario_id,
+                 manutencao_data_conclusao, manutencao_forma_pagamento)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const valores = [
@@ -32,19 +34,19 @@ export default class ManutencaoRepository {
             manutencao.status,
             manutencao.km,
             manutencao.veiculo?.id ?? manutencao.veiculo ?? null,
-            manutencao.usuario?.id ?? manutencao.usuario ?? null
+            manutencao.usuario?.id ?? manutencao.usuario ?? null,
+            manutencao.dataConclusao ?? null,
+            manutencao.formaPagamento ?? null
         ];
 
         return await this.#banco.ExecutaComandoLastInserted(sql, valores);
     }
 
-
-
-// ---------------- GRAVAR ITEM DA MANUTENÇÃO ------------------
+    // -------------------- GRAVAR ITEM --------------------
     async gravarItem(item) {
         const sql = `
             INSERT INTO tb_manutencao_item
-                (item_descricao, item_valor, item_manutencao_id, 
+                (item_descricao, item_valor, item_manutencao_id,
                  item_servico_id, item_oficina_id)
             VALUES (?, ?, ?, ?, ?)
         `;
@@ -60,9 +62,10 @@ export default class ManutencaoRepository {
         return await this.#banco.ExecutaComandoNonQuery(sql, valores);
     }
 
+    // -------------------- OBTER --------------------
     async obter(id) {
         const sql = `
-            SELECT 
+            SELECT
                 ma.*,
                 v.veiculo_placa,
                 u.usuario_nome
@@ -83,31 +86,34 @@ export default class ManutencaoRepository {
         return null;
     }
 
+    // -------------------- LISTAR --------------------
     async listar() {
-        const sql = `
-            SELECT 
-                ma.*,
-                v.veiculo_placa,
-                u.usuario_nome
-            FROM tb_manutencao ma
-            LEFT JOIN tb_veiculos v ON ma.manutencao_veiculo_id = v.veiculo_id
-            LEFT JOIN tb_usuario u ON ma.manutencao_usuario_id = u.usuario_id
-            ORDER BY ma.manutencao_data DESC
-        `;
+    const sql = `
+        SELECT
+            ma.*,
+            v.veiculo_placa,
+            u.usuario_nome
+        FROM tb_manutencao ma
+        LEFT JOIN tb_veiculos v ON ma.manutencao_veiculo_id = v.veiculo_id
+        LEFT JOIN tb_usuario u ON ma.manutencao_usuario_id = u.usuario_id
+        ORDER BY ma.manutencao_data DESC
+    `;
 
-        const rows = await this.#banco.ExecutaComando(sql);
-        let lista = [];
+    const rows = await this.#banco.ExecutaComando(sql);
+    const lista = [];
 
-        for (let i = 0; i < rows.length; i++) {
-            lista.push(this.toMap(rows[i]));
-        }
-
-        return lista;
+    for (const row of rows) {
+        let manutencao = this.toMap(row);
+        manutencao.itens = await this.listarItens(manutencao.id); // 👈 isso estava faltando
+        lista.push(manutencao);
     }
 
+    return lista;
+}
+    // -------------------- LISTAR POR VEÍCULO --------------------
     async listarPorVeiculo(veiculoId) {
         const sql = `
-            SELECT 
+            SELECT
                 ma.*,
                 v.veiculo_placa,
                 u.usuario_nome
@@ -119,10 +125,10 @@ export default class ManutencaoRepository {
         `;
 
         const rows = await this.#banco.ExecutaComando(sql, [veiculoId]);
-        let lista = [];
+        const lista = [];
 
-        for (let i = 0; i < rows.length; i++) {
-            let manutencao = this.toMap(rows[i]);
+        for (const row of rows) {
+            let manutencao = this.toMap(row);
             manutencao.itens = await this.listarItens(manutencao.id);
             lista.push(manutencao);
         }
@@ -130,9 +136,10 @@ export default class ManutencaoRepository {
         return lista;
     }
 
+    // -------------------- LISTAR ITENS --------------------
     async listarItens(manutencaoId) {
         const sql = `
-            SELECT 
+            SELECT
                 i.*,
                 s.servico_nome,
                 o.oficina_nome
@@ -143,15 +150,10 @@ export default class ManutencaoRepository {
         `;
 
         const rows = await this.#banco.ExecutaComando(sql, [manutencaoId]);
-        let itens = [];
-
-        for (let i = 0; i < rows.length; i++) {
-            itens.push(this.toMapItem(rows[i]));
-        }
-
-        return itens;
+        return rows.map(r => this.toMapItem(r));
     }
 
+    // -------------------- ALTERAR --------------------
     async alterar(manutencao) {
         const sql = `
             UPDATE tb_manutencao SET
@@ -161,7 +163,9 @@ export default class ManutencaoRepository {
                 manutencao_status = ?,
                 manutencao_km = ?,
                 manutencao_veiculo_id = ?,
-                manutencao_usuario_id = ?
+                manutencao_usuario_id = ?,
+                manutencao_data_conclusao = ?,
+                manutencao_forma_pagamento = ?
             WHERE manutencao_id = ?
         `;
 
@@ -173,20 +177,33 @@ export default class ManutencaoRepository {
             manutencao.km,
             manutencao.veiculo?.id ?? manutencao.veiculo ?? null,
             manutencao.usuario?.id ?? manutencao.usuario ?? null,
+            manutencao.dataConclusao ?? null,
+            manutencao.formaPagamento ?? null,
             manutencao.id
         ];
 
         return await this.#banco.ExecutaComandoNonQuery(sql, valores);
     }
 
+    // -------------------- CONCLUIR (status + data + pagamento) --------------------
+    async concluir(id, dataConclusao, formaPagamento) {
+        const sql = `
+            UPDATE tb_manutencao SET
+                manutencao_status = 'CONCLUIDA',
+                manutencao_data_conclusao = ?,
+                manutencao_forma_pagamento = ?
+            WHERE manutencao_id = ?
+        `;
+        return await this.#banco.ExecutaComandoNonQuery(sql, [dataConclusao, formaPagamento, id]);
+    }
 
-    // PARA CONTA A PAGAR
-
+    // -------------------- ATUALIZAR STATUS --------------------
     async atualizarStatus(id, status) {
         const sql = `UPDATE tb_manutencao SET manutencao_status = ? WHERE manutencao_id = ?`;
         return await this.#banco.ExecutaComandoNonQuery(sql, [status, id]);
     }
 
+    // -------------------- DELETAR --------------------
     async deletarItens(manutencaoId) {
         const sql = `DELETE FROM tb_manutencao_item WHERE item_manutencao_id = ?`;
         return await this.#banco.ExecutaComandoNonQuery(sql, [manutencaoId]);
@@ -198,6 +215,7 @@ export default class ManutencaoRepository {
         return await this.#banco.ExecutaComandoNonQuery(sql, [id]);
     }
 
+    // -------------------- MAPEAMENTOS --------------------
     toMap(row) {
         let manutencao = new Manutencao();
 
@@ -207,6 +225,8 @@ export default class ManutencaoRepository {
         manutencao.descricao = row["manutencao_descricao"];
         manutencao.status = row["manutencao_status"];
         manutencao.km = row["manutencao_km"];
+        manutencao.dataConclusao = row["manutencao_data_conclusao"] ?? null;
+        manutencao.formaPagamento = row["manutencao_forma_pagamento"] ?? null;
 
         if (row["manutencao_veiculo_id"]) {
             let v = new Veiculo(row["manutencao_veiculo_id"]);
@@ -221,7 +241,6 @@ export default class ManutencaoRepository {
         }
 
         manutencao.itens = [];
-
         return manutencao;
     }
 
