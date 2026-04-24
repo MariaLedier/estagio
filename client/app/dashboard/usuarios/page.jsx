@@ -68,7 +68,7 @@ export default function UsuarioPage() {
         })
         toast.success("Usuário alterado com sucesso!")
       } else {
-        await apiClient.post("/usuario", { nome, tipo, senha})
+        await apiClient.post("/usuario", { nome, tipo, senha })
         toast.success("Usuario cadastrado com sucesso!")
       }
 
@@ -98,7 +98,7 @@ export default function UsuarioPage() {
     <div style={styles.page}>
       <div style={styles.card}>
 
-         <div style={styles.header}>
+        <div style={styles.header}>
 
           <h1 style={styles.title}>
             <i className="fas fa-user" style={{ marginRight: "8px" }}></i>
@@ -111,55 +111,56 @@ export default function UsuarioPage() {
           </button>
 
         </div>
-
-        <table style={styles.table}>
-          <thead style={styles.tableHeader}>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Tipo</th>
-              <th style={{ textAlign: "center" }}>Ações</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {!Array.isArray(usuario) ? (
+        <div style={{ width: "100%", overflowX: "auto" }}>
+          <table style={styles.table}>
+            <thead style={styles.tableHeader}>
               <tr>
-                <td colSpan="4" style={styles.emptyState}>
-                  <div style={styles.emptyContainer}>
-                    <p style={styles.emptyTitle}>Nenhum usuário cadastrado</p>
-                    <p style={styles.emptyText}>
-                      Clique em <strong>+ Novo Usuário</strong> para começar.
-                    </p>
-                  </div>
-                </td>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th style={{ textAlign: "center" }}>Ações</th>
               </tr>
-            ) : (
-              usuario.map((s) => (
-                <tr key={s.id} style={styles.tableRow}>
-                  <td style={styles.td}>{s.id}</td>
-                  <td style={styles.td}>{s.nome}</td>
-                  <td style={styles.td}>{s.tipo}</td>
-                  <td style={styles.actions}>
-                    <button
-                      onClick={() => abrirEdicao(s)}
-                      style={styles.buttonEdit}
-                    >
-                      ✏ Editar
-                    </button>
+            </thead>
 
-                    <button
-                      onClick={() => excluir(s.id)}
-                      style={styles.buttonDelete}
-                    >
-                      🗑 Excluir
-                    </button>
+            <tbody>
+              {!Array.isArray(usuario) ? (
+                <tr>
+                  <td colSpan="4" style={styles.emptyState}>
+                    <div style={styles.emptyContainer}>
+                      <p style={styles.emptyTitle}>Nenhum usuário cadastrado</p>
+                      <p style={styles.emptyText}>
+                        Clique em <strong>+ Novo Usuário</strong> para começar.
+                      </p>
+                    </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                usuario.map((s) => (
+                  <tr key={s.id} style={styles.tableRow}>
+                    <td style={styles.td}>{s.id}</td>
+                    <td style={styles.td}>{s.nome}</td>
+                    <td style={styles.td}>{s.tipo}</td>
+                    <td style={styles.actions}>
+                      <button
+                        onClick={() => abrirEdicao(s)}
+                        style={styles.buttonEdit}
+                      >
+                        ✏ Editar
+                      </button>
+
+                      <button
+                        onClick={() => excluir(s.id)}
+                        style={styles.buttonDelete}
+                      >
+                        🗑 Excluir
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {modalAberto && (
@@ -192,7 +193,7 @@ export default function UsuarioPage() {
                 />
               </div>
 
-               <div style={styles.inputGroup}>
+              <div style={styles.inputGroup}>
                 <label>Senha</label>
                 <input
                   type="password"
@@ -228,23 +229,23 @@ export default function UsuarioPage() {
   )
 }
 const styles = {
-page: {
-  minHeight: "100vh",
-  background: "linear-gradient(135deg, #ffffff, #ffffff)",
-  padding: "20px",
-  display: "flex",
-  justifyContent: "center"
-},
+  page: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #ffffff, #ffffff)",
+    padding: "20px",
+    display: "flex",
+    justifyContent: "center"
+  },
 
   card: {
-  width: "100%",
-  maxWidth: "1000px",
-  backgroundColor: "#fff",
-  padding: "25px",
-  borderRadius: "16px",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-  boxSizing: "border-box"
-},
+    width: "100%",
+    maxWidth: "1000px",
+    backgroundColor: "#fff",
+    padding: "25px",
+    borderRadius: "16px",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+    boxSizing: "border-box"
+  },
 
   header: {
     display: "flex",
@@ -284,7 +285,7 @@ page: {
 
   actions: {
     display: "flex",
-    
+
     justifyContent: "center",
     gap: "6px"
   },

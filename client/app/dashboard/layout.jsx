@@ -14,11 +14,23 @@ export default function DashboardLayout({ children }) {
 
     const isAdmin = user?.tipo === 2
 
+    function fecharMenu() {
+        setMenuAberto(false)
+    }
+
     return (
         <div className="admin-container">
 
+            {/* OVERLAY — aparece atrás da sidebar no mobile */}
+            {menuAberto && (
+                <div
+                    className="sidebar-overlay visible"
+                    onClick={fecharMenu}
+                />
+            )}
+
             {/* SIDEBAR */}
-            <div className={`sidebar ${menuAberto ? "open" : ""} `}>
+            <div className={`sidebar ${menuAberto ? "open" : ""}`}>
 
                 <div className="logo">
                     <Image
@@ -27,15 +39,15 @@ export default function DashboardLayout({ children }) {
                         width={400}
                         height={100}
                         priority
-                        style={{ objectFit: "contain" }}
+                        style={{ objectFit: "contain", maxWidth: "100%", height: "auto" }}
                     />
                 </div>
 
                 {/* INFO DO USUÁRIO LOGADO */}
                 <div style={{
-                    padding: "10px 16px",
+                    padding: "10px 14px",
                     marginBottom: "8px",
-                    background: "rgba(255,255,255,0.08)",
+                    background: "rgba(255, 246, 246, 0.08)",
                     borderRadius: "10px",
                     fontSize: "13px"
                 }}>
@@ -53,33 +65,28 @@ export default function DashboardLayout({ children }) {
 
                 <ul className="menu">
 
-                    {/* Dashboard — só ADMIN */}
                     {isAdmin && (
                         <li>
-                            <Link href="/dashboard" className="menu-item">
+                            <Link href="/dashboard" className="menu-item" onClick={fecharMenu}>
                                 <i className="fas fa-chart-line"></i>
                                 <span>Dashboard</span>
                             </Link>
                         </li>
                     )}
 
-                    {/* Abastecimento */}
                     <li>
-                        <Link href="/dashboard/abastecimento" className="menu-item">
+                        <Link href="/dashboard/abastecimento" className="menu-item" onClick={fecharMenu}>
                             <i className="fas fa-gas-pump"></i>
                             <span>Abastecimento</span>
                         </Link>
                     </li>
 
-                    {/* Manutenção */}
                     <li>
-                        <Link href="/dashboard/manutencao" className="menu-item">
+                        <Link href="/dashboard/manutencao" className="menu-item" onClick={fecharMenu}>
                             <i className="fas fa-car"></i>
                             <span>Manutenção</span>
                         </Link>
                     </li>
-
-
 
                     {/* Gerenciar — só ADMIN */}
                     {isAdmin && (
@@ -98,25 +105,25 @@ export default function DashboardLayout({ children }) {
                             {openGerenciar && (
                                 <ul className="submenu">
                                     <li>
-                                        <Link href="/dashboard/pneus">
+                                        <Link href="/dashboard/pneus" onClick={fecharMenu}>
                                             <i className="fas fa-circle-notch"></i>
                                             <span>Pneus</span>
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href="/dashboard/servicos">
+                                        <Link href="/dashboard/servicos" onClick={fecharMenu}>
                                             <i className="fas fa-wrench"></i>
                                             <span>Serviços</span>
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href="/dashboard/usuarios">
+                                        <Link href="/dashboard/usuarios" onClick={fecharMenu}>
                                             <i className="fas fa-user"></i>
                                             <span>Usuários</span>
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link href="/dashboard/oficinas">
+                                        <Link href="/dashboard/oficinas" onClick={fecharMenu}>
                                             <i className="fas fa-building"></i>
                                             <span>Oficinas</span>
                                         </Link>
@@ -126,8 +133,7 @@ export default function DashboardLayout({ children }) {
                         </>
                     )}
 
-
-                    {/* Relatórios — ADMIN e VENDEDOR */}
+                    {/* Relatórios */}
                     <li
                         className={`gerenciar-btn ${openRelatorios ? "open" : ""}`}
                         onClick={() => setOpenRelatorios(!openRelatorios)}
@@ -142,9 +148,21 @@ export default function DashboardLayout({ children }) {
                     {openRelatorios && (
                         <ul className="submenu">
                             <li>
-                                <Link href="/dashboard/relatorios/manutencao">
+                                <Link href="/dashboard/relatorios/manutencao" onClick={fecharMenu}>
                                     <i className="fas fa-wrench"></i>
                                     <span>Manutenção</span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/dashboard/relatorios/abastecimento" onClick={fecharMenu}>
+                                    <i className="fas fa-gas-pump"></i>
+                                    <span>Abastecimento</span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/dashboard/relatorios/pneus" onClick={fecharMenu}>
+                                    <i className="fas fa-circle-notch"></i>
+                                    <span>Pneus</span>
                                 </Link>
                             </li>
                         </ul>

@@ -1,21 +1,28 @@
 import Pneu from "../entities/pneus.js";
 import PneusRepository from "../repositories/pneusRepository.js";
 import VeiculoRepository from "../repositories/veiculosRepository.js";
+import DescartePneuRepository from "../repositories/descartePneuRepository.js";
+import ManutencaoRepository from "../repositories/manutencaoRepository.js";
+import Manutencao from "../entities/manutencao.js";
+import ManutencaoItem from "../entities/manutencaoItem.js";
+
 export default class PneuController {
 
     #PneuRepositorio;
     #VeiculoRepositorio;
+    #DescarteRepositorio;
+    #ManutencaoRepositorio;
 
     constructor() {
         this.#PneuRepositorio = new PneusRepository();
         this.#VeiculoRepositorio = new VeiculoRepository();
+        this.#DescarteRepositorio = new DescartePneuRepository();
+        this.#ManutencaoRepositorio = new ManutencaoRepository();
     }
-
 
     /*----------------------- LISTAR ------------------------ */
     async listar(req, res) {
         try {
-
             let lista = await this.#PneuRepositorio.listar();
 
             if (lista.length > 0)
@@ -23,20 +30,16 @@ export default class PneuController {
             else
                 res.status(404).json({ msg: "Nenhum pneu cadastrado!" });
 
-        }
-        catch (exception) {
+        } catch (exception) {
             console.log(exception);
             res.status(500).json({ msg: "Erro ao processar requisição" });
         }
     }
 
-
-    // *--------------------------- LISTAR POR VEICULO ---------------*
+    /*----------------------- LISTAR POR VEÍCULO ------------------------ */
     async listarPorVeiculo(req, res) {
         try {
-
             const veiculoId = req.params.veiculoId;
-
             let lista = await this.#PneuRepositorio.listarPorVeiculo(veiculoId);
 
             if (lista.length > 0)
@@ -44,26 +47,35 @@ export default class PneuController {
             else
                 res.status(404).json({ msg: "Nenhum Pneu encontrado para este veículo!" });
 
-        }
-        catch (exception) {
+        } catch (exception) {
             console.log(exception);
             res.status(500).json({ msg: "Erro ao processar requisição" });
         }
     }
 
-    // *--------------------------- LISTAR PNEUS EM ESTOQUE ---------------*
+    /*----------------------- LISTAR ESTOQUE ------------------------ */
     async listarEstoque(req, res) {
         try {
-
             let lista = await this.#PneuRepositorio.listarEstoque();
 
             if (lista.length > 0)
                 res.status(200).json(lista);
             else
-                res.status(404).json({ msg: "Nenhum pneu cadastrado!" });
+                res.status(404).json({ msg: "Nenhum pneu em estoque!" });
 
+        } catch (exception) {
+            console.log(exception);
+            res.status(500).json({ msg: "Erro ao processar requisição" });
         }
-        catch (exception) {
+    }
+
+    /*----------------------- LISTAR DESCARTES ------------------------ */
+    async listarDescartes(req, res) {
+        try {
+            const lista = await this.#DescarteRepositorio.listar();
+            res.status(200).json(lista);
+
+        } catch (exception) {
             console.log(exception);
             res.status(500).json({ msg: "Erro ao processar requisição" });
         }
@@ -76,84 +88,46 @@ export default class PneuController {
 
             if (marca && medida && estado) {
 
-                // VERIFICA SE VEÍCULO ESTÁ ATIVO QUANDO VINCULADO
                 if (veiculo) {
-                    let veiculoAtual = await this.#VeiculoRepositorio.obter(veiculo)
+                    let veiculoAtual = await this.#VeiculoRepositorio.obter(veiculo);
 
                     if (!veiculoAtual)
-                        return res.status(404).json({ msg: "Veículo não encontrado!" })
+                        return res.status(404).json({ msg: "Veículo não encontrado!" });
 
                     if (veiculoAtual.status === "Inativo")
-                        return res.status(400).json({ msg: "Não é possível vincular pneu a um veículo inativo!" })
+                        return res.status(400).json({ msg: "Não é possível vincular pneu a um veículo inativo!" });
                 }
 
-                let status = "EM_ESTOQUE"
-
+                let status = "EM_ESTOQUE";
                 if (veiculo && posicao && posicao.toLowerCase() !== "estepe") {
-                    status = "EM_USO"
+                    status = "EM_USO";
                 }
 
                 let entidade = new Pneu(
                     0, marca, medida, dataaquisicao, valor,
                     estado, status, posicao || null, veiculo || null
-                )
+                );
 
-                let inseriu = await this.#PneuRepositorio.gravar(entidade)
+                let inseriu = await this.#PneuRepositorio.gravar(entidade);
 
                 if (inseriu)
-                    return res.status(200).json({ msg: "Pneu cadastrado com sucesso!" })
+                    return res.status(200).json({ msg: "Pneu cadastrado com sucesso!" });
                 else
-                    throw new Error("Erro ao cadastrar pneu no banco de dados")
+                    throw new Error("Erro ao cadastrar pneu no banco de dados");
 
             } else {
-                return res.status(400).json({ msg: "As informações do pneu não estão corretas!" })
+                return res.status(400).json({ msg: "As informações do pneu não estão corretas!" });
             }
 
         } catch (exception) {
-            console.log(exception)
-            return res.status(500).json({ msg: exception.message })
-        }
-    }
-    /*----------------------- DELETAR ------------------------ */
-
-    async deletar(req, res) {
-
-        try {
-
-            let { id } = req.params;
-
-            if (await this.#PneuRepositorio.obter(id)) {
-
-                if (await this.#PneuRepositorio.deletar(id))
-                    return res.status(200).json({ msg: "Pneu excluído com sucesso!" });
-                else
-                    throw new Error("Erro ao deletar pneu no banco de dados");
-
-            }
-            else {
-
-                return res.status(404).json({ msg: "Pneu não encontrado para deleção" });
-
-            }
-
-        }
-        catch (exception) {
-
             console.log(exception);
             return res.status(500).json({ msg: exception.message });
-
         }
-
     }
 
-
-
     /*----------------------- ATUALIZAR ------------------------ */
-
     async atualizar(req, res) {
-
         try {
-
             let { id, marca, medida, dataaquisicao, valor, estado } = req.body;
 
             if (id && marca && medida && estado) {
@@ -163,64 +137,61 @@ export default class PneuController {
                 if (!pneuAtual)
                     return res.status(404).json({ msg: "Pneu não encontrado para alteração" });
 
-
-                // se estiver descartado não altera nada
                 if (pneuAtual.status === "DESCARTADO")
                     return res.status(400).json({ msg: "Pneu descartado não pode ser alterado" });
 
-
                 let entidade = new Pneu(
-                    id,
-                    marca,
-                    medida,
-                    dataaquisicao,
-                    valor,
+                    id, marca, medida, dataaquisicao, valor,
                     estado,
-                    pneuAtual.status,   // mantém status atual
-                    pneuAtual.posicao,  // mantém posição
-                    pneuAtual.veiculo   // mantém veículo
+                    pneuAtual.status,
+                    pneuAtual.posicao,
+                    pneuAtual.veiculo
                 );
-
 
                 if (await this.#PneuRepositorio.alterar(entidade))
                     return res.status(200).json({ msg: "Pneu alterado com sucesso!" });
                 else
                     throw new Error("Erro ao alterar pneu no banco de dados");
 
-            }
-            else {
-
+            } else {
                 return res.status(400).json({ msg: "As informações do pneu não estão corretas!" });
-
             }
 
-        }
-        catch (exception) {
-
+        } catch (exception) {
             console.log(exception);
             return res.status(500).json({ msg: exception.message });
-
         }
-
     }
 
+    /*----------------------- DELETAR ------------------------ */
+    async deletar(req, res) {
+        try {
+            let { id } = req.params;
 
-    // ---------------------------- TROCAR PNEU -------------------------
+            if (await this.#PneuRepositorio.obter(id)) {
+
+                if (await this.#PneuRepositorio.deletar(id))
+                    return res.status(200).json({ msg: "Pneu excluído com sucesso!" });
+                else
+                    throw new Error("Erro ao deletar pneu no banco de dados");
+
+            } else {
+                return res.status(404).json({ msg: "Pneu não encontrado para deleção" });
+            }
+
+        } catch (exception) {
+            console.log(exception);
+            return res.status(500).json({ msg: exception.message });
+        }
+    }
+
+    /*----------------------- TROCAR PNEU ------------------------ */
     async trocarPneu(req, res) {
         try {
             let {
-                pneuSaidaId,
-                pneuEntradaId,     // null se for pneu novo
-                posicao,
-                veiculoId,
-                kmAtual,
-                usuario,
-                // dados do pneu novo (se não vier do estoque)
-                novoPneu,          // { marca, medida, dataaquisicao, valor, estado }
-                // dados da manutenção
-                descricaoManutencao,
-                oficina,
-                valorServico
+                pneuSaidaId, pneuEntradaId,
+                posicao, veiculoId, kmAtual, usuario,
+                novoPneu, descricaoManutencao, oficina, valorServico
             } = req.body;
 
             if (!pneuSaidaId || !posicao || !veiculoId || !usuario)
@@ -234,103 +205,62 @@ export default class PneuController {
                 return res.status(404).json({ msg: "Pneu de saída não encontrado!" });
 
             // CALCULA USO
-            let kmUso = null;
             let diasUso = null;
-            let kmEntrada = null;
-
             if (pneuSaida.dataaquisicao) {
                 const dataEntrada = new Date(pneuSaida.dataaquisicao);
                 const dataSaida = new Date(hoje);
                 diasUso = Math.floor((dataSaida - dataEntrada) / (1000 * 60 * 60 * 24));
             }
 
-            if (kmAtual) {
-                kmUso = Number(kmAtual);
-            }
+            const kmUso = kmAtual ? Number(kmAtual) : null;
 
-            // GRAVA NO DESCARTE
-            const DescartePneuRepository = (await import("../repositories/descartePneuRepository.js")).default;
-            const descarteRepo = new DescartePneuRepository();
-
-            await descarteRepo.gravar({
+            // GRAVA NO DESCARTE — lógica de negócio no repositório
+            await this.#DescarteRepositorio.gravar({
                 pneuId: pneuSaidaId,
                 veiculoId,
                 posicao,
                 dataEntrada: pneuSaida.dataaquisicao || null,
                 dataSaida: hoje,
-                kmEntrada: kmEntrada,
+                kmEntrada: null,
                 kmSaida: kmAtual || null,
-                kmUso: kmUso,
-                diasUso: diasUso,
+                kmUso,
+                diasUso,
                 marca: pneuSaida.marca,
                 medida: pneuSaida.medida
             });
 
             // DESCARTA PNEU QUE SAI
-            const sqlDescarta = `
-            UPDATE tb_pneus SET
-                pneus_status = 'DESCARTADO',
-                pneus_posicao = NULL,
-                pneus_veiculo_id = NULL
-            WHERE pneus_id = ?
-        `;
-            await this.#PneuRepositorio.executarSQL(sqlDescarta, [pneuSaidaId]);
+            await this.#PneuRepositorio.descartar(pneuSaidaId);
 
-            // SE FOR PNEU NOVO — cadastra primeiro
-            let pneuEntradaFinal = pneuEntradaId;
-
+            // PNEU QUE ENTRA
             if (!pneuEntradaId && novoPneu) {
-                const Pneu = (await import("../entities/pneus.js")).default;
                 const statusNovo = posicao?.toLowerCase() === "estepe" ? "EM_ESTOQUE" : "EM_USO";
-
                 const entidade = new Pneu(
                     0,
-                    novoPneu.marca,
-                    novoPneu.medida,
+                    novoPneu.marca, novoPneu.medida,
                     novoPneu.dataaquisicao || hoje,
                     novoPneu.valor || 0,
                     novoPneu.estado || "Bom",
-                    statusNovo,
-                    posicao,
-                    veiculoId
+                    statusNovo, posicao, veiculoId
                 );
+                await this.#PneuRepositorio.gravar(entidade);
 
-                pneuEntradaFinal = await this.#PneuRepositorio.gravar(entidade);
             } else if (pneuEntradaId) {
-                // VINCULA PNEU DO ESTOQUE
                 const statusNovo = posicao?.toLowerCase() === "estepe" ? "EM_ESTOQUE" : "EM_USO";
-                const sqlVincula = `
-                UPDATE tb_pneus SET
-                    pneus_status = ?,
-                    pneus_posicao = ?,
-                    pneus_veiculo_id = ?
-                WHERE pneus_id = ?
-            `;
-                await this.#PneuRepositorio.executarSQL(sqlVincula, [statusNovo, posicao, veiculoId, pneuEntradaId]);
+                await this.#PneuRepositorio.vincular(pneuEntradaId, statusNovo, posicao, veiculoId);
             }
 
             // CRIA MANUTENÇÃO
-            const ManutencaoRepository = (await import("../repositories/manutencaoRepository.js")).default;
-            const Manutencao = (await import("../entities/manutencao.js")).default;
-
-
-            const manutencaoRepo = new ManutencaoRepository();
-
             const entidadeManutencao = new Manutencao(
-                0, "CORRETIVA",
-                hoje,
+                0, "CORRETIVA", hoje,
                 descricaoManutencao || `Troca de pneu — Posição: ${posicao}`,
-                "CONCLUIDA",
-                kmAtual || null,
-                veiculoId,
-                usuario
+                "CONCLUIDA", kmAtual || null, veiculoId, usuario
             );
 
-            const manutencaoId = await manutencaoRepo.gravar(entidadeManutencao);
+            const manutencaoId = await this.#ManutencaoRepositorio.gravar(entidadeManutencao);
 
             // ITEM DA MANUTENÇÃO
             if (oficina && valorServico) {
-                const ManutencaoItem = (await import("../entities/manutencaoItem.js")).default;
                 const itemEntidade = new ManutencaoItem(
                     0,
                     `Troca de pneu — ${posicao}`,
@@ -339,9 +269,8 @@ export default class PneuController {
                     1,
                     oficina
                 );
-                await manutencaoRepo.gravarItem(itemEntidade);
+                await this.#ManutencaoRepositorio.gravarItem(itemEntidade);
             }
-
 
             return res.status(200).json({
                 msg: "Troca de pneu realizada com sucesso!",
@@ -353,5 +282,4 @@ export default class PneuController {
             return res.status(500).json({ msg: exception.message });
         }
     }
-
 }

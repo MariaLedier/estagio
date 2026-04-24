@@ -239,80 +239,81 @@ export default function PneusPage() {
                         + Novo Pneu
                     </button>
                 </div>
-
-                <table style={styles.table}>
-                    <thead style={styles.tableHeader}>
-                        <tr>
-                            <th>ID</th>
-                            <th>Marca</th>
-                            <th>Medida</th>
-                            <th>Estado</th>
-                            <th>Status</th>
-                            <th>Posição</th>
-                            <th>Veículo</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        {pneusFiltrados.length === 0 ? (
-
+                <div style={{ width: "100%", overflowX: "auto" }}>
+                    <table style={styles.table}>
+                        <thead style={styles.tableHeader}>
                             <tr>
-                                <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
-                                    Nenhum pneu cadastrado
-                                </td>
+                                <th>ID</th>
+                                <th>Marca</th>
+                                <th>Medida</th>
+                                <th>Estado</th>
+                                <th>Status</th>
+                                <th>Posição</th>
+                                <th>Veículo</th>
+                                <th>Ações</th>
                             </tr>
+                        </thead>
 
-                        ) : (
+                        <tbody>
 
-                            pneusFiltrados.map((p) => (
+                            {pneusFiltrados.length === 0 ? (
 
-                                <tr key={p.id} style={styles.tableRow}>
-
-                                    <td style={styles.td}>{p.id}</td>
-                                    <td style={styles.td}>{p.marca}</td>
-                                    <td style={styles.td}>{p.medida}</td>
-                                    <td style={styles.td}>{p.estado}</td>
-                                    <td style={styles.td}>
-                                        <span style={{
-                                            background: p.status === "EM_USO" ? "#ff0101" : "#22c55e",
-                                            color: "#fff",
-                                            padding: "4px 8px",
-                                            borderRadius: "6px",
-                                            fontSize: "12px"
-                                        }}>
-                                            {p.status.replace("_", " ")}
-                                        </span>
+                                <tr>
+                                    <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
+                                        Nenhum pneu cadastrado
                                     </td>
-                                    <td style={styles.td}>{p.posicao || "-"}</td>
-                                    <td style={styles.td}>{p.veiculo?.placa || p.veiculo || "-"}</td>
-                                    <td style={styles.actions}>
-
-                                        <button
-                                            onClick={() => abrirEdicao(p)}
-                                            style={styles.buttonEdit}
-                                        >
-                                            Editar
-                                        </button>
-
-                                        <button
-                                            onClick={() => excluir(p.id, p.status)}
-                                            style={styles.buttonDelete}
-                                        >
-                                            Excluir
-                                        </button>
-
-                                    </td>
-
                                 </tr>
 
-                            ))
+                            ) : (
 
-                        )}
+                                pneusFiltrados.map((p) => (
 
-                    </tbody>
-                </table>
+                                    <tr key={p.id} style={styles.tableRow}>
+
+                                        <td style={styles.td}>{p.id}</td>
+                                        <td style={styles.td}>{p.marca}</td>
+                                        <td style={styles.td}>{p.medida}</td>
+                                        <td style={styles.td}>{p.estado}</td>
+                                        <td style={styles.td}>
+                                            <span style={{
+                                                background: p.status === "EM_USO" ? "#ff0101" : "#22c55e",
+                                                color: "#fff",
+                                                padding: "4px 8px",
+                                                borderRadius: "6px",
+                                                fontSize: "12px"
+                                            }}>
+                                                {p.status.replace("_", " ")}
+                                            </span>
+                                        </td>
+                                        <td style={styles.td}>{p.posicao || "-"}</td>
+                                        <td style={styles.td}>{p.veiculo?.placa || p.veiculo || "-"}</td>
+                                        <td style={styles.actions}>
+
+                                            <button
+                                                onClick={() => abrirEdicao(p)}
+                                                style={styles.buttonEdit}
+                                            >
+                                                Editar
+                                            </button>
+
+                                            <button
+                                                onClick={() => excluir(p.id, p.status)}
+                                                style={styles.buttonDelete}
+                                            >
+                                                Excluir
+                                            </button>
+
+                                        </td>
+
+                                    </tr>
+
+                                ))
+
+                            )}
+
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {modalAberto && (

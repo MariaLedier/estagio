@@ -103,53 +103,54 @@ export default function ServicosPage() {
           </button>
 
         </div>
-
-        <table style={styles.table}>
-          <thead style={styles.tableHeader}>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th style={{ textAlign: "center" }}>Ações</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {!Array.isArray(servicos) ? (
+        <div style={{ width: "100%", overflowX: "auto" }}>
+          <table style={styles.table}>
+            <thead style={styles.tableHeader}>
               <tr>
-                <td colSpan="4" style={styles.emptyState}>
-                  <div style={styles.emptyContainer}>
-                    <p style={styles.emptyTitle}>Nenhum serviço cadastrado</p>
-                    <p style={styles.emptyText}>
-                      Clique em <strong>+ Novo Serviço</strong> para começar.
-                    </p>
-                  </div>
-                </td>
+                <th>ID</th>
+                <th>Nome</th>
+                <th style={{ textAlign: "center" }}>Ações</th>
               </tr>
-            ) : (
-              servicos.map((s) => (
-                <tr key={s.id} style={styles.tableRow}>
-                  <td style={styles.td}>{s.id}</td>
-                  <td style={styles.td}>{s.nome}</td>
-                  <td style={styles.actions}>
-                    <button
-                      onClick={() => abrirEdicao(s)}
-                      style={styles.buttonEdit}
-                    >
-                      ✏ Editar
-                    </button>
+            </thead>
 
-                    <button
-                      onClick={() => excluir(s.id)}
-                      style={styles.buttonDelete}
-                    >
-                      🗑 Excluir
-                    </button>
+            <tbody>
+              {!Array.isArray(servicos) ? (
+                <tr>
+                  <td colSpan="4" style={styles.emptyState}>
+                    <div style={styles.emptyContainer}>
+                      <p style={styles.emptyTitle}>Nenhum serviço cadastrado</p>
+                      <p style={styles.emptyText}>
+                        Clique em <strong>+ Novo Serviço</strong> para começar.
+                      </p>
+                    </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                servicos.map((s) => (
+                  <tr key={s.id} style={styles.tableRow}>
+                    <td style={styles.td}>{s.id}</td>
+                    <td style={styles.td}>{s.nome}</td>
+                    <td style={styles.actions}>
+                      <button
+                        onClick={() => abrirEdicao(s)}
+                        style={styles.buttonEdit}
+                      >
+                        ✏ Editar
+                      </button>
+
+                      <button
+                        onClick={() => excluir(s.id)}
+                        style={styles.buttonDelete}
+                      >
+                        🗑 Excluir
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {modalAberto && (
@@ -196,23 +197,23 @@ export default function ServicosPage() {
   )
 }
 const styles = {
-page: {
-  minHeight: "100vh",
-  background: "linear-gradient(135deg, #ffffff, #ffffff)",
-  padding: "20px",
-  display: "flex",
-  justifyContent: "center"
-},
+  page: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #ffffff, #ffffff)",
+    padding: "20px",
+    display: "flex",
+    justifyContent: "center"
+  },
 
   card: {
-  width: "100%",
-  maxWidth: "1000px",
-  backgroundColor: "#fff",
-  padding: "25px",
-  borderRadius: "16px",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-  boxSizing: "border-box"
-},
+    width: "100%",
+    maxWidth: "1000px",
+    backgroundColor: "#fff",
+    padding: "25px",
+    borderRadius: "16px",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+    boxSizing: "border-box"
+  },
 
   header: {
     display: "flex",
@@ -252,7 +253,7 @@ page: {
 
   actions: {
     display: "flex",
-    
+
     justifyContent: "center",
     gap: "6px"
   },

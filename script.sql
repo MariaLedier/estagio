@@ -287,3 +287,8 @@ CREATE TABLE IF NOT EXISTS tb_rodizio_item (
     CONSTRAINT fk_rodizio_item_pneu FOREIGN KEY (item_pneu_id)
         REFERENCES tb_pneus (pneus_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+ALTER TABLE tb_manutencao
+    ADD COLUMN manutencao_data_conclusao DATE NULL,
+    ADD COLUMN manutencao_forma_pagamento VARCHAR(20) NULL;

@@ -55,11 +55,11 @@ function imprimirRelatorio(veiculo, rodizio) {
         </div>
     </div>
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:18px;display:flex;gap:32px;flex-wrap:wrap;">
-        ${[["Placa", veiculo?.placa],["Modelo", veiculo?.modeloNome],["Marca", veiculo?.marcaNome],["Ano", veiculo?.ano]]
-            .map(([l,v])=>`<div><div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;">${l}</div>
-            <div style="font-size:14px;font-weight:700;">${v||"—"}</div></div>`).join("")}
+        ${[["Placa", veiculo?.placa], ["Modelo", veiculo?.modeloNome], ["Marca", veiculo?.marcaNome], ["Ano", veiculo?.ano]]
+            .map(([l, v]) => `<div><div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;">${l}</div>
+            <div style="font-size:14px;font-weight:700;">${v || "—"}</div></div>`).join("")}
     </div>
-    ${rodizio.observacoes?`<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;margin-bottom:16px;font-size:12px;color:#78350f;"><b>Observações:</b> ${rodizio.observacoes}</div>`:""}
+    ${rodizio.observacoes ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;margin-bottom:16px;font-size:12px;color:#78350f;"><b>Observações:</b> ${rodizio.observacoes}</div>` : ""}
     <table style="width:100%;border-collapse:collapse;">
         <thead><tr style="background:#f1f5f9;">
             <th style="padding:8px 10px;text-align:left;font-size:12px;color:#6b7280;">Pneu</th>
@@ -75,23 +75,23 @@ function imprimirRelatorio(veiculo, rodizio) {
 
 export default function RodizioVeiculoPage() {
 
-    const { id }   = useParams()
-    const router   = useRouter()
+    const { id } = useParams()
+    const router = useRouter()
     const { user } = useUser()
 
     const isAdmin = user?.tipo === 2
 
-    const [montado,       setMontado]       = useState(false)
-    const [veiculo,       setVeiculo]       = useState(null)
+    const [montado, setMontado] = useState(false)
+    const [veiculo, setVeiculo] = useState(null)
     const [movimentacoes, setMovimentacoes] = useState([])
-    const [historico,     setHistorico]     = useState([])
-    const [usuarios,      setUsuarios]      = useState([])
-    const [salvando,      setSalvando]      = useState(false)
-    const [loading,       setLoading]       = useState(false)
-    const [abaAtiva,      setAbaAtiva]      = useState("form")
+    const [historico, setHistorico] = useState([])
+    const [usuarios, setUsuarios] = useState([])
+    const [salvando, setSalvando] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [abaAtiva, setAbaAtiva] = useState("form")
 
-    const refData        = useRef()
-    const refKm          = useRef()
+    const refData = useRef()
+    const refKm = useRef()
     const refResponsavel = useRef()
     const refObservacoes = useRef()
 
@@ -117,12 +117,12 @@ export default function RodizioVeiculoPage() {
             const dados = await apiClient.get("/pneu/veiculo/" + id)
             const lista = Array.isArray(dados) ? dados : []
             setMovimentacoes(lista.map((p) => ({
-                pneuId:          p.id,
+                pneuId: p.id,
                 posicaoAnterior: p.posicao,
-                posicaoNova:     p.posicao,  // começa igual — usuário muda livremente
-                marca:           p.marca  || "—",
-                medida:          p.medida || "—",
-                estado:          p.estado || "—",
+                posicaoNova: p.posicao,  // começa igual — usuário muda livremente
+                marca: p.marca || "—",
+                medida: p.medida || "—",
+                estado: p.estado || "—",
             })))
         } catch { setMovimentacoes([]) }
     }
@@ -173,15 +173,15 @@ export default function RodizioVeiculoPage() {
         setSalvando(true)
         try {
             await apiClient.post("/rodizio", {
-                veiculo:     id,
-                usuario:     responsavelId,
-                data:        refData.current.value,
-                km:          refKm.current?.value ? parseInt(refKm.current.value.replace(/\./g, "")) : null,
+                veiculo: id,
+                usuario: responsavelId,
+                data: refData.current.value,
+                km: refKm.current?.value ? parseInt(refKm.current.value.replace(/\./g, "")) : null,
                 observacoes: refObservacoes.current?.value || "",
-                itens:       movidas.map((m) => ({
-                    pneuId:          m.pneuId,
+                itens: movidas.map((m) => ({
+                    pneuId: m.pneuId,
                     posicaoAnterior: m.posicaoAnterior,
-                    posicaoNova:     m.posicaoNova,
+                    posicaoNova: m.posicaoNova,
                 })),
             })
             toast.success("Rodízio realizado! Posições atualizadas.")
@@ -277,56 +277,57 @@ export default function RodizioVeiculoPage() {
                                             ⚠ Posição duplicada: <b>{posicoesDuplicadas()[0]}</b> — dois pneus não podem ir para a mesma posição.
                                         </div>
                                     )}
-
-                                    <table style={styles.table}>
-                                        <thead style={styles.tableHeader}>
-                                            <tr>
-                                                <th style={styles.th}>Pneu</th>
-                                                <th style={styles.th}>Posição Atual</th>
-                                                <th style={{ ...styles.th, textAlign: "center" }}>→</th>
-                                                <th style={styles.th}>Nova Posição</th>
-                                                <th style={styles.th}>Estado</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {movimentacoes.map((m) => {
-                                                const mudou     = m.posicaoAnterior !== m.posicaoNova
-                                                const duplicada = posicoesDuplicadas().includes(m.posicaoNova) && mudou
-                                                return (
-                                                    <tr key={m.pneuId} style={{ ...styles.tableRow, background: duplicada ? "#fff5f5" : mudou ? "#f0fdf4" : "#fff" }}>
-                                                        <td style={styles.td}>
-                                                            <div style={{ fontWeight: 600, fontSize: 13 }}>{m.marca}</div>
-                                                            <div style={{ fontSize: 11, color: "#6b7280" }}>{m.medida}</div>
-                                                        </td>
-                                                        <td style={styles.td}><span style={{ fontSize: 13 }}>{m.posicaoAnterior}</span></td>
-                                                        <td style={{ ...styles.td, textAlign: "center", fontSize: 18, fontWeight: 700, color: mudou ? "#16a34a" : "#d1d5db" }}>→</td>
-                                                        <td style={styles.td}>
-                                                            {/* TODAS as posições disponíveis sem bloqueio */}
-                                                            <select
-                                                                value={m.posicaoNova}
-                                                                onChange={(e) => mudarPosicaoNova(m.pneuId, e.target.value)}
-                                                                style={{
-                                                                    ...styles.input, padding: "7px 10px", fontSize: 13,
-                                                                    border: duplicada ? "2px solid #fca5a5" : mudou ? "2px solid #86efac" : "1px solid #d1d5db",
-                                                                }}
-                                                            >
-                                                                {POSICOES.map((pos) => (
-                                                                    <option key={pos} value={pos}>{pos}</option>
-                                                                ))}
-                                                            </select>
-                                                        </td>
-                                                        <td style={styles.td}>
-                                                            <span style={{
-                                                                background: m.estado === "Bom" ? "#d1fae5" : m.estado === "Ruim" ? "#fee2e2" : "#fef9c3",
-                                                                color:      m.estado === "Bom" ? "#065f46" : m.estado === "Ruim" ? "#991b1b" : "#713f12",
-                                                                padding: "2px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700,
-                                                            }}>{m.estado}</span>
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            })}
-                                        </tbody>
-                                    </table>
+                                    <div style={{ width: "100%", overflowX: "auto" }}>
+                                        <table style={styles.table}>
+                                            <thead style={styles.tableHeader}>
+                                                <tr>
+                                                    <th style={styles.th}>Pneu</th>
+                                                    <th style={styles.th}>Posição Atual</th>
+                                                    <th style={{ ...styles.th, textAlign: "center" }}>→</th>
+                                                    <th style={styles.th}>Nova Posição</th>
+                                                    <th style={styles.th}>Estado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {movimentacoes.map((m) => {
+                                                    const mudou = m.posicaoAnterior !== m.posicaoNova
+                                                    const duplicada = posicoesDuplicadas().includes(m.posicaoNova) && mudou
+                                                    return (
+                                                        <tr key={m.pneuId} style={{ ...styles.tableRow, background: duplicada ? "#fff5f5" : mudou ? "#f0fdf4" : "#fff" }}>
+                                                            <td style={styles.td}>
+                                                                <div style={{ fontWeight: 600, fontSize: 13 }}>{m.marca}</div>
+                                                                <div style={{ fontSize: 11, color: "#6b7280" }}>{m.medida}</div>
+                                                            </td>
+                                                            <td style={styles.td}><span style={{ fontSize: 13 }}>{m.posicaoAnterior}</span></td>
+                                                            <td style={{ ...styles.td, textAlign: "center", fontSize: 18, fontWeight: 700, color: mudou ? "#16a34a" : "#d1d5db" }}>→</td>
+                                                            <td style={styles.td}>
+                                                                {/* TODAS as posições disponíveis sem bloqueio */}
+                                                                <select
+                                                                    value={m.posicaoNova}
+                                                                    onChange={(e) => mudarPosicaoNova(m.pneuId, e.target.value)}
+                                                                    style={{
+                                                                        ...styles.input, padding: "7px 10px", fontSize: 13,
+                                                                        border: duplicada ? "2px solid #fca5a5" : mudou ? "2px solid #86efac" : "1px solid #d1d5db",
+                                                                    }}
+                                                                >
+                                                                    {POSICOES.map((pos) => (
+                                                                        <option key={pos} value={pos}>{pos}</option>
+                                                                    ))}
+                                                                </select>
+                                                            </td>
+                                                            <td style={styles.td}>
+                                                                <span style={{
+                                                                    background: m.estado === "Bom" ? "#d1fae5" : m.estado === "Ruim" ? "#fee2e2" : "#fef9c3",
+                                                                    color: m.estado === "Bom" ? "#065f46" : m.estado === "Ruim" ? "#991b1b" : "#713f12",
+                                                                    padding: "2px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700,
+                                                                }}>{m.estado}</span>
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
 
                                     {movidas.length > 0 && (
                                         <div style={{ marginTop: 14, background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#1e40af" }}>
@@ -410,23 +411,23 @@ export default function RodizioVeiculoPage() {
 }
 
 const styles = {
-    page:             { minHeight: "100vh", background: "#f8fafc", padding: "30px 20px", display: "flex", justifyContent: "center" },
-    card:             { width: "100%", maxWidth: "1000px", backgroundColor: "#fff", padding: "25px", borderRadius: "16px", boxShadow: "0 10px 30px rgba(0,0,0,0.08)", boxSizing: "border-box" },
-    header:           { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "10px" },
-    title:            { margin: 0, fontSize: "22px", fontWeight: "bold" },
-    subtitle:         { margin: 0, color: "#6b7280", fontSize: "14px" },
-    secaoCard:        { background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "20px", marginBottom: "12px" },
-    secaoTitulo:      { fontSize: "14px", fontWeight: "bold", color: "#1e3a8a", marginBottom: "14px" },
-    grid3:            { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" },
-    inputGroup:       { marginBottom: "10px", display: "flex", flexDirection: "column", gap: "5px", fontSize: "13px", fontWeight: "600", color: "#374151" },
-    input:            { padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", fontWeight: "normal" },
-    table:            { width: "100%", borderCollapse: "collapse" },
-    tableHeader:      { backgroundColor: "#f1f5f9" },
-    th:               { padding: "10px", textAlign: "left", fontSize: "13px", fontWeight: 600, color: "#6b7280" },
-    tableRow:         { borderBottom: "1px solid #f1f5f9" },
-    td:               { padding: "10px", verticalAlign: "middle", fontSize: "13px" },
-    buttonPrimary:    { backgroundColor: "#2563eb", color: "#fff", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold", fontSize: "14px" },
+    page: { minHeight: "100vh", background: "#f8fafc", padding: "30px 20px", display: "flex", justifyContent: "center" },
+    card: { width: "100%", maxWidth: "1000px", backgroundColor: "#fff", padding: "25px", borderRadius: "16px", boxShadow: "0 10px 30px rgba(0,0,0,0.08)", boxSizing: "border-box" },
+    header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "10px" },
+    title: { margin: 0, fontSize: "22px", fontWeight: "bold" },
+    subtitle: { margin: 0, color: "#6b7280", fontSize: "14px" },
+    secaoCard: { background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "20px", marginBottom: "12px" },
+    secaoTitulo: { fontSize: "14px", fontWeight: "bold", color: "#1e3a8a", marginBottom: "14px" },
+    grid3: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" },
+    inputGroup: { marginBottom: "10px", display: "flex", flexDirection: "column", gap: "5px", fontSize: "13px", fontWeight: "600", color: "#374151" },
+    input: { padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", fontWeight: "normal" },
+    table: { width: "100%", borderCollapse: "collapse" },
+    tableHeader: { backgroundColor: "#f1f5f9" },
+    th: { padding: "10px", textAlign: "left", fontSize: "13px", fontWeight: 600, color: "#6b7280" },
+    tableRow: { borderBottom: "1px solid #f1f5f9" },
+    td: { padding: "10px", verticalAlign: "middle", fontSize: "13px" },
+    buttonPrimary: { backgroundColor: "#2563eb", color: "#fff", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold", fontSize: "14px" },
     buttonSecundario: { backgroundColor: "#f1f5f9", color: "#2563eb", border: "1px solid #2563eb", padding: "7px 14px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold", fontSize: "13px" },
-    buttonBack:       { backgroundColor: "#f1f5f9", color: "#374151", padding: "8px 14px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold" },
-    buttonDelete:     { backgroundColor: "#ef4444", color: "#fff", padding: "6px 12px", borderRadius: "6px", border: "none", cursor: "pointer" },
+    buttonBack: { backgroundColor: "#f1f5f9", color: "#374151", padding: "8px 14px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold" },
+    buttonDelete: { backgroundColor: "#ef4444", color: "#fff", padding: "6px 12px", borderRadius: "6px", border: "none", cursor: "pointer" },
 }

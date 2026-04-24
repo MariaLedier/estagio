@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { apiClient } from "@/utils/apiClient.js"
 import toast from "react-hot-toast"
 import { useUser } from "@/app/context/userContext.jsx"
 
-// ─── SEÇÕES E ITENS DO CHECKLIST (33 itens) ───────────────────────────────────
+// ─── SEÇÕES E ITENS DO CHECKLIST ─────────────────────────────────────────────
 
 const SECOES = [
     {
@@ -96,32 +96,37 @@ const COR_STATUS = {
     "Não verificado": { bg: "#f3f4f6", text: "#4b5563", border: "#d1d5db" },
 }
 
-// ─── HELPERS ──────────────────────────────────────────────────────────────────
+// ─── FUNÇÕES AUXILIARES ───────────────────────────────────────────────────────
 
+// Cria um objeto com todos os itens marcados como "Não verificado"
 function checklistVazio() {
     const obj = {}
-    SECOES.forEach((s) => s.itens.forEach((i) => { obj[i.id] = "Não verificado" }))
+    SECOES.forEach(secao =>
+        secao.itens.forEach(item => { obj[item.id] = "Não verificado" })
+    )
     return obj
 }
 
+// Retorna a data de hoje no formato YYYY-MM-DD
 function dataDeHoje() {
     const d = new Date()
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 }
 
+// Formata data para exibição no padrão brasileiro
 function formatarDataBR(valor) {
     if (!valor) return "-"
-    const d = new Date(valor)
-    return d.toLocaleDateString("pt-BR")
+    return new Date(valor).toLocaleDateString("pt-BR")
 }
 
+// Conta quantos itens estão em cada status
 function contarStatus(itens) {
-    const c = { Bom: 0, Regular: 0, Ruim: 0, "Não verificado": 0 }
-    Object.values(itens).forEach((v) => { if (c[v] !== undefined) c[v]++ })
-    return c
+    const contagem = { Bom: 0, Regular: 0, Ruim: 0, "Não verificado": 0 }
+    Object.values(itens).forEach(v => { if (contagem[v] !== undefined) contagem[v]++ })
+    return contagem
 }
 
-// ─── GERAÇÃO DE PDF (nativa, sem biblioteca) ──────────────────────────────────
+// ─── GERAÇÃO DE PDF ───────────────────────────────────────────────────────────
 
 function gerarPDF(veiculo, itens, responsavelNome, observacoes, data, km) {
     const janela = window.open("", "_blank")
@@ -136,14 +141,14 @@ function gerarPDF(veiculo, itens, responsavelNome, observacoes, data, km) {
     const counts = contarStatus(itens)
     const total  = Object.values(counts).reduce((a, b) => a + b, 0)
 
-    const secoesHtml = SECOES.map((sec) => `
+    const secoesHtml = SECOES.map(sec => `
         <div style="margin-bottom:18px;">
             <div style="font-size:12px;font-weight:700;color:#1e3a8a;border-bottom:2px solid #e2e8f0;
-                padding-bottom:5px;margin-bottom:8px;letter-spacing:.5px;">
+                padding-bottom:5px;margin-bottom:8px;">
                 ${sec.icone} ${sec.label.toUpperCase()}
             </div>
             <table style="width:100%;border-collapse:collapse;">
-                ${sec.itens.map((item) => {
+                ${sec.itens.map(item => {
                     const s = itens[item.id] || "Não verificado"
                     return `<tr style="border-bottom:1px solid #f1f5f9;">
                         <td style="padding:5px 4px;font-size:12px;color:#334155;">${item.label}</td>
@@ -165,24 +170,16 @@ function gerarPDF(veiculo, itens, responsavelNome, observacoes, data, km) {
         </div>`
     }).join("")
 
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    janela.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
     <title>Checklist — ${veiculo?.placa || "Veículo"}</title>
-    <style>
-        *{box-sizing:border-box;margin:0;padding:0;}
-        body{font-family:'Segoe UI',sans-serif;color:#1e293b;background:#fff;padding:28px;}
-        @media print{.no-print{display:none;}}
-    </style>
+    <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Segoe UI',sans-serif;color:#1e293b;background:#fff;padding:28px;}@media print{.no-print{display:none;}}</style>
     </head><body>
     <div class="no-print" style="margin-bottom:16px;">
-        <button onclick="window.print()"
-            style="background:#2563eb;color:#fff;border:none;padding:10px 22px;
-            border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">
+        <button onclick="window.print()" style="background:#2563eb;color:#fff;border:none;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">
             🖨️ Imprimir / Salvar PDF
         </button>
     </div>
-
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;
-        margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #2563eb;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #2563eb;">
         <div>
             <div style="font-size:20px;font-weight:800;color:#2563eb;">CONTROLE DE FROTA</div>
             <div style="font-size:12px;color:#64748b;margin-top:2px;">Relatório de Checklist Veicular</div>
@@ -193,27 +190,19 @@ function gerarPDF(veiculo, itens, responsavelNome, observacoes, data, km) {
             <div><b>Responsável:</b> ${responsavelNome || "—"}</div>
         </div>
     </div>
-
-    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;
-        padding:14px;margin-bottom:16px;display:flex;gap:32px;flex-wrap:wrap;">
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:16px;display:flex;gap:32px;flex-wrap:wrap;">
         ${[["Placa", veiculo?.placa], ["Modelo", veiculo?.modeloNome], ["Marca", veiculo?.marcaNome], ["Ano", veiculo?.ano]]
             .map(([l, v]) => `<div>
-                <div style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;text-transform:uppercase;">${l}</div>
+                <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;">${l}</div>
                 <div style="font-size:14px;font-weight:700;color:#0f172a;margin-top:2px;">${v || "—"}</div>
             </div>`).join("")}
     </div>
-
     <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">${resumoHtml}</div>
-
     ${secoesHtml}
-
-    ${observacoes ? `
-        <div style="margin-top:16px;background:#fffbeb;border:1px solid #fde68a;
-            border-radius:8px;padding:12px;">
-            <div style="font-size:11px;font-weight:700;color:#92400e;margin-bottom:4px;">OBSERVAÇÕES</div>
-            <div style="font-size:13px;color:#78350f;line-height:1.6;">${observacoes}</div>
-        </div>` : ""}
-
+    ${observacoes ? `<div style="margin-top:16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px;">
+        <div style="font-size:11px;font-weight:700;color:#92400e;margin-bottom:4px;">OBSERVAÇÕES</div>
+        <div style="font-size:13px;color:#78350f;line-height:1.6;">${observacoes}</div>
+    </div>` : ""}
     <div style="margin-top:32px;display:flex;justify-content:flex-end;">
         <div style="text-align:center;width:210px;">
             <div style="border-top:1px solid #94a3b8;padding-top:6px;font-size:11px;color:#64748b;">
@@ -221,9 +210,7 @@ function gerarPDF(veiculo, itens, responsavelNome, observacoes, data, km) {
             </div>
         </div>
     </div>
-    </body></html>`
-
-    janela.document.write(html)
+    </body></html>`)
     janela.document.close()
 }
 
@@ -231,30 +218,31 @@ function gerarPDF(veiculo, itens, responsavelNome, observacoes, data, km) {
 
 export default function ChecklistVeiculoPage() {
 
-    const { id }    = useParams()
-    const router    = useRouter()
-    const { user }  = useUser()
+    const { id }   = useParams()
+    const router   = useRouter()
+    const { user } = useUser()
 
     const isAdmin = user?.tipo === 2
 
+    // ── ESTADOS ──
     const [montado,        setMontado]        = useState(false)
     const [veiculo,        setVeiculo]        = useState(null)
     const [historico,      setHistorico]      = useState([])
     const [usuarios,       setUsuarios]       = useState([])
     const [salvando,       setSalvando]       = useState(false)
-    const [loading,        setLoading]        = useState(false)
+    const [carregando,     setCarregando]     = useState(false)
     const [abaAtiva,       setAbaAtiva]       = useState("form")
     const [secaoAberta,    setSecaoAberta]    = useState("motor")
     const [itensChecklist, setItensChecklist] = useState(checklistVazio())
     const [pesquisa,       setPesquisa]       = useState("")
 
-    // REFS DO FORMULÁRIO
-    const refData        = useRef()
-    const refKm          = useRef()
-    const refResponsavel = useRef()
-    const refObservacoes = useRef()
-    const refPesquisa    = useRef()
+    // ── CAMPOS DO FORMULÁRIO ── (padrão do professor: useState para cada campo)
+    const [data,        setData]        = useState(dataDeHoje())
+    const [km,          setKm]          = useState("")
+    const [responsavel, setResponsavel] = useState("")
+    const [observacoes, setObservacoes] = useState("")
 
+    // ── CARREGAR AO ABRIR A PÁGINA ──
     useEffect(() => { setMontado(true) }, [])
 
     useEffect(() => {
@@ -263,28 +251,36 @@ export default function ChecklistVeiculoPage() {
         if (isAdmin) carregarUsuarios()
     }, [id])
 
+    // Preenche o responsável com o usuário logado quando não é admin
+    useEffect(() => {
+        if (!isAdmin && user?.id) {
+            setResponsavel(String(user.id))
+        }
+    }, [user])
+
     if (!montado) return null
 
-    // ─── CARREGAMENTOS ────────────────────────────────────────────────────────
+    // ── FUNÇÕES DE CARREGAMENTO ──
 
     async function carregarVeiculo() {
         try {
             const dados = await apiClient.get("/veiculo/" + id)
             setVeiculo(dados)
+            setKm(String(dados?.kmatual || ""))
         } catch {
             toast.error("Erro ao carregar veículo")
         }
     }
 
     async function carregarHistorico() {
-        setLoading(true)
+        setCarregando(true)
         try {
             const dados = await apiClient.get("/checklist/veiculo/" + id)
             setHistorico(Array.isArray(dados) ? dados : [])
         } catch {
             setHistorico([])
         } finally {
-            setLoading(false)
+            setCarregando(false)
         }
     }
 
@@ -297,32 +293,27 @@ export default function ChecklistVeiculoPage() {
         }
     }
 
-    // ─── ITENS DO CHECKLIST ───────────────────────────────────────────────────
-
+    // ── MARCAR STATUS DE UM ITEM ──
     function mudarStatus(campo, novoStatus) {
-        setItensChecklist((prev) => ({ ...prev, [campo]: novoStatus }))
+        setItensChecklist(anterior => ({ ...anterior, [campo]: novoStatus }))
     }
 
+    // ── LIMPAR FORMULÁRIO APÓS SALVAR ──
     function resetarFormulario() {
         setItensChecklist(checklistVazio())
         setSecaoAberta("motor")
-        if (refObservacoes.current) refObservacoes.current.value = ""
-        if (refKm.current)          refKm.current.value = veiculo?.kmatual || ""
-        if (refData.current)        refData.current.value = dataDeHoje()
+        setData(dataDeHoje())
+        setKm(String(veiculo?.kmatual || ""))
+        setObservacoes("")
     }
 
-    // ─── SALVAR ───────────────────────────────────────────────────────────────
-
+    // ── SALVAR CHECKLIST ──
     async function salvar() {
-        const responsavelId = isAdmin
-            ? refResponsavel.current?.value
-            : user?.id
-
-        if (!responsavelId) {
+        if (!responsavel) {
             toast.error("Selecione o responsável")
             return
         }
-        if (!refData.current?.value) {
+        if (!data) {
             toast.error("Informe a data")
             return
         }
@@ -331,14 +322,14 @@ export default function ChecklistVeiculoPage() {
         try {
             await apiClient.post("/checklist", {
                 veiculo:     id,
-                usuario:     responsavelId,
-                data:        refData.current.value,
-                km:          refKm.current?.value ? parseInt(refKm.current.value.replace(/\./g, "")) : null,
-                observacoes: refObservacoes.current?.value || "",
-                itens:       itensChecklist,   // todos os 33 campos
+                usuario:     responsavel,
+                data:        data,
+                km:          km ? parseInt(km) : null,
+                observacoes: observacoes,
+                itens:       itensChecklist,
             })
 
-            toast.success("Checklist salvo! Pneus atualizados.")
+            toast.success("Checklist salvo!")
             resetarFormulario()
             carregarHistorico()
             setAbaAtiva("historico")
@@ -350,8 +341,7 @@ export default function ChecklistVeiculoPage() {
         }
     }
 
-    // ─── EXCLUIR ──────────────────────────────────────────────────────────────
-
+    // ── EXCLUIR ──
     async function excluir(checklistId) {
         if (!confirm("Deseja excluir este checklist?")) return
         try {
@@ -363,9 +353,15 @@ export default function ChecklistVeiculoPage() {
         }
     }
 
-    // ─── HISTÓRICO FILTRADO ───────────────────────────────────────────────────
+    // ── NOME DO RESPONSÁVEL (para o PDF) ──
+    function nomeResponsavel() {
+        if (!isAdmin) return user?.nome || ""
+        const usuario = usuarios.find(u => String(u.id) === String(responsavel))
+        return usuario?.nome || ""
+    }
 
-    const historicoFiltrado = historico.filter((h) => {
+    // ── HISTÓRICO FILTRADO PELA PESQUISA ──
+    const historicoFiltrado = historico.filter(h => {
         const termo = pesquisa.toLowerCase()
         return (
             (h.usuario?.nome || "").toLowerCase().includes(termo) ||
@@ -373,54 +369,44 @@ export default function ChecklistVeiculoPage() {
         )
     })
 
-    // ─── RESUMO ───────────────────────────────────────────────────────────────
-
+    // ── CONTAGEM DOS STATUS ATUAIS ──
     const counts     = contarStatus(itensChecklist)
     const totalItens = Object.values(counts).reduce((a, b) => a + b, 0)
 
-    // ─── NOME DO RESPONSÁVEL SELECIONADO (para PDF) ───────────────────────────
-
-    function nomeResponsavel() {
-        if (!isAdmin) return user?.nome || ""
-        const uid = refResponsavel.current?.value
-        const u   = usuarios.find((u) => String(u.id) === String(uid))
-        return u?.nome || ""
-    }
-
-    // ─── RENDER ───────────────────────────────────────────────────────────────
+    // ─── TELA ────────────────────────────────────────────────────────────────
 
     return (
-        <div style={styles.page}>
-            <div style={styles.card}>
+        <div style={s.page}>
+            <div style={s.card}>
 
                 {/* CABEÇALHO */}
-                <div style={styles.header}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <button onClick={() => router.back()} style={styles.buttonBack}>
+                <div style={s.header}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+                        <button onClick={() => router.back()} style={s.buttonBack}>
                             ← Voltar
                         </button>
                         <div>
-                            <h1 style={styles.title}>📋 Checklist — {veiculo?.placa || "..."}</h1>
-                            <p style={styles.subtitle}>
+                            <h1 style={s.title}>📋 Checklist — {veiculo?.placa || "..."}</h1>
+                            <p style={s.subtitle}>
                                 {veiculo?.marcaNome || ""} {veiculo?.modeloNome || ""} {veiculo?.ano || ""}
                             </p>
                         </div>
                     </div>
 
                     <input
-                        ref={refPesquisa}
+                        value={pesquisa}
+                        onChange={e => setPesquisa(e.target.value)}
                         placeholder="Buscar no histórico..."
-                        onChange={() => setPesquisa(refPesquisa.current.value)}
                         style={{ padding: "8px 12px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "13px", width: "200px" }}
                     />
                 </div>
 
                 {/* ABAS */}
-                <div style={{ display: "flex", gap: "4px", marginBottom: "20px", background: "#f1f5f9", borderRadius: "10px", padding: "4px", width: "fit-content" }}>
+                <div style={{ display: "flex", gap: "4px", marginBottom: "20px", background: "#f1f5f9", borderRadius: "10px", padding: "4px", width: "fit-content", flexWrap: "wrap" }}>
                     {[
                         { key: "form",      label: "📋 Novo Checklist" },
                         { key: "historico", label: `📁 Histórico (${historico.length})` },
-                    ].map((aba) => (
+                    ].map(aba => (
                         <button
                             key={aba.key}
                             onClick={() => setAbaAtiva(aba.key)}
@@ -436,52 +422,55 @@ export default function ChecklistVeiculoPage() {
                     ))}
                 </div>
 
-                {/* ── ABA: FORMULÁRIO ── */}
+                {/* ══════════ ABA: NOVO CHECKLIST ══════════ */}
                 {abaAtiva === "form" && (
                     <>
-                        {/* INFO DA INSPEÇÃO */}
-                        <div style={styles.secaoCard}>
-                            <div style={styles.secaoTitulo}>1. Informações da Inspeção</div>
-                            <div style={styles.grid3}>
+                        {/* INFORMAÇÕES DA INSPEÇÃO */}
+                        <div style={s.secaoCard}>
+                            <div style={s.secaoTitulo}>1. Informações da Inspeção</div>
+                            <div style={s.grid3}>
 
-                                <div style={styles.inputGroup}>
+                                <div style={s.inputGroup}>
                                     <label>Data *</label>
                                     <input
-                                        ref={refData}
                                         type="date"
-                                        defaultValue={dataDeHoje()}
-                                        style={styles.input}
+                                        value={data}
+                                        onChange={e => setData(e.target.value)}
+                                        style={s.input}
                                     />
                                 </div>
 
-                                <div style={styles.inputGroup}>
+                                <div style={s.inputGroup}>
                                     <label>KM Atual</label>
                                     <input
-                                        ref={refKm}
                                         type="number"
-                                        defaultValue={veiculo?.kmatual || ""}
+                                        value={km}
+                                        onChange={e => setKm(e.target.value)}
                                         placeholder="Ex: 85420"
-                                        style={styles.input}
+                                        style={s.input}
                                     />
                                 </div>
 
-                                <div style={styles.inputGroup}>
+                                <div style={s.inputGroup}>
                                     <label>Responsável *</label>
                                     {isAdmin ? (
-                                        <select ref={refResponsavel} style={styles.input} defaultValue={user?.id || ""}>
+                                        <select
+                                            value={responsavel}
+                                            onChange={e => setResponsavel(e.target.value)}
+                                            style={s.input}
+                                        >
                                             <option value="">-- Selecione --</option>
-                                            {usuarios.map((u) => (
+                                            {usuarios.map(u => (
                                                 <option key={u.id} value={u.id}>{u.nome}</option>
                                             ))}
                                         </select>
                                     ) : (
                                         <>
-                                            <input ref={refResponsavel} type="hidden" defaultValue={user?.id || ""} />
                                             <input
                                                 type="text"
                                                 value={user?.nome || ""}
                                                 readOnly
-                                                style={{ ...styles.input, background: "#f1f5f9", color: "#6b7280", cursor: "not-allowed" }}
+                                                style={{ ...s.input, background: "#f1f5f9", color: "#6b7280", cursor: "not-allowed" }}
                                             />
                                             <small style={{ color: "#9ca3af" }}>Preenchido automaticamente</small>
                                         </>
@@ -491,20 +480,20 @@ export default function ChecklistVeiculoPage() {
                             </div>
                         </div>
 
-                        {/* RESUMO */}
+                        {/* CONTADORES DE STATUS */}
                         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "16px" }}>
-                            {Object.entries(counts).map(([s, n]) => {
-                                const c = COR_STATUS[s]
+                            {Object.entries(counts).map(([status, quantidade]) => {
+                                const cor = COR_STATUS[status]
                                 return (
-                                    <div key={s} style={{
+                                    <div key={status} style={{
                                         flex: 1, minWidth: 90,
-                                        background: c.bg, border: `1px solid ${c.border}`,
+                                        background: cor.bg, border: `1px solid ${cor.border}`,
                                         borderRadius: "10px", padding: "12px", textAlign: "center",
                                     }}>
-                                        <div style={{ fontSize: "22px", fontWeight: 800, color: c.text }}>{n}</div>
-                                        <div style={{ fontSize: "11px", fontWeight: 600, color: c.text }}>{s}</div>
-                                        <div style={{ fontSize: "10px", color: c.text, opacity: .7 }}>
-                                            {totalItens > 0 ? Math.round((n / totalItens) * 100) : 0}%
+                                        <div style={{ fontSize: "22px", fontWeight: 800, color: cor.text }}>{quantidade}</div>
+                                        <div style={{ fontSize: "11px", fontWeight: 600, color: cor.text }}>{status}</div>
+                                        <div style={{ fontSize: "10px", color: cor.text, opacity: .7 }}>
+                                            {totalItens > 0 ? Math.round((quantidade / totalItens) * 100) : 0}%
                                         </div>
                                     </div>
                                 )
@@ -513,35 +502,37 @@ export default function ChecklistVeiculoPage() {
 
                         {/* SEÇÕES DO CHECKLIST */}
                         <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
-                            {SECOES.map((sec) => {
-                                const aberta   = secaoAberta === sec.id
-                                const statuses = sec.itens.map((i) => itensChecklist[i.id])
-                                const temRuim  = statuses.includes("Ruim")
-                                const temReg   = statuses.includes("Regular")
-                                const tudoBom  = statuses.every((s) => s === "Bom")
+                            {SECOES.map(secao => {
+                                const estaAberta = secaoAberta === secao.id
+                                const statuses   = secao.itens.map(i => itensChecklist[i.id])
+                                const temRuim    = statuses.includes("Ruim")
+                                const temRegular = statuses.includes("Regular")
+                                const tudoBom    = statuses.every(s => s === "Bom")
 
                                 return (
-                                    <div key={sec.id} style={{
-                                        ...styles.secaoCard,
+                                    <div key={secao.id} style={{
+                                        ...s.secaoCard,
                                         padding: 0,
                                         border: temRuim
                                             ? "1.5px solid #fca5a5"
-                                            : temReg
+                                            : temRegular
                                             ? "1.5px solid #fde047"
                                             : "1.5px solid #e5e7eb",
                                     }}>
+
+                                        {/* CABEÇALHO DA SEÇÃO — clicável para abrir/fechar */}
                                         <button
-                                            onClick={() => setSecaoAberta(aberta ? null : sec.id)}
+                                            onClick={() => setSecaoAberta(estaAberta ? null : secao.id)}
                                             style={{
                                                 width: "100%", padding: "14px 18px",
                                                 display: "flex", alignItems: "center", justifyContent: "space-between",
                                                 background: "none", border: "none", cursor: "pointer", textAlign: "left",
                                             }}
                                         >
-                                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                                <span style={{ fontSize: "18px" }}>{sec.icone}</span>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                                                <span style={{ fontSize: "18px" }}>{secao.icone}</span>
                                                 <span style={{ fontSize: "14px", fontWeight: "bold", color: "#0f172a" }}>
-                                                    {sec.label}
+                                                    {secao.label}
                                                 </span>
                                                 {temRuim && (
                                                     <span style={{ background: "#fee2e2", color: "#991b1b", fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "20px" }}>
@@ -554,39 +545,44 @@ export default function ChecklistVeiculoPage() {
                                                     </span>
                                                 )}
                                             </div>
-                                            <span style={{ color: "#9ca3af", fontSize: "16px" }}>{aberta ? "▲" : "▼"}</span>
+                                            <span style={{ color: "#9ca3af", fontSize: "16px" }}>
+                                                {estaAberta ? "▲" : "▼"}
+                                            </span>
                                         </button>
 
-                                        {aberta && (
+                                        {/* ITENS DA SEÇÃO */}
+                                        {estaAberta && (
                                             <div style={{ padding: "0 18px 18px" }}>
-                                                {sec.itens.map((item) => (
+                                                {secao.itens.map(item => (
                                                     <div key={item.id} style={{
                                                         display: "flex", alignItems: "center",
                                                         justifyContent: "space-between", gap: "12px",
                                                         padding: "10px 0", borderBottom: "1px solid #f1f5f9",
                                                         flexWrap: "wrap",
                                                     }}>
-                                                        <span style={{ fontSize: "13px", color: "#334155", minWidth: "200px" }}>
+                                                        <span style={{ fontSize: "13px", color: "#334155", minWidth: "180px" }}>
                                                             {item.label}
                                                         </span>
+
+                                                        {/* BOTÕES DE STATUS: Bom / Regular / Ruim / Não verificado */}
                                                         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                                                            {STATUS_OPTS.map((opt) => {
-                                                                const c        = COR_STATUS[opt]
-                                                                const selected = itensChecklist[item.id] === opt
+                                                            {STATUS_OPTS.map(opcao => {
+                                                                const cor        = COR_STATUS[opcao]
+                                                                const selecionado = itensChecklist[item.id] === opcao
                                                                 return (
                                                                     <button
-                                                                        key={opt}
-                                                                        onClick={() => mudarStatus(item.id, opt)}
+                                                                        key={opcao}
+                                                                        onClick={() => mudarStatus(item.id, opcao)}
                                                                         style={{
                                                                             padding: "4px 14px", borderRadius: "20px",
-                                                                            border: `2px solid ${selected ? c.border : "#e2e8f0"}`,
-                                                                            background: selected ? c.bg : "#fff",
-                                                                            color: selected ? c.text : "#94a3b8",
-                                                                            fontWeight: selected ? 700 : 500,
+                                                                            border: `2px solid ${selecionado ? cor.border : "#e2e8f0"}`,
+                                                                            background: selecionado ? cor.bg : "#fff",
+                                                                            color: selecionado ? cor.text : "#94a3b8",
+                                                                            fontWeight: selecionado ? 700 : 500,
                                                                             fontSize: "12px", cursor: "pointer",
                                                                         }}
                                                                     >
-                                                                        {opt}
+                                                                        {opcao}
                                                                     </button>
                                                                 )
                                                             })}
@@ -601,37 +597,31 @@ export default function ChecklistVeiculoPage() {
                         </div>
 
                         {/* OBSERVAÇÕES */}
-                        <div style={styles.secaoCard}>
-                            <div style={styles.inputGroup}>
+                        <div style={s.secaoCard}>
+                            <div style={s.inputGroup}>
                                 <label style={{ fontWeight: "bold" }}>Observações Gerais</label>
                                 <textarea
-                                    ref={refObservacoes}
+                                    value={observacoes}
+                                    onChange={e => setObservacoes(e.target.value)}
                                     rows={3}
-                                    placeholder="Descreva problemas encontrados, recomendações, itens para revisão..."
-                                    style={{ ...styles.input, height: "80px", resize: "vertical" }}
+                                    placeholder="Descreva problemas encontrados, recomendações..."
+                                    style={{ ...s.input, height: "80px", resize: "vertical" }}
                                 />
                             </div>
                         </div>
 
-                        {/* AÇÕES */}
-                        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "4px" }}>
+                        {/* BOTÕES DE AÇÃO */}
+                        <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "4px", flexWrap: "wrap" }}>
                             <button
-                                onClick={() => gerarPDF(
-                                    veiculo,
-                                    itensChecklist,
-                                    nomeResponsavel(),
-                                    refObservacoes.current?.value,
-                                    refData.current?.value,
-                                    refKm.current?.value
-                                )}
-                                style={styles.buttonSecundario}
+                                onClick={() => gerarPDF(veiculo, itensChecklist, nomeResponsavel(), observacoes, data, km)}
+                                style={s.buttonSecundario}
                             >
                                 🖨️ Gerar PDF
                             </button>
                             <button
                                 onClick={salvar}
                                 disabled={salvando}
-                                style={{ ...styles.buttonPrimary, opacity: salvando ? .6 : 1 }}
+                                style={{ ...s.buttonPrimary, opacity: salvando ? .6 : 1 }}
                             >
                                 {salvando ? "Salvando..." : "💾 Salvar Checklist"}
                             </button>
@@ -639,75 +629,68 @@ export default function ChecklistVeiculoPage() {
                     </>
                 )}
 
-                {/* ── ABA: HISTÓRICO ── */}
+                {/* ══════════ ABA: HISTÓRICO ══════════ */}
                 {abaAtiva === "historico" && (
-                    <>
-                        {loading ? (
-                            <div style={{ textAlign: "center", padding: "40px", color: "#9ca3af" }}>
-                                Carregando histórico...
-                            </div>
-                        ) : historicoFiltrado.length === 0 ? (
-                            <div style={{ textAlign: "center", padding: "40px", color: "#9ca3af" }}>
-                                Nenhum checklist registrado para este veículo.
-                            </div>
-                        ) : (
-                            <table style={styles.table}>
-                                <thead style={styles.tableHeader}>
+                    carregando ? (
+                        <div style={{ textAlign: "center", padding: "40px", color: "#9ca3af" }}>
+                            Carregando histórico...
+                        </div>
+                    ) : historicoFiltrado.length === 0 ? (
+                        <div style={{ textAlign: "center", padding: "40px", color: "#9ca3af" }}>
+                            Nenhum checklist registrado para este veículo.
+                        </div>
+                    ) : (
+                        <div style={{ width: "100%", overflowX: "auto" }}>
+                            <table style={s.table}>
+                                <thead style={s.tableHeader}>
                                     <tr>
-                                        <th style={styles.th}>ID</th>
-                                        <th style={styles.th}>Data</th>
-                                        <th style={styles.th}>KM</th>
-                                        <th style={styles.th}>Responsável</th>
-                                        <th style={styles.th}>Resultado</th>
-                                        <th style={styles.th}>Ações</th>
+                                        <th style={s.th}>ID</th>
+                                        <th style={s.th}>Data</th>
+                                        <th style={s.th}>KM</th>
+                                        <th style={s.th}>Responsável</th>
+                                        <th style={s.th}>Resultado</th>
+                                        <th style={s.th}>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {historicoFiltrado.map((h) => {
-                                        const c = contarStatus(h.itens || {})
+                                    {historicoFiltrado.map(h => {
+                                        const contagem = contarStatus(h.itens || {})
                                         return (
-                                            <tr key={h.id} style={styles.tableRow}>
-                                                <td style={styles.td}>{h.id}</td>
-                                                <td style={styles.td}>{formatarDataBR(h.data)}</td>
-                                                <td style={styles.td}>
+                                            <tr key={h.id} style={s.tableRow}>
+                                                <td style={s.td}>{h.id}</td>
+                                                <td style={s.td}>{formatarDataBR(h.data)}</td>
+                                                <td style={s.td}>
                                                     {h.km ? Number(h.km).toLocaleString("pt-BR") + " km" : "-"}
                                                 </td>
-                                                <td style={styles.td}>{h.usuario?.nome || "-"}</td>
-                                                <td style={styles.td}>
+                                                <td style={s.td}>{h.usuario?.nome || "-"}</td>
+                                                <td style={s.td}>
                                                     <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                                                        {Object.entries(c).map(([s, n]) => {
-                                                            if (n === 0) return null
-                                                            const cor = COR_STATUS[s]
+                                                        {Object.entries(contagem).map(([status, qtd]) => {
+                                                            if (qtd === 0) return null
+                                                            const cor = COR_STATUS[status]
                                                             return (
-                                                                <span key={s} style={{
+                                                                <span key={status} style={{
                                                                     background: cor.bg, color: cor.text,
                                                                     border: `1px solid ${cor.border}`,
                                                                     padding: "2px 10px", borderRadius: "20px",
                                                                     fontSize: "11px", fontWeight: 700,
                                                                 }}>
-                                                                    {s}: {n}
+                                                                    {status}: {qtd}
                                                                 </span>
                                                             )
                                                         })}
                                                     </div>
                                                 </td>
-                                                <td style={styles.actions}>
+                                                <td style={s.actions}>
                                                     <button
-                                                        onClick={() => gerarPDF(
-                                                            veiculo,
-                                                            h.itens || {},
-                                                            h.usuario?.nome,
-                                                            h.observacoes,
-                                                            h.data,
-                                                            h.km
-                                                        )}
-                                                        style={styles.buttonSecundario}
+                                                        onClick={() => gerarPDF(veiculo, h.itens || {}, h.usuario?.nome, h.observacoes, h.data, h.km)}
+                                                        style={s.buttonSecundario}
                                                     >
                                                         🖨️ PDF
                                                     </button>
                                                     <button
                                                         onClick={() => excluir(h.id)}
-                                                        style={styles.buttonDelete}
+                                                        style={s.buttonDelete}
                                                     >
                                                         <i className="fas fa-trash"></i>
                                                     </button>
@@ -717,8 +700,8 @@ export default function ChecklistVeiculoPage() {
                                     })}
                                 </tbody>
                             </table>
-                        )}
-                    </>
+                        </div>
+                    )
                 )}
 
             </div>
@@ -728,23 +711,23 @@ export default function ChecklistVeiculoPage() {
 
 // ─── ESTILOS ──────────────────────────────────────────────────────────────────
 
-const styles = {
-    page:          { minHeight: "100vh", background: "#f8fafc", padding: "30px 20px", display: "flex", justifyContent: "center" },
-    card:          { width: "100%", maxWidth: "1100px", backgroundColor: "#fff", padding: "25px", borderRadius: "16px", boxShadow: "0 10px 30px rgba(0,0,0,0.08)", boxSizing: "border-box" },
-    header:        { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "10px" },
-    title:         { margin: 0, fontSize: "22px", fontWeight: "bold" },
-    subtitle:      { margin: 0, color: "#6b7280", fontSize: "14px" },
-    secaoCard:     { background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "20px", marginBottom: "12px" },
-    secaoTitulo:   { fontSize: "14px", fontWeight: "bold", color: "#1e3a8a", marginBottom: "14px" },
-    grid3:         { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" },
-    inputGroup:    { marginBottom: "10px", display: "flex", flexDirection: "column", gap: "5px", fontSize: "13px", fontWeight: "600", color: "#374151" },
-    input:         { padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", fontWeight: "normal" },
-    table:         { width: "100%", borderCollapse: "collapse" },
-    tableHeader:   { backgroundColor: "#f1f5f9" },
-    th:            { padding: "10px", textAlign: "left", fontSize: "13px" },
-    tableRow:      { borderBottom: "1px solid #e5e7eb" },
-    td:            { padding: "10px", verticalAlign: "middle", fontSize: "13px" },
-    actions:       { display: "flex", gap: "6px", padding: "10px", alignItems: "center" },
+const s = {
+    page:             { minHeight: "100vh", background: "#f8fafc", padding: "30px 20px", display: "flex", justifyContent: "center" },
+    card:             { width: "100%", maxWidth: "1100px", backgroundColor: "#fff", padding: "25px", borderRadius: "16px", boxShadow: "0 10px 30px rgba(0,0,0,0.08)", boxSizing: "border-box" },
+    header:           { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "10px" },
+    title:            { margin: 0, fontSize: "22px", fontWeight: "bold" },
+    subtitle:         { margin: 0, color: "#6b7280", fontSize: "14px" },
+    secaoCard:        { background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", padding: "20px", marginBottom: "12px" },
+    secaoTitulo:      { fontSize: "14px", fontWeight: "bold", color: "#1e3a8a", marginBottom: "14px" },
+    grid3:            { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" },
+    inputGroup:       { marginBottom: "10px", display: "flex", flexDirection: "column", gap: "5px", fontSize: "13px", fontWeight: "600", color: "#374151" },
+    input:            { padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", fontWeight: "normal", width: "100%", boxSizing: "border-box" },
+    table:            { width: "100%", borderCollapse: "collapse" },
+    tableHeader:      { backgroundColor: "#f1f5f9" },
+    th:               { padding: "10px", textAlign: "left", fontSize: "13px" },
+    tableRow:         { borderBottom: "1px solid #e5e7eb" },
+    td:               { padding: "10px", verticalAlign: "middle", fontSize: "13px" },
+    actions:          { display: "flex", gap: "6px", padding: "10px", alignItems: "center" },
     buttonPrimary:    { backgroundColor: "#2563eb", color: "#fff", padding: "10px 20px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold", fontSize: "14px" },
     buttonSecundario: { backgroundColor: "#f1f5f9", color: "#2563eb", border: "1px solid #2563eb", padding: "8px 14px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold", fontSize: "13px" },
     buttonBack:       { backgroundColor: "#f1f5f9", color: "#374151", padding: "8px 14px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold" },

@@ -157,28 +157,29 @@ export default class AbastecimentoRepository {
     }
 
     toMap(row) {
-        let abastecimento = new Abastecimento();
+    let abastecimento = new Abastecimento();
 
-        abastecimento.id = row["abastecimento_id"];
-        abastecimento.data = row["abastecimento_data"];
-        abastecimento.km = row["abastecimento_km"];
-        abastecimento.litros = row["abastecimento_litros"];
-        abastecimento.valor = row["abastecimento_valor"];
-        abastecimento.tipoCombustivel = row["abastecimento_tipo_combustivel"];  // ← novo
-        abastecimento.kmMedia = row["abastecimento_km_media"];                  // ← novo
+    abastecimento.id = row["abastecimento_id"];
+    abastecimento.data = row["abastecimento_data"];
+    abastecimento.km = row["abastecimento_km"];
+    abastecimento.litros = row["abastecimento_litros"];
+    abastecimento.valor = row["abastecimento_valor"];
+    abastecimento.tipoCombustivel = row["abastecimento_tipo_combustivel"];
+    abastecimento.kmMedia = row["abastecimento_km_media"];
+    abastecimento.pagamento = row["abastecimento_pagamento"]; 
 
-        if (row["abastecimento_veiculo_id"]) {
-            let v = new Veiculo(row["abastecimento_veiculo_id"]);
-            v.placa = row["veiculo_placa"] || null;
-            abastecimento.veiculo = v;
-        }
-
-        if (row["abastecimento_usuario_id"]) {
-            let u = new Usuario(row["abastecimento_usuario_id"]);
-            u.nome = row["usuario_nome"] || null;
-            abastecimento.usuario = u;
-        }
-
-        return abastecimento;
+    if (row["abastecimento_veiculo_id"]) {
+        let v = new Veiculo(row["abastecimento_veiculo_id"]);
+        v.placa = row["veiculo_placa"] || null;
+        abastecimento.veiculo = v;
     }
+
+    if (row["abastecimento_usuario_id"]) {
+        let u = new Usuario(row["abastecimento_usuario_id"]);
+        u.nome = row["usuario_nome"] || null;
+        abastecimento.usuario = u;
+    }
+
+    return abastecimento;
+}
 }

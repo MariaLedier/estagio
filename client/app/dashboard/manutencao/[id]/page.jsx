@@ -464,6 +464,7 @@ export default function ManutencaoVeiculoPage() {
                 </div>
 
                 {/* TABELA */}
+                <div style={{ width: "100%", overflowX: "auto" }}>
                 <table style={styles.table}>
                     <thead style={styles.tableHeader}>
                         <tr>
@@ -532,6 +533,7 @@ export default function ManutencaoVeiculoPage() {
                         )}
                     </tbody>
                 </table>
+                </div>
 
             </div>
 
@@ -931,7 +933,7 @@ const styles = {
     td: { padding: "10px", verticalAlign: "top" },
     actions: { display: "flex", gap: "6px", padding: "10px" },
     overlay: { position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", backdropFilter: "blur(4px)" },
-    modal: { backgroundColor: "#fff", padding: "30px", borderRadius: "16px", width: "700px", boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" },
+    modal: { backgroundColor: "#fff", padding: "30px", borderRadius: "16px", width: "700px", maxWidth: "95vw", boxShadow: "0 10px 25px rgba(0,0,0,0.15)", maxHeight: "90vh", overflowY: "auto" },
     grid2: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "12px" },
     inputGroup: { marginBottom: "12px", display: "flex", flexDirection: "column", gap: "5px" },
     input: { padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px" },

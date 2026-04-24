@@ -127,57 +127,58 @@ export default function OficinaPage() {
           </button>
 
         </div>
-
-        <table style={styles.table}>
-          <thead style={styles.tableHeader}>
-            <tr>
-              <th>ID</th>
-              <th>Nome</th>
-              <th>Data Cadastro</th>
-              <th>Cidade</th>
-              <th style={{ textAlign: "center" }}>Ações</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {!Array.isArray(oficinas) ? (
+        <div style={{ width: "100%", overflowX: "auto" }}>
+          <table style={styles.table}>
+            <thead style={styles.tableHeader}>
               <tr>
-                <td colSpan="4" style={styles.emptyState}>
-                  <div style={styles.emptyContainer}>
-                    <p style={styles.emptyTitle}>Nenhuma Oficina cadastrado</p>
-                    <p style={styles.emptyText}>
-                      Clique em <strong>+ Nova Oficina</strong> para começar.
-                    </p>
-                  </div>
-                </td>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Data Cadastro</th>
+                <th>Cidade</th>
+                <th style={{ textAlign: "center" }}>Ações</th>
               </tr>
-            ) : (
-              oficinas.map((s) => (
-                <tr key={s.id} style={styles.tableRow}>
-                  <td style={styles.td}>{s.id}</td>
-                  <td style={styles.td}>{s.nome}</td>
-                  <td style={styles.td}>{s.datacadastro}</td>
-                  <td style={styles.td}>{s.cidade}</td>
-                  <td style={styles.actions}>
-                    <button
-                      onClick={() => abrirEdicao(s)}
-                      style={styles.buttonEdit}
-                    >
-                      ✏ Editar
-                    </button>
+            </thead>
 
-                    <button
-                      onClick={() => excluir(s.id)}
-                      style={styles.buttonDelete}
-                    >
-                      🗑 Excluir
-                    </button>
+            <tbody>
+              {!Array.isArray(oficinas) ? (
+                <tr>
+                  <td colSpan="4" style={styles.emptyState}>
+                    <div style={styles.emptyContainer}>
+                      <p style={styles.emptyTitle}>Nenhuma Oficina cadastrado</p>
+                      <p style={styles.emptyText}>
+                        Clique em <strong>+ Nova Oficina</strong> para começar.
+                      </p>
+                    </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                oficinas.map((s) => (
+                  <tr key={s.id} style={styles.tableRow}>
+                    <td style={styles.td}>{s.id}</td>
+                    <td style={styles.td}>{s.nome}</td>
+                    <td style={styles.td}>{s.datacadastro}</td>
+                    <td style={styles.td}>{s.cidade}</td>
+                    <td style={styles.actions}>
+                      <button
+                        onClick={() => abrirEdicao(s)}
+                        style={styles.buttonEdit}
+                      >
+                        ✏ Editar
+                      </button>
+
+                      <button
+                        onClick={() => excluir(s.id)}
+                        style={styles.buttonDelete}
+                      >
+                        🗑 Excluir
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {modalAberto && (
@@ -203,7 +204,7 @@ export default function OficinaPage() {
                 <label>Data de Cadastro</label>
                 <input
                   type="date"
-                  value= {datacadastro}
+                  value={datacadastro}
                   onChange={(e) => setDatacadastro(e.target.value)}
                   required
                   style={styles.input}

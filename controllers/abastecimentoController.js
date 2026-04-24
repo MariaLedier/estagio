@@ -5,11 +5,11 @@ import VeiculoRepository from "../repositories/veiculosRepository.js";  // ← a
 export default class AbastecimentoController {
 
     #AbastecimentoRepositorio;
-    #VeiculoRepositorio;  // ← adicione
+    #VeiculoRepositorio;  
 
     constructor() {
         this.#AbastecimentoRepositorio = new AbastecimentoRepository();
-        this.#VeiculoRepositorio = new VeiculoRepository();  // ← adicione
+        this.#VeiculoRepositorio = new VeiculoRepository();  
     }
 
     /*----------------------- LISTAR ------------------------ */

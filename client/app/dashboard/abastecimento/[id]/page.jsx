@@ -515,7 +515,7 @@ export default function AbastecimentoVeiculoPage() {
                         + Novo Abastecimento
                     </button>
                 </div>
-
+              <div style={{ width: "100%", overflowX: "auto" }}>        
                 <table style={styles.table}>
                     <thead style={styles.tableHeader}>
                         <tr>
@@ -589,7 +589,8 @@ export default function AbastecimentoVeiculoPage() {
                         )}
                     </tbody>
                 </table>
-
+                </div>  
+                        
             </div>
 
             {modalAberto && (

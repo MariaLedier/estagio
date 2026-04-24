@@ -145,11 +145,31 @@ export default class PneusRepository {
         return result;
     }
 
- 
+
 
     // ------ TROCA DE PNEUS ------
-    async executarSQL(sql, valores) {
-        return await this.#banco.ExecutaComandoNonQuery(sql, valores);
+    // Descarta o pneu que saiu na troca
+    async descartar(id) {
+        const sql = `
+        UPDATE tb_pneus SET
+            pneus_status = 'DESCARTADO',
+            pneus_posicao = NULL,
+            pneus_veiculo_id = NULL
+        WHERE pneus_id = ?
+    `;
+        return await this.#banco.ExecutaComandoNonQuery(sql, [id]);
+    }
+
+    // Vincula pneu do estoque a uma posição/veículo
+    async vincular(id, status, posicao, veiculoId) {
+        const sql = `
+        UPDATE tb_pneus SET
+            pneus_status = ?,
+            pneus_posicao = ?,
+            pneus_veiculo_id = ?
+        WHERE pneus_id = ?
+    `;
+        return await this.#banco.ExecutaComandoNonQuery(sql, [status, posicao, veiculoId, id]);
     }
 
 

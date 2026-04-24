@@ -21,7 +21,7 @@ export default function RootLayout({ children }) {
         <script src="/template/js/bootstrap.bundle.min.js"></script>
         <script src="/template/js/sb-admin-2.min.js"></script>
       </head>
-      <body className={nunito.className}>
+      <body>
         <UserProvider>
           <Toaster />
           {children}

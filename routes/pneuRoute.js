@@ -19,7 +19,7 @@ router.get("/", auth.validarToken, auth.apenasAdmin, auth.validarToken, (req, re
     ctrl.listar(req, res)
 });
 
-router.post("/",  auth.validarToken, auth.apenasAdmin, (req, res) => {
+router.post("/", auth.validarToken, auth.apenasAdmin, (req, res) => {
 
     // #swagger.tags = ['Pneus']
     // #swagger.summary = 'Cadastra um novo pneu'
@@ -37,21 +37,21 @@ router.post("/",  auth.validarToken, auth.apenasAdmin, (req, res) => {
     ctrl.cadastrar(req, res);
 });
 
-router.put("/",  auth.validarToken, auth.apenasAdmin,(req, res) => {
-  
+router.put("/", auth.validarToken, auth.apenasAdmin, (req, res) => {
+
     // #swagger.tags = ['Pneus']
     // #swagger.summary = 'Altera um Pneus existente'
-        /* #swagger.requestBody = {
-        required: true,
-        content: {
-            "application/json": {
-                schema: {
-                    $ref: '#/components/schemas/pneus'
-                }
+    /* #swagger.requestBody = {
+    required: true,
+    content: {
+        "application/json": {
+            schema: {
+                $ref: '#/components/schemas/pneus'
             }
         }
     }
-    */
+}
+*/
     ctrl.atualizar(req, res);
 });
 
@@ -72,20 +72,17 @@ router.post("/trocar", auth.validarToken, (req, res) => {
 router.get("/estoque", auth.validarToken, (req, res) => {
     ctrl.listarEstoque(req, res);
 });
+router.get("/descartes", auth.validarToken, (req, res) => {
+    // #swagger.tags = ['Pneus']
+    // #swagger.summary = 'Listar histórico de descartes de pneus'
+    ctrl.listarDescartes(req, res);
+});
+
 
 router.get("/veiculo/:veiculoId", auth.validarToken, (req, res) => {
     ctrl.listarPorVeiculo(req, res);
 });
 
-// router.get("/:id", auth.validarToken, (req, res) => {
-//     /* #swagger.security = [{
-//         "bearerAuth": []
-//     }]
-//     */
-//     // #swagger.tags = ['Oficina']
-//     // #swagger.summary = 'Recupera um usuário através de um ID'
-//     ctrl.obterPorId(req, res);
-// });
 
 
 export default router;
