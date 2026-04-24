@@ -212,7 +212,12 @@ export default class PneuController {
                 diasUso = Math.floor((dataSaida - dataEntrada) / (1000 * 60 * 60 * 24));
             }
 
-            const kmUso = kmAtual ? Number(kmAtual) : null;
+            const veiculo = await this.#VeiculoRepositorio.obter(veiculoId);
+            const kmEntrada = veiculo?.kmatual ? Number(veiculo.kmatual) : null;
+            const kmSaida = kmAtual ? Number(kmAtual) : null;
+
+            // KM QUE O PNEU RODOU = diferença entre km da troca e km quando foi montado
+            const kmUso = kmEntrada !== null && kmSaida !== null ? kmSaida - kmEntrada : null;
 
             // GRAVA NO DESCARTE — lógica de negócio no repositório
             await this.#DescarteRepositorio.gravar({
@@ -221,7 +226,7 @@ export default class PneuController {
                 posicao,
                 dataEntrada: pneuSaida.dataaquisicao || null,
                 dataSaida: hoje,
-                kmEntrada: null,
+                kmEntrada: kmEntrada,
                 kmSaida: kmAtual || null,
                 kmUso,
                 diasUso,
