@@ -244,3 +244,46 @@ CREATE TABLE IF NOT EXISTS tb_checklist_item (
 -- Nenhuma coluna adicionada em tb_veiculos.
 -- Os 5 campos de pneu sincronizam pneu_estado em tb_pneu (via pneu_posicao + pneu_veiculo_id).
 -- Os demais itens ficam apenas em tb_checklist_item para relatório e histórico.
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- MIGRATION — Rodízio de Pneus
+-- Banco: MySQL / MariaDB
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Registra cada movimentação de pneu durante um rodízio.
+-- Um rodízio troca múltiplos pneus de posição no mesmo veículo.
+-- Cada linha = um pneu que saiu de uma posição e foi para outra.
+
+CREATE TABLE IF NOT EXISTS tb_rodizio (
+    rodizio_id            INT      NOT NULL AUTO_INCREMENT,
+    rodizio_data          DATE     NOT NULL,
+    rodizio_km            INT      NULL,
+    rodizio_observacoes   TEXT     NULL,
+    rodizio_veiculo_id    INT      NOT NULL,
+    rodizio_usuario_id    INT      NOT NULL,
+    rodizio_criado_em     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (rodizio_id),
+    CONSTRAINT fk_rodizio_veiculo FOREIGN KEY (rodizio_veiculo_id) REFERENCES tb_veiculos (veiculo_id),
+    CONSTRAINT fk_rodizio_usuario FOREIGN KEY (rodizio_usuario_id) REFERENCES tb_usuario  (usuario_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- Cada item = um pneu movimentado no rodízio
+-- posicao_anterior: onde o pneu estava antes
+-- posicao_nova:     onde o pneu foi parar
+
+CREATE TABLE IF NOT EXISTS tb_rodizio_item (
+    item_id               INT         NOT NULL AUTO_INCREMENT,
+    item_pneu_id          INT         NOT NULL,
+    item_posicao_anterior VARCHAR(40) NOT NULL,
+    item_posicao_nova     VARCHAR(40) NOT NULL,
+    item_rodizio_id       INT         NOT NULL,
+
+    PRIMARY KEY (item_id),
+    CONSTRAINT fk_rodizio_item_rodizio FOREIGN KEY (item_rodizio_id)
+        REFERENCES tb_rodizio (rodizio_id) ON DELETE CASCADE,
+    CONSTRAINT fk_rodizio_item_pneu FOREIGN KEY (item_pneu_id)
+        REFERENCES tb_pneus (pneus_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

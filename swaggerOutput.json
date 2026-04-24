@@ -1608,6 +1608,179 @@
           }
         }
       }
+    },
+    "/rodizio/veiculo/{veiculoId}": {
+      "get": {
+        "tags": [
+          "Rodízio"
+        ],
+        "summary": "Listar rodízios de um veículo",
+        "description": "",
+        "parameters": [
+          {
+            "name": "veiculoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/rodizio/{id}": {
+      "get": {
+        "tags": [
+          "Rodízio"
+        ],
+        "summary": "Obter rodízio por ID",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Rodízio"
+        ],
+        "summary": "Deletar um rodízio",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/rodizio/": {
+      "post": {
+        "tags": [
+          "Rodízio"
+        ],
+        "summary": "Cadastrar novo rodízio",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "veiculo": {
+                    "type": "integer",
+                    "example": 1
+                  },
+                  "usuario": {
+                    "type": "integer",
+                    "example": 3
+                  },
+                  "data": {
+                    "type": "string",
+                    "example": "2026-04-23"
+                  },
+                  "km": {
+                    "type": "integer",
+                    "example": 85420
+                  },
+                  "observacoes": {
+                    "type": "string",
+                    "example": "Rodízio preventivo"
+                  },
+                  "itens": {
+                    "type": "array",
+                    "example": [
+                      {
+                        "pneuId": 1,
+                        "posicaoAnterior": "Dianteiro Esquerdo",
+                        "posicaoNova": "Traseiro Esquerdo"
+                      },
+                      {
+                        "pneuId": 2,
+                        "posicaoAnterior": "Traseiro Esquerdo",
+                        "posicaoNova": "Dianteiro Esquerdo"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

@@ -258,6 +258,13 @@ export default function VeiculoDetalhePage() {
                                 >
                                     Checklist
                                 </button>
+
+                                <button
+                                    onClick={function () { router.push("/dashboard/rodizio/" + id) }}
+                                    style={styles.atalho}
+                                >
+                                    Rodizio de pneus
+                                </button>
                                
                                  
                             </div>
@@ -395,6 +402,11 @@ export default function VeiculoDetalhePage() {
 
                     </div>
                 )}
+
+
+
+
+                {/* IMPLEMENTAÇÃO DO MODAL DOS PNEUS */}
                   <CarroPneus veiculoId={id} />
 
             </div>

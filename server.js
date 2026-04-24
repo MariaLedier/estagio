@@ -10,7 +10,7 @@ import abastecimentoRouter from './routes/abastecimentoRoute.js'
 import manutencaoRouter from './routes/manutencaoRoute.js'
 import autenticacaoRouter from './routes/autenticacaoRoute.js'
 import checklistRouter from './routes/checklistRoute.js'
-
+import rodizioRouter from './routes/rodizioRoute.js'
 
 
 import swaggerUi from 'swagger-ui-express'
@@ -38,6 +38,7 @@ server.use("/pneu",          pneuRouter);
 server.use("/abastecimento", abastecimentoRouter);
 server.use("/manutencao",    manutencaoRouter);
 server.use("/checklist",     checklistRouter)
+server.use("/rodizio",     rodizioRouter)
 
 server.listen(5000, function() {
     console.log("backend em funcionamento!");

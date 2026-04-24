@@ -38,8 +38,7 @@ export default function AbastecimentoVeiculoPage() {
     const [anofiltro, setAnofiltro] = useState("")
 
 
-    // IMPRESSÃO
-    const [modoImpressao, setModoImpressao] = useState(false)
+
 
     //USUARIO
     const { user } = useUser()
@@ -279,13 +278,129 @@ export default function AbastecimentoVeiculoPage() {
 
     // --------------- IMPRIMIR --------------
     function handlePrint() {
-        setModoImpressao(true)
-
-        setTimeout(() => {
-            window.print()
-            setModoImpressao(false)
-        }, 300)
+        imprimirAbastecimentos(veiculo, abastecimentosFiltrados, totalLitros, totalValor, mediaGeral, litrosPorCombustivel, dataInicio, dataFim, anofiltro)
     }
+
+    function imprimirAbastecimentos(veiculo, lista, totalLitros, totalValor, mediaGeral, litrosPorCombustivel, dataInicio, dataFim, anofiltro) {
+    const janela = window.open("", "_blank")
+    if (!janela) { alert("Permita pop-ups para imprimir."); return }
+ 
+    function formatarDataBR(valor) {
+        if (!valor) return "-"
+        const d = new Date(valor)
+        return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`
+    }
+ 
+    const periodoLabel = dataInicio || dataFim
+        ? `${dataInicio ? formatarDataBR(dataInicio) : "início"} até ${dataFim ? formatarDataBR(dataFim) : "hoje"}`
+        : anofiltro
+        ? `Ano ${anofiltro}`
+        : "Todos os registros"
+ 
+    const linhas = lista.map((a, index) => {
+        const anterior    = lista[index - 1]
+        const kmAnterior  = anterior ? Number(anterior.km) : null
+        const intervalo   = kmAnterior !== null ? Number(a.km) - kmAnterior : null
+ 
+        return `<tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:6px 8px;font-size:12px;">${formatarDataBR(a.data)}</td>
+            <td style="padding:6px 8px;font-size:12px;">${kmAnterior ? Number(kmAnterior).toLocaleString("pt-BR") + " km" : "-"}</td>
+            <td style="padding:6px 8px;font-size:12px;">${Number(a.km).toLocaleString("pt-BR")} km</td>
+            <td style="padding:6px 8px;font-size:12px;">${intervalo !== null ? (intervalo >= 0 ? "+" : "") + Number(intervalo).toLocaleString("pt-BR") + " km" : "-"}</td>
+            <td style="padding:6px 8px;font-size:12px;">${Number(a.litros).toFixed(2)} L</td>
+            <td style="padding:6px 8px;font-size:12px;">${Number(a.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+            <td style="padding:6px 8px;font-size:12px;">${a.tipoCombustivel || "-"}</td>
+            <td style="padding:6px 8px;font-size:12px;">${a.kmMedia ? a.kmMedia + " km/L" : "-"}</td>
+            <td style="padding:6px 8px;font-size:12px;">${a.usuario?.nome || "-"}</td>
+        </tr>`
+    }).join("")
+ 
+    const blocosResumo = `
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
+            <div style="flex:1;min-width:110px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;">
+                <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Total Gasto</div>
+                <div style="font-size:16px;font-weight:800;color:#111827;">${totalValor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</div>
+            </div>
+            <div style="flex:1;min-width:110px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;">
+                <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Total Litros</div>
+                <div style="font-size:16px;font-weight:800;color:#111827;">${totalLitros.toFixed(2)} L</div>
+            </div>
+            <div style="flex:1;min-width:110px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;">
+                <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Média Geral</div>
+                <div style="font-size:16px;font-weight:800;color:#111827;">${mediaGeral ? mediaGeral + " km/L" : "-"}</div>
+            </div>
+            ${Object.entries(litrosPorCombustivel).map(([tipo, litros]) => `
+                <div style="flex:1;min-width:110px;background:#eff6ff;border:1px solid #bfdbfe;border-top:3px solid #2563eb;border-radius:8px;padding:12px;">
+                    <div style="font-size:10px;font-weight:700;color:#1e40af;text-transform:uppercase;margin-bottom:4px;">${tipo}</div>
+                    <div style="font-size:16px;font-weight:800;color:#1e3a8a;">${litros.toFixed(2)} L</div>
+                </div>
+            `).join("")}
+        </div>
+    `
+ 
+    janela.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    <title>Abastecimentos — ${veiculo?.placa || ""}</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Segoe UI',sans-serif;padding:28px;color:#1e293b;}
+        @media print{.no-print{display:none;}}
+    </style></head><body>
+ 
+    <div class="no-print" style="margin-bottom:16px;">
+        <button onclick="window.print()" style="background:#16a34a;color:#fff;border:none;padding:10px 22px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">
+            🖨️ Imprimir / Salvar PDF
+        </button>
+    </div>
+ 
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:14px;border-bottom:3px solid #2563eb;">
+        <div>
+            <div style="font-size:18px;font-weight:800;color:#2563eb;">CONTROLE DE FROTA</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">Relatório de Abastecimentos</div>
+        </div>
+        <div style="text-align:right;font-size:12px;color:#64748b;">
+            <div><b>Período:</b> ${periodoLabel}</div>
+            <div><b>Registros:</b> ${lista.length}</div>
+        </div>
+    </div>
+ 
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:16px;display:flex;gap:32px;flex-wrap:wrap;">
+        ${[["Placa", veiculo?.placa], ["Modelo", veiculo?.modeloNome || veiculo?.modelo?.nome], ["Marca", veiculo?.marcaNome || veiculo?.marca?.nome], ["Ano", veiculo?.ano]]
+            .map(([l, v]) => `<div>
+                <div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;">${l}</div>
+                <div style="font-size:14px;font-weight:700;">${v || "—"}</div>
+            </div>`).join("")}
+    </div>
+ 
+    ${blocosResumo}
+ 
+    <table style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr style="background:#f1f5f9;">
+                <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;">Data</th>
+                <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;">KM Anterior</th>
+                <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;">KM Atual</th>
+                <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;">Intervalo</th>
+                <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;">Litros</th>
+                <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;">Valor</th>
+                <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;">Combustível</th>
+                <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;">Km/L</th>
+                <th style="padding:8px;text-align:left;font-size:11px;color:#6b7280;">Usuário</th>
+            </tr>
+        </thead>
+        <tbody>${linhas}</tbody>
+        <tfoot>
+            <tr style="background:#f1f5f9;font-weight:700;">
+                <td colspan="4" style="padding:8px;font-size:12px;">TOTAIS</td>
+                <td style="padding:8px;font-size:12px;">${totalLitros.toFixed(2)} L</td>
+                <td style="padding:8px;font-size:12px;">${totalValor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+                <td colspan="3" style="padding:8px;font-size:12px;">Média: ${mediaGeral ? mediaGeral + " km/L" : "-"}</td>
+            </tr>
+        </tfoot>
+    </table>
+ 
+    </body></html>`)
+    janela.document.close()
+}
 
     // -------------------- RENDER --------------------
 
