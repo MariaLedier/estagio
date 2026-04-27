@@ -144,7 +144,7 @@ export default function RelatorioManutencaoPage() {
                 {/* TÍTULO */}
                 <div style={s.topo}>
                     <div>
-                        <h1 style={s.titulo}>📋 Relatório de Manutenções</h1>
+                        <h1 style={s.titulo}>Relatório de Manutenções</h1>
                         <p style={s.subtitulo}>Filtre por veículo, serviço ou período para ver os gastos</p>
                     </div>
                 </div>

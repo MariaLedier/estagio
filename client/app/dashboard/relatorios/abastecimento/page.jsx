@@ -299,7 +299,7 @@ export default function RelatorioAbastecimentoPage() {
                 {/* TÍTULO */}
                 <div style={s.topo}>
                     <div>
-                        <h1 style={s.titulo}>⛽ Relatório de Abastecimentos</h1>
+                        <h1 style={s.titulo}>Relatório de Abastecimentos</h1>
                         <p style={s.subtitulo}>Filtre por veículo, combustível, pagamento ou período</p>
                     </div>
                 </div>

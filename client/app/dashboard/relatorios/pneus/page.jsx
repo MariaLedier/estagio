@@ -218,7 +218,7 @@ export default function RelatorioPneusPage() {
             <div style={s.card}>
 
                 <div style={s.topo}>
-                    <h1 style={s.titulo}>🔄 Relatório de Pneus Descartados</h1>
+                    <h1 style={s.titulo}>Relatório de Pneus Descartados</h1>
                     <p style={s.subtitulo}>Veja o histórico de trocas, durabilidade por marca e posição mais desgastada</p>
                 </div>
 
@@ -318,7 +318,7 @@ export default function RelatorioPneusPage() {
 
                         {/* POR POSIÇÃO */}
                         <div style={{ marginBottom: "16px" }}>
-                            <p style={s.secaoTitulo}>📍 Trocas por posição</p>
+                            <p style={s.secaoTitulo}>Trocas por posição</p>
                             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                                 {Object.entries(porPosicao)
                                     .sort((a, b) => b[1].qtd - a[1].qtd)
@@ -339,7 +339,7 @@ export default function RelatorioPneusPage() {
 
                         {/* POR MARCA */}
                         <div style={{ marginBottom: "16px" }}>
-                            <p style={s.secaoTitulo}>🏷️ Durabilidade por marca</p>
+                            <p style={s.secaoTitulo}>Durabilidade por marca</p>
                             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                                 {Object.entries(porMarca)
                                     .sort((a, b) => {

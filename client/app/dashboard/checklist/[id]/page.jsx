@@ -386,7 +386,7 @@ export default function ChecklistVeiculoPage() {
                             ← Voltar
                         </button>
                         <div>
-                            <h1 style={s.title}>📋 Checklist — {veiculo?.placa || "..."}</h1>
+                            <h1 style={s.title}>Checklist — {veiculo?.placa || "..."}</h1>
                             <p style={s.subtitle}>
                                 {veiculo?.marcaNome || ""} {veiculo?.modeloNome || ""} {veiculo?.ano || ""}
                             </p>
@@ -404,8 +404,8 @@ export default function ChecklistVeiculoPage() {
                 {/* ABAS */}
                 <div style={{ display: "flex", gap: "4px", marginBottom: "20px", background: "#f1f5f9", borderRadius: "10px", padding: "4px", width: "fit-content", flexWrap: "wrap" }}>
                     {[
-                        { key: "form",      label: "📋 Novo Checklist" },
-                        { key: "historico", label: `📁 Histórico (${historico.length})` },
+                        { key: "form",      label: "Novo Checklist" },
+                        { key: "historico", label: `Histórico (${historico.length})` },
                     ].map(aba => (
                         <button
                             key={aba.key}
@@ -686,7 +686,7 @@ export default function ChecklistVeiculoPage() {
                                                         onClick={() => gerarPDF(veiculo, h.itens || {}, h.usuario?.nome, h.observacoes, h.data, h.km)}
                                                         style={s.buttonSecundario}
                                                     >
-                                                        🖨️ PDF
+                                                        🖨️ Imprimir
                                                     </button>
                                                     <button
                                                         onClick={() => excluir(h.id)}

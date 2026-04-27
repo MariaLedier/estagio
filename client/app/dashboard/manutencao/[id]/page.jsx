@@ -458,7 +458,7 @@ export default function ManutencaoVeiculoPage() {
                             onClick={abrirTrocaPneu}
                             style={{ ...styles.buttonPrimary, backgroundColor: "#f59e0b", color: "#000" }}
                         >
-                            🔄 Trocar Pneu
+                            Trocar Pneu
                         </button>
                     </div>
                 </div>

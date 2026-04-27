@@ -1,0 +1,6 @@
+Não está atualizando a KM do veiculo quando uma manutenção é concluida.
+
+No gerenciamento de pneus eu não preciso excluir e nem add, pois os serviços realizados são por fora e na troca de pneus eu ja consigo add um novo
+
+
+Alterar o checklist para somente o admin conseguir fazer, alem disso poder editar o checklist após salvar

@@ -173,7 +173,7 @@ export default function CarroPneus({ veiculoId }) {
             <Legenda />
 
             {/* TABELA RESUMO */}
-            <div style={{ marginTop: 20 }}>
+            {/* <div style={{ marginTop: 20 }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead>
                         <tr style={{ background: "#f1f5f9" }}>
@@ -210,7 +210,7 @@ export default function CarroPneus({ veiculoId }) {
                         })}
                     </tbody>
                 </table>
-            </div>
+            </div> */}
         </div>
     )
 }

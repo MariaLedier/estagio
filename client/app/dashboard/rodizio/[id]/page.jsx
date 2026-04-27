@@ -213,7 +213,7 @@ export default function RodizioVeiculoPage() {
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                         <button onClick={() => router.back()} style={styles.buttonBack}>← Voltar</button>
                         <div>
-                            <h1 style={styles.title}>🔄 Rodízio — {veiculo?.placa || "..."}</h1>
+                            <h1 style={styles.title}>Rodízio — {veiculo?.placa || "..."}</h1>
                             <p style={styles.subtitle}>{veiculo?.marcaNome || ""} {veiculo?.modeloNome || ""} {veiculo?.ano || ""}</p>
                         </div>
                     </div>
@@ -221,7 +221,7 @@ export default function RodizioVeiculoPage() {
 
                 {/* ABAS */}
                 <div style={{ display: "flex", gap: "4px", marginBottom: "20px", background: "#f1f5f9", borderRadius: "10px", padding: "4px", width: "fit-content" }}>
-                    {[{ key: "form", label: "🔄 Novo Rodízio" }, { key: "historico", label: `📁 Histórico (${historico.length})` }].map((aba) => (
+                    {[{ key: "form", label: "Novo Rodízio" }, { key: "historico", label: ` Histórico (${historico.length})` }].map((aba) => (
                         <button key={aba.key} onClick={() => setAbaAtiva(aba.key)} style={{
                             padding: "8px 20px", borderRadius: "8px", border: "none",
                             background: abaAtiva === aba.key ? "#2563eb" : "transparent",
@@ -349,7 +349,7 @@ export default function RodizioVeiculoPage() {
 
                         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 4 }}>
                             <button onClick={salvar} disabled={salvando} style={{ ...styles.buttonPrimary, opacity: salvando ? .6 : 1 }}>
-                                {salvando ? "Salvando..." : "💾 Confirmar Rodízio"}
+                                {salvando ? "Salvando..." : "Confirmar Rodízio"}
                             </button>
                         </div>
                     </>
