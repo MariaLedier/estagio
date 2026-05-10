@@ -14,30 +14,27 @@ export default function Login() {
     const router = useRouter();
 const { setUser } = useUser();
 
-    async function autenticar() {
-        if (nome.current.value != "" && senha.current.value != "") {
-
-            let obj = {
-                nome: nome.current.value,
-                senha: senha.current.value
-            }
-
-            let response = await apiClient.post("/autenticacao/token", obj);
-
-            if (response) {
-                setUser(response.usuario);
-
-                // tipo 1 = VENDEDOR → manutenção
-                // tipo 2 = ADMIN    → dashboard
-                if (response.usuario.tipo === 2)
-                    router.replace("/dashboard");
-                else
-                    router.replace("/dashboard/manutencao");
-            }
-        } else {
-            toast.error("Preencha nome e senha");
+async function autenticar() {
+    if (nome.current.value != "" && senha.current.value != "") {
+        let obj = {
+            nome: nome.current.value,
+            senha: senha.current.value
         }
+
+        let response = await apiClient.post("/autenticacao/token", obj);
+
+        if (response) {
+            setUser(response.usuario);
+            if (response.usuario.tipo === 2)
+                router.replace("/dashboard");
+            else
+                router.replace("/dashboard/manutencao");
+        }
+
+    } else {
+        toast.error("Preencha nome e senha");
     }
+}
 
     return (
         <div style={styles.page}>

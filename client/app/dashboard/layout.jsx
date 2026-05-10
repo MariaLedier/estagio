@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useUser } from "@/app/context/userContext.jsx"
+import TourGuiado from "@/components/TourGuiado.jsx"
 
 export default function DashboardLayout({ children }) {
 
@@ -159,12 +160,12 @@ export default function DashboardLayout({ children }) {
                                     <span>Abastecimento</span>
                                 </Link>
                             </li>
-                            <li>
+                            {/* <li>
                                 <Link href="/dashboard/relatorios/pneus" onClick={fecharMenu}>
                                     <i className="fas fa-circle-notch"></i>
                                     <span>Pneus</span>
-                                </Link>
-                            </li>
+                                </Link> 
+                            </li> */}
                         </ul>
                     )}
 
@@ -202,6 +203,9 @@ export default function DashboardLayout({ children }) {
                 </div>
                 {children}
             </div>
+
+            {/* TOUR GUIADO — botão de ajuda flutuante */}
+            <TourGuiado />
 
         </div>
     )

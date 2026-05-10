@@ -8,6 +8,7 @@ export default function RelatorioManutencaoPage() {
 
     const [veiculos, setVeiculos] = useState([])
     const [servicos, setServicos] = useState([])
+    const [oficinas, setOficinas] = useState([])
     const [resultados, setResultados] = useState([])
     const [carregando, setCarregando] = useState(false)
     const [jaBuscou, setJaBuscou] = useState(false)
@@ -15,12 +16,14 @@ export default function RelatorioManutencaoPage() {
     // Filtros
     const [veiculoFiltro, setVeiculoFiltro] = useState("")
     const [servicoFiltro, setServicoFiltro] = useState("")
+    const [oficinaFiltro, setOficinaFiltro] = useState("")
     const [dataInicio, setDataInicio] = useState("")
     const [dataFim, setDataFim] = useState("")
 
     useEffect(() => {
         carregarVeiculos()
         carregarServicos()
+        carregarOficinas()
     }, [])
 
     async function carregarVeiculos() {
@@ -41,7 +44,15 @@ export default function RelatorioManutencaoPage() {
         }
     }
 
-    // Busca todas as manutenções e filtra no front
+    async function carregarOficinas() {
+        try {
+            const dados = await apiClient.get("/oficina")
+            setOficinas(Array.isArray(dados) ? dados : [])
+        } catch {
+            setOficinas([])
+        }
+    }
+
     async function buscar() {
         setCarregando(true)
         setJaBuscou(true)
@@ -49,14 +60,12 @@ export default function RelatorioManutencaoPage() {
             const dados = await apiClient.get("/manutencao")
             let lista = Array.isArray(dados) ? dados : []
 
-            // Filtro por veículo
             if (veiculoFiltro) {
                 lista = lista.filter(m =>
                     String(m.veiculo?.id ?? m.veiculo) === String(veiculoFiltro)
                 )
             }
 
-            // Filtro por serviço (verifica nos itens da manutenção)
             if (servicoFiltro) {
                 lista = lista.filter(m =>
                     m.itens && m.itens.some(i =>
@@ -65,20 +74,21 @@ export default function RelatorioManutencaoPage() {
                 )
             }
 
-            // Filtro por data início
-            if (dataInicio) {
-                lista = lista.filter(m => {
-                    if (!m.data) return false
-                    return new Date(m.data) >= new Date(dataInicio)
-                })
+            // Filtro por oficina: mantém a manutenção se ao menos um item é dessa oficina
+            if (oficinaFiltro) {
+                lista = lista.filter(m =>
+                    m.itens && m.itens.some(i =>
+                        String(i.oficina?.id ?? i.oficina) === String(oficinaFiltro)
+                    )
+                )
             }
 
-            // Filtro por data fim
+            if (dataInicio) {
+                lista = lista.filter(m => m.data && new Date(m.data) >= new Date(dataInicio))
+            }
+
             if (dataFim) {
-                lista = lista.filter(m => {
-                    if (!m.data) return false
-                    return new Date(m.data) <= new Date(dataFim)
-                })
+                lista = lista.filter(m => m.data && new Date(m.data) <= new Date(dataFim))
             }
 
             setResultados(lista)
@@ -94,26 +104,43 @@ export default function RelatorioManutencaoPage() {
     function limparFiltros() {
         setVeiculoFiltro("")
         setServicoFiltro("")
+        setOficinaFiltro("")
         setDataInicio("")
         setDataFim("")
         setResultados([])
         setJaBuscou(false)
     }
 
-    // ---- Cálculos de totais ----
+    // ---- Cálculos ----
 
-    // Total geral de todas as manutenções filtradas
     const totalGeral = resultados.reduce((acc, m) => {
-        const totalItens = (m.itens || []).reduce((s, i) => s + Number(i.valor || 0), 0)
-        return acc + totalItens
+        return acc + (m.itens || []).reduce((s, i) => s + Number(i.valor || 0), 0)
     }, 0)
 
-    // Agrupa por veículo para mostrar gasto por veículo
     const gastosPorVeiculo = resultados.reduce((acc, m) => {
         const placa = m.veiculo?.placa || "Sem placa"
         const total = (m.itens || []).reduce((s, i) => s + Number(i.valor || 0), 0)
-        if (!acc[placa]) acc[placa] = 0
-        acc[placa] += total
+        acc[placa] = (acc[placa] || 0) + total
+        return acc
+    }, {})
+
+    // Agrupa gastos por oficina somando apenas os itens daquela oficina
+    const gastosPorOficina = resultados.reduce((acc, m) => {
+        (m.itens || []).forEach(i => {
+            const nome = i.oficina?.nome || "Sem oficina"
+            acc[nome] = (acc[nome] || 0) + Number(i.valor || 0)
+        })
+        return acc
+    }, {})
+
+    // Conta manutenções distintas por oficina (uma manutenção conta para a oficina se tiver ao menos 1 item dela)
+    const manutencoesPorOficina = resultados.reduce((acc, m) => {
+        const oficinasNaManutencao = new Set(
+            (m.itens || []).map(i => i.oficina?.nome || "Sem oficina")
+        )
+        oficinasNaManutencao.forEach(nome => {
+            acc[nome] = (acc[nome] || 0) + 1
+        })
         return acc
     }, {})
 
@@ -137,6 +164,8 @@ export default function RelatorioManutencaoPage() {
         return "#9ca3af"
     }
 
+    const totalOficinas = Object.keys(gastosPorOficina).length
+
     return (
         <div style={s.page}>
             <div style={s.card}>
@@ -145,7 +174,7 @@ export default function RelatorioManutencaoPage() {
                 <div style={s.topo}>
                     <div>
                         <h1 style={s.titulo}>Relatório de Manutenções</h1>
-                        <p style={s.subtitulo}>Filtre por veículo, serviço ou período para ver os gastos</p>
+                        <p style={s.subtitulo}>Filtre por veículo, serviço, oficina ou período para ver os gastos</p>
                     </div>
                 </div>
 
@@ -154,11 +183,7 @@ export default function RelatorioManutencaoPage() {
 
                     <div style={s.filtroGrupo}>
                         <label style={s.label}>Veículo</label>
-                        <select
-                            value={veiculoFiltro}
-                            onChange={e => setVeiculoFiltro(e.target.value)}
-                            style={s.input}
-                        >
+                        <select value={veiculoFiltro} onChange={e => setVeiculoFiltro(e.target.value)} style={s.input}>
                             <option value="">Todos os veículos</option>
                             {veiculos.map(v => (
                                 <option key={v.id} value={v.id}>
@@ -170,11 +195,7 @@ export default function RelatorioManutencaoPage() {
 
                     <div style={s.filtroGrupo}>
                         <label style={s.label}>Serviço</label>
-                        <select
-                            value={servicoFiltro}
-                            onChange={e => setServicoFiltro(e.target.value)}
-                            style={s.input}
-                        >
+                        <select value={servicoFiltro} onChange={e => setServicoFiltro(e.target.value)} style={s.input}>
                             <option value="">Todos os serviços</option>
                             {servicos.map(sv => (
                                 <option key={sv.id} value={sv.id}>{sv.nome}</option>
@@ -183,82 +204,75 @@ export default function RelatorioManutencaoPage() {
                     </div>
 
                     <div style={s.filtroGrupo}>
+                        <label style={s.label}>Oficina</label>
+                        <select value={oficinaFiltro} onChange={e => setOficinaFiltro(e.target.value)} style={s.input}>
+                            <option value="">Todas as oficinas</option>
+                            {oficinas.map(o => (
+                                <option key={o.id} value={o.id}>{o.nome}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div style={s.filtroGrupo}>
                         <label style={s.label}>Data inicial</label>
-                        <input
-                            type="date"
-                            value={dataInicio}
-                            onChange={e => setDataInicio(e.target.value)}
-                            style={s.input}
-                        />
+                        <input type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} style={s.input} />
                     </div>
 
                     <div style={s.filtroGrupo}>
                         <label style={s.label}>Data final</label>
-                        <input
-                            type="date"
-                            value={dataFim}
-                            onChange={e => setDataFim(e.target.value)}
-                            style={s.input}
-                        />
+                        <input type="date" value={dataFim} onChange={e => setDataFim(e.target.value)} style={s.input} />
                     </div>
 
                     <div style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}>
                         <button onClick={buscar} disabled={carregando} style={s.btnBuscar}>
                             {carregando ? "Buscando..." : "🔍 Buscar"}
                         </button>
-                        <button onClick={limparFiltros} style={s.btnLimpar}>
-                            Limpar
-                        </button>
+                        <button onClick={limparFiltros} style={s.btnLimpar}>Limpar</button>
                     </div>
 
                 </div>
 
-                {/* CARDS DE RESUMO — aparecem só após busca */}
+                {/* CARDS DE RESUMO */}
                 {jaBuscou && (
                     <div style={s.resumoBox}>
-
                         <div style={s.resumoCard}>
                             <div style={s.resumoNumero}>{resultados.length}</div>
                             <div style={s.resumoLabel}>Manutenções encontradas</div>
                         </div>
-
                         <div style={s.resumoCard}>
                             <div style={s.resumoNumero}>{formatarReais(totalGeral)}</div>
                             <div style={s.resumoLabel}>Total gasto no período</div>
                         </div>
-
                         <div style={s.resumoCard}>
                             <div style={s.resumoNumero}>
                                 {resultados.filter(m => m.status === "CONCLUIDA").length}
                             </div>
                             <div style={s.resumoLabel}>Concluídas</div>
                         </div>
-
                         <div style={s.resumoCard}>
                             <div style={s.resumoNumero}>
                                 {resultados.filter(m => m.status === "AGENDADA").length}
                             </div>
                             <div style={s.resumoLabel}>Agendadas</div>
                         </div>
-
+                        <div style={s.resumoCard}>
+                            <div style={s.resumoNumero}>{totalOficinas}</div>
+                            <div style={s.resumoLabel}>Oficinas envolvidas</div>
+                        </div>
                     </div>
                 )}
 
-                {/* GASTO POR VEÍCULO — aparece só se tiver mais de um veículo no resultado */}
+                {/* GASTO POR VEÍCULO */}
                 {jaBuscou && Object.keys(gastosPorVeiculo).length > 1 && (
                     <div style={{ marginBottom: "24px" }}>
-                        <h3 style={{ marginBottom: "12px", fontSize: "15px", color: "#374151" }}>
-                            💰 Gasto por veículo
-                        </h3>
+                        <h3 style={s.secaoTitulo}>🚗 Gasto por veículo</h3>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                             {Object.entries(gastosPorVeiculo)
                                 .sort((a, b) => b[1] - a[1])
                                 .map(([placa, total]) => (
-                                    <div key={placa} style={s.veiculoChip}>
+                                    <div key={placa} style={s.chip}>
                                         <span style={{ fontWeight: "bold" }}>{placa}</span>
-                                        <span style={{ color: "#2563eb", fontWeight: "bold" }}>
-                                            {formatarReais(total)}
-                                        </span>
+                                        <span style={{ color: "#2563eb", fontWeight: "bold" }}>{formatarReais(total)}</span>
                                     </div>
                                 ))
                             }
@@ -266,7 +280,41 @@ export default function RelatorioManutencaoPage() {
                     </div>
                 )}
 
-                {/* TABELA DE RESULTADOS */}
+                {/* GASTO POR OFICINA — sempre aparece após busca se houver resultados */}
+                {jaBuscou && Object.keys(gastosPorOficina).length > 0 && (
+                    <div style={{ marginBottom: "28px" }}>
+                        <h3 style={s.secaoTitulo}>🏪 Gasto por local de manutenção</h3>
+                        <div style={s.oficinaGrid}>
+                            {Object.entries(gastosPorOficina)
+                                .sort((a, b) => b[1] - a[1])
+                                .map(([nome, total], idx) => {
+                                    const percentual = totalGeral > 0 ? (total / totalGeral) * 100 : 0
+                                    const qtd = manutencoesPorOficina[nome] || 0
+                                    return (
+                                        <div key={nome} style={s.oficinaCard}>
+                                            <div style={s.oficinaCardTopo}>
+                                                <div style={s.oficinaNome}>{nome}</div>
+                                                {idx === 0 && Object.keys(gastosPorOficina).length > 1 && (
+                                                    <span style={s.badgeMaior}>Maior gasto</span>
+                                                )}
+                                            </div>
+                                            <div style={s.oficinaValor}>{formatarReais(total)}</div>
+                                            <div style={s.barraFundo}>
+                                                <div style={{ ...s.barraPreenchimento, width: `${percentual}%` }} />
+                                            </div>
+                                            <div style={s.officinaRodape}>
+                                                <span>{percentual.toFixed(1)}% do total</span>
+                                                <span>{qtd} manutenção{qtd !== 1 ? "ões" : ""}</span>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                    </div>
+                )}
+
+                {/* TABELA */}
                 {jaBuscou && (
                     resultados.length === 0 ? (
                         <div style={s.vazio}>
@@ -298,10 +346,8 @@ export default function RelatorioManutencaoPage() {
                                                 <span style={{
                                                     background: m.tipo === "CORRETIVA" ? "#fee2e2" : "#dbeafe",
                                                     color: m.tipo === "CORRETIVA" ? "#b91c1c" : "#1d4ed8",
-                                                    padding: "3px 8px",
-                                                    borderRadius: "6px",
-                                                    fontSize: "12px",
-                                                    fontWeight: "bold"
+                                                    padding: "3px 8px", borderRadius: "6px",
+                                                    fontSize: "12px", fontWeight: "bold"
                                                 }}>
                                                     {m.tipo}
                                                 </span>
@@ -311,12 +357,9 @@ export default function RelatorioManutencaoPage() {
 
                                             <td style={s.td}>
                                                 <span style={{
-                                                    background: corStatus(m.status),
-                                                    color: "#fff",
-                                                    padding: "3px 8px",
-                                                    borderRadius: "6px",
-                                                    fontSize: "12px",
-                                                    fontWeight: "bold"
+                                                    background: corStatus(m.status), color: "#fff",
+                                                    padding: "3px 8px", borderRadius: "6px",
+                                                    fontSize: "12px", fontWeight: "bold"
                                                 }}>
                                                     {m.status?.replace("_", " ")}
                                                 </span>
@@ -328,7 +371,11 @@ export default function RelatorioManutencaoPage() {
                                                         {m.itens.map((item, i) => (
                                                             <small key={i} style={{ color: "#6b7280" }}>
                                                                 • {item.servico?.nome || "-"}
-                                                                {item.oficina?.nome ? ` — ${item.oficina.nome}` : ""}
+                                                                {item.oficina?.nome ? (
+                                                                    <span style={{ color: "#7c3aed", fontWeight: "500" }}>
+                                                                        {" "}@ {item.oficina.nome}
+                                                                    </span>
+                                                                ) : ""}
                                                                 {item.valor ? ` (${formatarReais(item.valor)})` : ""}
                                                             </small>
                                                         ))}
@@ -346,8 +393,6 @@ export default function RelatorioManutencaoPage() {
                                     )
                                 })}
                             </tbody>
-
-                            {/* RODAPÉ COM TOTAL */}
                             <tfoot>
                                 <tr style={{ background: "#f1f5f9" }}>
                                     <td colSpan="5" style={{ ...s.td, textAlign: "right", fontWeight: "bold" }}>
@@ -388,10 +433,21 @@ const s = {
     resumoNumero: { fontSize: "20px", fontWeight: "bold", color: "#111827" },
     resumoLabel: { fontSize: "12px", color: "#6b7280", marginTop: "4px" },
 
-    veiculoChip: { display: "flex", gap: "10px", background: "#f1f5f9", padding: "8px 14px", borderRadius: "8px", fontSize: "13px", alignItems: "center" },
+    secaoTitulo: { marginBottom: "12px", fontSize: "15px", fontWeight: "600", color: "#374151" },
+    chip: { display: "flex", gap: "10px", background: "#f1f5f9", padding: "8px 14px", borderRadius: "8px", fontSize: "13px", alignItems: "center" },
+
+    // Cards de oficina
+    oficinaGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "12px" },
+    oficinaCard: { background: "#faf5ff", border: "1px solid #e9d5ff", borderRadius: "12px", padding: "16px" },
+    oficinaCardTopo: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "6px" },
+    oficinaNome: { fontSize: "14px", fontWeight: "700", color: "#4c1d95" },
+    badgeMaior: { fontSize: "10px", background: "#7c3aed", color: "#fff", padding: "2px 7px", borderRadius: "20px", whiteSpace: "nowrap" },
+    oficinaValor: { fontSize: "18px", fontWeight: "bold", color: "#111827", marginBottom: "10px" },
+    barraFundo: { height: "6px", background: "#ede9fe", borderRadius: "4px", overflow: "hidden", marginBottom: "8px" },
+    barraPreenchimento: { height: "100%", background: "#7c3aed", borderRadius: "4px", transition: "width 0.4s ease" },
+    officinaRodape: { display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#7c3aed" },
 
     vazio: { textAlign: "center", padding: "40px", color: "#9ca3af", fontSize: "15px" },
-
     tabela: { width: "100%", borderCollapse: "collapse" },
     thead: { background: "#f1f5f9" },
     th: { padding: "10px 12px", textAlign: "left", fontSize: "13px", fontWeight: "700", color: "#374151" },

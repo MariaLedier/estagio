@@ -49,6 +49,11 @@ export default class UsuarioRepository {
         return await this.#banco.ExecutaComandoNonQuery(sql, valores);
     }
 
+   async buscarPorNome(nome) {
+    const sql = "SELECT * FROM tb_usuario WHERE usuario_nome = ?";
+    const rows = await this.#banco.ExecutaComando(sql, [nome]);
+    return rows.length > 0 ? this.toMap(rows[0]) : null;
+}
     async deletar(id) {
         const sql = "DELETE FROM tb_usuario WHERE usuario_id = ?";
         return await this.#banco.ExecutaComandoNonQuery(sql, [id]);
