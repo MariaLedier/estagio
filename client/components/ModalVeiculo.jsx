@@ -194,6 +194,9 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
     try {
       setCarregando(true)
 
+      // ← parseia km uma vez só
+      const kmAtualNumero = parseInt(kmAtual.replace(/\./g, "")) || 0
+
       const pneusFormatados = pneus.map(p => ({
         ...p,
         valor: parseFloat(
@@ -203,22 +206,20 @@ export default function ModalVeiculo({ aberto, fechar, atualizarLista }) {
 
       const resposta = await apiClient.post("/veiculo", {
         placa, modelo, marca, ano, renavam, cor,
-        kmatual: kmAtual.replace(/\./g, ""),
+        kmatual: kmAtualNumero,  // ← número, não string com pontos
         tanque, status,
-        pneus: pneusFormatados 
+        pneus: pneusFormatados
       })
 
-     
       const veiculoId = resposta?.veiculo ?? resposta?.data?.veiculo
-      console.log("veiculoId:", veiculoId)
-      console.log("resposta:", resposta)
 
-      // Salva cada pneu separadamente na tabela de pneus
+      // Salva cada pneu com kmEntrada
       for (const pneu of pneusFormatados) {
         if (!pneu.marca) continue
         await apiClient.post("/pneu", {
           ...pneu,
-          veiculo: veiculoId
+          veiculo: veiculoId,
+          kmEntrada: kmAtualNumero  // ← novo: km do veículo quando o pneu foi montado
         })
       }
 

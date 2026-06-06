@@ -160,12 +160,12 @@ export default function DashboardLayout({ children }) {
                                     <span>Abastecimento</span>
                                 </Link>
                             </li>
-                            {/* <li>
+                            <li>
                                 <Link href="/dashboard/relatorios/pneus" onClick={fecharMenu}>
                                     <i className="fas fa-circle-notch"></i>
                                     <span>Pneus</span>
                                 </Link> 
-                            </li> */}
+                            </li>
                         </ul>
                     )}
 

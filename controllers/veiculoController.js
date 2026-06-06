@@ -26,19 +26,18 @@ export default class VeiculoController {
     /*----------------------- CADASTRAR ------------------------ */
     async cadastrar(req, res) {
         try {
+            // ✅ 1. Desestrutura PRIMEIRO
             let { placa, ano, renavam, cor, kmatual, status, modelo, tanque, pneus } = req.body;
 
-            // Verifica campos obrigatórios do veículo
+            // ✅ 2. Valida ANTES de criar a entidade
             if (!placa || !ano || !renavam || !cor || !kmatual || !status || !modelo || !tanque) {
                 return res.status(400).json({ msg: "Preencha todos os dados do veículo!" });
             }
 
-            // Verifica se os pneus foram enviados
             if (!pneus || !Array.isArray(pneus) || pneus.length === 0) {
                 return res.status(400).json({ msg: "É obrigatório cadastrar todos os pneus do veículo!" });
             }
 
-            // Verifica se todos os pneus têm os campos obrigatórios preenchidos
             const posicoesObrigatorias = [
                 "Dianteiro Esquerdo",
                 "Dianteiro Direito",
@@ -50,28 +49,23 @@ export default class VeiculoController {
             for (const posicao of posicoesObrigatorias) {
                 const pneu = pneus.find(p => p.posicao === posicao);
 
-                if (!pneu) {
+                if (!pneu)
                     return res.status(400).json({ msg: `Pneu ausente: ${posicao}` });
-                }
 
-                if (!pneu.marca || !pneu.medida || !pneu.dataaquisicao || (!pneu.valor && pneu.valor !== 0)) {
+                if (!pneu.marca || !pneu.medida || !pneu.dataaquisicao || (!pneu.valor && pneu.valor !== 0))
                     return res.status(400).json({ msg: `Dados incompletos para o pneu: ${posicao}` });
-                }
             }
 
-            // Verifica placa duplicada
             let placaExistente = await this.#VeiculoRepositorio.obterPorPlaca(placa);
-            if (placaExistente) {
+            if (placaExistente)
                 return res.status(400).json({ msg: "Já existe um veículo cadastrado com esta placa!" });
-            }
 
-            // Grava o veículo - Ordem dos 9 parâmetros: id, placa, ano, renavam, cor, kmatual, status, modelo, tanque
-            let entidade = new Veiculo(0, placa, ano, renavam, cor, kmatual, status, modelo, tanque);
+            // ✅ 3. Cria a entidade UMA vez, com Number(kmatual)
+            let entidade = new Veiculo(0, placa, ano, renavam, cor, Number(kmatual), status, modelo, tanque);
             let veiculoId = await this.#VeiculoRepositorio.gravar(entidade);
 
-            if (!veiculoId) {
+            if (!veiculoId)
                 throw new Error("Não foi possível salvar o veículo no banco de dados");
-            }
 
             return res.status(200).json({
                 msg: "Veículo cadastrado com sucesso",
@@ -107,12 +101,12 @@ export default class VeiculoController {
     /*----------------------- ATUALIZAR ------------------------ */
     async atualizar(req, res) {
         try {
-            // CORREÇÃO: Incluído 'tanque' na desestruturação abaixo
+            // ✅ 1. Desestrutura PRIMEIRO
             let { id, placa, ano, renavam, cor, kmatual, status, modelo, tanque } = req.body;
 
-            if (!id || !placa || !ano || !renavam || !cor || !kmatual || !status || !modelo || !tanque) {
+            // ✅ 2. Valida ANTES de criar a entidade
+            if (!id || !placa || !ano || !renavam || !cor || !kmatual || !status || !modelo || !tanque)
                 return res.status(400).json({ msg: "As informações do veículo não estão completas!" });
-            }
 
             let veiculoAtual = await this.#VeiculoRepositorio.obter(id);
             if (!veiculoAtual)
@@ -125,8 +119,8 @@ export default class VeiculoController {
             if (placaExistente && placaExistente.id != id)
                 return res.status(400).json({ msg: "Já existe outro veículo cadastrado com esta placa!" });
 
-            // CORREÇÃO: Passando exatamente os 9 parâmetros esperados pela entidade
-            let entidade = new Veiculo(id, placa, ano, renavam, cor, kmatual, status, modelo, tanque);
+            // ✅ 3. Cria a entidade UMA vez, com Number(kmatual)
+            let entidade = new Veiculo(id, placa, ano, renavam, cor, Number(kmatual), status, modelo, tanque);
 
             if (await this.#VeiculoRepositorio.alterar(entidade))
                 res.status(200).json({ msg: "Veículo alterado com sucesso!" });

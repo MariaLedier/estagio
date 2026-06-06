@@ -12,6 +12,13 @@ export default class Pneus extends Base {
     #status
     #posicao
     #veiculo
+    #kmEntrada
+
+    get kmEntrada() { return this.#kmEntrada; }
+
+    set kmEntrada(value)
+    { this.#kmEntrada = value; }
+
 
     get id() {
         return this.#id;
@@ -87,7 +94,7 @@ export default class Pneus extends Base {
 
 
 
-    constructor(id, marca, medida, dataaquisicao, valor, estado, status, posicao, veiculo) {
+    constructor(id, marca, medida, dataaquisicao, valor, estado, status, posicao, veiculo, kmEntrada = null) {
         super();
         this.#id = id;
 
@@ -99,5 +106,6 @@ export default class Pneus extends Base {
         this.#status = status;
         this.#posicao = posicao;
         this.#veiculo = veiculo;
+        this.#kmEntrada = kmEntrada;
     }
 }

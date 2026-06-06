@@ -84,7 +84,7 @@ export default class PneuController {
     /*----------------------- CADASTRAR ------------------------ */
     async cadastrar(req, res) {
         try {
-            let { marca, medida, dataaquisicao, valor, estado, posicao, veiculo } = req.body;
+            let { marca, medida, dataaquisicao, valor, estado, posicao, veiculo, kmEntrada } = req.body;
 
             if (marca && medida && estado) {
 
@@ -105,7 +105,8 @@ export default class PneuController {
 
                 let entidade = new Pneu(
                     0, marca, medida, dataaquisicao, valor,
-                    estado, status, posicao || null, veiculo || null
+                    estado, status, posicao || null, veiculo || null,
+                    kmEntrada ?? null
                 );
 
                 let inseriu = await this.#PneuRepositorio.gravar(entidade);
@@ -145,7 +146,8 @@ export default class PneuController {
                     estado,
                     pneuAtual.status,
                     pneuAtual.posicao,
-                    pneuAtual.veiculo
+                    pneuAtual.veiculo,
+                    pneuAtual.kmEntrada
                 );
 
                 if (await this.#PneuRepositorio.alterar(entidade))
@@ -213,11 +215,11 @@ export default class PneuController {
             }
 
             const veiculo = await this.#VeiculoRepositorio.obter(veiculoId);
-            const kmEntrada = veiculo?.kmatual ? Number(veiculo.kmatual) : null;
+            const kmEntradaPneu = pneuSaida.kmEntrada ? Number(pneuSaida.kmEntrada) : null;
             const kmSaida = kmAtual ? Number(kmAtual) : null;
 
             // KM QUE O PNEU RODOU = diferença entre km da troca e km quando foi montado
-            const kmUso = kmEntrada !== null && kmSaida !== null ? kmSaida - kmEntrada : null;
+            const kmUso = kmEntradaPneu !== null && kmSaida !== null ? kmSaida - kmEntradaPneu : null;
 
             // GRAVA NO DESCARTE — lógica de negócio no repositório
             await this.#DescarteRepositorio.gravar({
@@ -226,8 +228,8 @@ export default class PneuController {
                 posicao,
                 dataEntrada: pneuSaida.dataaquisicao || null,
                 dataSaida: hoje,
-                kmEntrada: kmEntrada,
-                kmSaida: kmAtual || null,
+                kmEntrada: kmEntradaPneu,
+                kmSaida: kmSaida || null,
                 kmUso,
                 diasUso,
                 marca: pneuSaida.marca,
@@ -246,13 +248,14 @@ export default class PneuController {
                     novoPneu.dataaquisicao || hoje,
                     novoPneu.valor || 0,
                     novoPneu.estado || "Bom",
-                    statusNovo, posicao, veiculoId
+                    statusNovo, posicao, veiculoId,
+                    kmSaida
                 );
                 await this.#PneuRepositorio.gravar(entidade);
 
             } else if (pneuEntradaId) {
                 const statusNovo = posicao?.toLowerCase() === "estepe" ? "EM_ESTOQUE" : "EM_USO";
-                await this.#PneuRepositorio.vincular(pneuEntradaId, statusNovo, posicao, veiculoId);
+                await this.#PneuRepositorio.vincular(pneuEntradaId, statusNovo, posicao, veiculoId, kmSaida);
             }
 
             // CRIA MANUTENÇÃO

@@ -16,22 +16,21 @@ export default class PneusRepository {
     constructor() {
         this.#banco = new Database();
     }
-
     async gravar(pneu) {
-
-        const sql = "insert into tb_pneus (pneus_marca, pneus_medida, pneus_data_aquisicao, pneus_valor, pneus_estado, pneus_status, pneus_posicao, pneus_veiculo_id) values ( ?, ?, ?, ?, ?, ?, ?, ?)";
+        const sql = `INSERT INTO tb_pneus 
+        (pneus_marca, pneus_medida, pneus_data_aquisicao, pneus_valor, 
+         pneus_estado, pneus_status, pneus_posicao, pneus_veiculo_id, pneus_km_entrada) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;  // ← +1 parâmetro
 
         const valores = [
             pneu.marca, pneu.medida, pneu.dataaquisicao, pneu.valor,
             pneu.estado, pneu.status, pneu.posicao,
-            pneu.veiculo?.id ?? pneu.veiculo ?? null
+            pneu.veiculo?.id ?? pneu.veiculo ?? null,
+            pneu.kmEntrada ?? null  // ← novo
         ];
 
-        const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
-
-        return result;
+        return await this.#banco.ExecutaComandoNonQuery(sql, valores);
     }
-
     async obter(id) {
 
         const sql = "select * from tb_pneus where pneus_id = ?";
@@ -113,10 +112,13 @@ export default class PneusRepository {
 
         return result;
     }
-    async alterar(entidadeAtualizada) {
 
+
+
+
+    async alterar(entidadeAtualizada) {
         const sql = `
-        update tb_pneus set 
+        UPDATE tb_pneus SET 
             pneus_marca = ?,
             pneus_medida = ?,
             pneus_data_aquisicao = ?,
@@ -124,8 +126,9 @@ export default class PneusRepository {
             pneus_estado = ?,
             pneus_status = ?,
             pneus_posicao = ?,
-            pneus_veiculo_id = ?
-        where pneus_id = ?
+            pneus_veiculo_id = ?,
+            pneus_km_entrada = ?   -- ← novo
+        WHERE pneus_id = ?
     `;
 
         const valores = [
@@ -136,13 +139,12 @@ export default class PneusRepository {
             entidadeAtualizada.estado,
             entidadeAtualizada.status,
             entidadeAtualizada.posicao,
-            entidadeAtualizada.veiculo?.id ?? entidadeAtualizada.veiculo ?? null,  // ← aqui
+            entidadeAtualizada.veiculo?.id ?? entidadeAtualizada.veiculo ?? null,
+            entidadeAtualizada.kmEntrada ?? null,  // ← novo
             entidadeAtualizada.id
         ];
 
-        const result = await this.#banco.ExecutaComandoNonQuery(sql, valores);
-
-        return result;
+        return await this.#banco.ExecutaComandoNonQuery(sql, valores);
     }
 
 
@@ -160,16 +162,16 @@ export default class PneusRepository {
         return await this.#banco.ExecutaComandoNonQuery(sql, [id]);
     }
 
-    // Vincula pneu do estoque a uma posição/veículo
-    async vincular(id, status, posicao, veiculoId) {
+    async vincular(id, status, posicao, veiculoId, kmEntrada = null) {
         const sql = `
         UPDATE tb_pneus SET
             pneus_status = ?,
             pneus_posicao = ?,
-            pneus_veiculo_id = ?
+            pneus_veiculo_id = ?,
+            pneus_km_entrada = ?  
         WHERE pneus_id = ?
     `;
-        return await this.#banco.ExecutaComandoNonQuery(sql, [status, posicao, veiculoId, id]);
+        return await this.#banco.ExecutaComandoNonQuery(sql, [status, posicao, veiculoId, kmEntrada, id]);
     }
 
 
@@ -184,6 +186,7 @@ export default class PneusRepository {
         pneu.estado = row["pneus_estado"];
         pneu.status = row["pneus_status"];
         pneu.posicao = row["pneus_posicao"];
+        pneu.kmEntrada = row["pneus_km_entrada"] ?? null;
 
         if (row["pneus_veiculo_id"]) {
             let v = new Veiculo(row["pneus_veiculo_id"]);
