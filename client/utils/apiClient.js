@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 export class ApiClient {
 
     static instance = null
-    baseUrl = "http://localhost:5000"
+   baseUrl = "http://146.235.39.186/api"
     jwt = "";
     headers = {
         "Content-Type": "application/json"
