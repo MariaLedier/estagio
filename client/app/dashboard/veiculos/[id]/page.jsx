@@ -252,12 +252,12 @@ export default function VeiculoDetalhePage() {
                         <div style={styles.atalhos}>
                             <h3 style={{ marginBottom: "16px" }}>Ações Rápidas</h3>
                             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                                {/* <button
+                                <button
                                     onClick={function () { router.push("/dashboard/checklist/" + id) }}
                                     style={styles.atalho}
                                 >
                                     Checklist
-                                </button> */}
+                                </button>
 
                                 <button
                                     onClick={function () { router.push("/dashboard/rodizio/" + id) }}
